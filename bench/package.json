@@ -1,0 +1,16 @@
+{
+  "name": "@firm/bench",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "build": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@firm/shared": "workspace:*",
+    "viem": "^2.21.0",
+    "zod": "^3.24.0"
+  }
+}

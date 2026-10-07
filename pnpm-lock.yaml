@@ -21,6 +21,18 @@ importers:
         specifier: ^2.1.8
         version: 2.1.9(@types/node@22.20.5)
 
+  bench:
+    dependencies:
+      '@firm/shared':
+        specifier: workspace:*
+        version: link:../services/shared
+      viem:
+        specifier: ^2.21.0
+        version: 2.57.3(typescript@5.9.3)(zod@3.25.76)
+      zod:
+        specifier: ^3.24.0
+        version: 3.25.76
+
   services/canary-agent:
     dependencies:
       '@firm/shared':

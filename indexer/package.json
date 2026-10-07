@@ -1,0 +1,20 @@
+{
+  "name": "firm-indexer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Envio HyperIndex indexer for FIRM on Monad Testnet. Standalone toolchain (not a pnpm workspace member).",
+  "scripts": {
+    "config": "node ../scripts/gen-indexer-config.mjs",
+    "codegen": "envio codegen",
+    "dev": "envio dev",
+    "start": "envio start"
+  },
+  "dependencies": {
+    "envio": "3.14.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2",
+    "@types/node": "^22.10.0"
+  }
+}

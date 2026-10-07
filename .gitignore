@@ -12,3 +12,6 @@ indexer/generated/
 indexer/build/
 .DS_Store
 coverage/
+bench/out/*.tmp.md
+reports/
+canary-state.json

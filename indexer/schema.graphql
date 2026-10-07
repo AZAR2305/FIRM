@@ -1,0 +1,84 @@
+# FIRM indexer schema (spec 9.2). Display only: contracts never read this.
+# Status and counters mirror the Scoreboard events; nothing here recomputes status offchain.
+
+type Hook {
+  id: ID! # lowercase hook address (hookless pools are not stored)
+  status: String! # UNRATED | NORMAL | WATCH | BLOCKED
+  fills: Int!
+  strikes: Int!
+  probes: Int!
+  probeStrikes: Int!
+  cumShortfallBps: BigInt!
+  avgShortfallBps: BigInt! # cumShortfallBps / max(strikes, 1)
+  lastStrikeAt: Int
+  flags: [String!]! # decoded permission flags (computed from the address)
+  pools: [Pool!]! @derivedFrom(field: "hook")
+}
+
+type Pool {
+  id: ID! # PoolId (bytes32, lowercase hex)
+  hook: Hook
+  currency0: String!
+  currency1: String!
+  fee: Int!
+  tickSpacing: Int!
+  createdAt: Int!
+}
+
+type Fill {
+  id: ID!
+  pool: Pool!
+  hook: Hook
+  user: String!
+  amountIn: BigInt!
+  quotedOut: BigInt!
+  settledOut: BigInt!
+  legIndex: Int!
+  txHash: String!
+  ts: Int!
+}
+
+type Strike {
+  id: ID!
+  pool: Pool!
+  hook: Hook!
+  quotedOut: BigInt!
+  settledOut: BigInt!
+  shortfallBps: Int!
+  execFailed: Boolean!
+  txHash: String!
+  ts: Int!
+}
+
+type Probe {
+  id: ID!
+  pool: Pool!
+  hook: Hook!
+  probeSender: String!
+  amountIn: BigInt!
+  quotedOut: BigInt!
+  settledOut: BigInt!
+  shortfallBps: Int!
+  strike: Boolean!
+  txHash: String!
+  ts: Int!
+}
+
+type StatusChange {
+  id: ID!
+  hook: Hook!
+  oldStatus: String!
+  newStatus: String!
+  reason: String!
+  ts: Int!
+}
+
+# LegSkipped reasons: 0 BLOCKED, 1 UNRATED_CAP, 2 QUOTE_FAILED, 3 BELOW_MIN_OUT, 4 ADVERTISED_MISMATCH
+type Skip {
+  id: ID!
+  pool: Pool!
+  hook: Hook
+  reason: Int!
+  txHash: String!
+  ts: Int!
+}

@@ -27,3 +27,11 @@ contract HookMinerTest is Test {
         assertEq(FixtureHonestHook(expected).feeBps(), 13);
     }
 }
+
+contract HookMinerAddressTest is Test {
+    /// the allocation-free assembly version must equal the textbook CREATE2 formula
+    function testFuzz_computeAddressMatchesReference(address deployer, bytes32 salt, bytes32 hash) public pure {
+        address ref = address(uint160(uint256(keccak256(abi.encodePacked(bytes1(0xff), deployer, salt, hash)))));
+        assertEq(HookMiner.computeAddress(deployer, salt, hash), ref);
+    }
+}

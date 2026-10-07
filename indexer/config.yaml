@@ -1,0 +1,38 @@
+# GENERATED start blocks and addresses: run `pnpm run config` (scripts/gen-indexer-config.mjs) after every
+# (re)deployment so a redeploy is one config change (spec 9.3). The committed copy points at the Monad-maintained
+# testnet PoolManager and zero addresses for FIRM's own contracts until the first real deployment.
+#
+# Chain id format follows Envio's Monad Testnet page: `id: monad-testnet` (HyperSync https://monad-testnet.hypersync.xyz).
+name: firm-indexer
+description: Pools, fills, strikes, probes and hook status for FIRM on Monad Testnet
+
+chains:
+  - id: monad-testnet
+    start_block: 0
+    contracts:
+      - name: PoolManager
+        address: 0x451D64ab3b650040d2aE1886602b97ed6eDc643d
+        handler: src/EventHandlers.ts
+        events:
+          - event: Initialize(bytes32 indexed id, address indexed currency0, address indexed currency1, uint24 fee, int24 tickSpacing, address hooks, uint160 sqrtPriceX96, int24 tick)
+      - name: Scoreboard
+        address: 0x0000000000000000000000000000000000000000
+        handler: src/EventHandlers.ts
+        events:
+          - event: FillRecorded(address indexed hook, bytes32 indexed poolId, uint256 quotedOut, uint256 settledOut)
+          - event: StrikeRecorded(address indexed hook, bytes32 indexed poolId, uint256 quotedOut, uint256 settledOut, uint256 shortfallBps, bool execFailed)
+          - event: ProbeRecorded(address indexed hook, bytes32 indexed poolId, address indexed probeSender, uint256 amountIn, uint256 quotedOut, uint256 settledOut, uint256 shortfallBps, bool strike)
+          - event: StatusChanged(address indexed hook, uint8 oldStatus, uint8 newStatus, bytes32 reason)
+      - name: FirmRouter
+        address: 0x0000000000000000000000000000000000000000
+        handler: src/EventHandlers.ts
+        events:
+          - event: Filled(bytes32 indexed poolId, address indexed hook, address indexed user, uint256 amountIn, uint256 quotedOut, uint256 settledOut, uint8 legIndex)
+          - event: Rejected(bytes32 indexed poolId, address indexed hook, uint256 quotedOut, uint256 settledOut, bool execFailed)
+          - event: LegSkipped(bytes32 indexed poolId, address indexed hook, uint8 reason)
+          - event: NoFill(address indexed user, uint256 amountIn)
+      - name: CanaryRunner
+        address: 0x0000000000000000000000000000000000000000
+        handler: src/EventHandlers.ts
+        events:
+          - event: ProbeDone(bytes32 indexed poolId, address indexed hook, address indexed probeSender, uint128 amountIn, uint256 quotedOut, uint256 settledOut)

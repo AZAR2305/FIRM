@@ -68,6 +68,7 @@ export function createRpcPool(endpoints: RpcEndpoint[] = endpointsFromEnv()): Rp
   const client = createPublicClient({
     chain: monadTestnet,
     transport: fallback(transports, { rank: false, retryCount: 1 }),
+    pollingInterval: Number(process.env.RPC_POLL_MS ?? 400),
   }) as PublicClient;
   return { client, inUse: () => lastOk, endpoints: all };
 }

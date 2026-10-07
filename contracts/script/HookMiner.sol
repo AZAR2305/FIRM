@@ -13,8 +13,17 @@ library HookMiner {
 
     error SaltNotFound();
 
-    function computeAddress(address deployer, bytes32 salt, bytes32 initCodeHash) internal pure returns (address) {
-        return address(uint160(uint256(keccak256(abi.encodePacked(bytes1(0xff), deployer, salt, initCodeHash)))));
+    /// @dev CREATE2 address. Allocation-free: mining loops call this up to MAX_LOOP times, and an
+    ///      `abi.encodePacked` per call would grow memory until the EVM runs out (MemoryOOG) on an unlucky search.
+    function computeAddress(address deployer, bytes32 salt, bytes32 initCodeHash) internal pure returns (address a) {
+        assembly {
+            let ptr := mload(0x40) // scratch above the free pointer, never bumped, so it is reused every call
+            mstore8(ptr, 0xff)
+            mstore(add(ptr, 1), shl(96, deployer))
+            mstore(add(ptr, 21), salt)
+            mstore(add(ptr, 53), initCodeHash)
+            a := and(keccak256(ptr, 85), 0xffffffffffffffffffffffffffffffffffffffff)
+        }
     }
 
     /// @param flags the exact permission bits the address must carry in its low 14 bits

@@ -1,0 +1,57 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: stable
+      - name: Build
+        working-directory: contracts
+        run: forge build
+      - name: Test (local PoolManager + real V4Quoter code)
+        working-directory: contracts
+        run: forge test -vv
+      - name: Fork test against Monad Testnet (real deployed PoolManager and V4Quoter)
+        working-directory: contracts
+        env:
+          MONAD_TESTNET_RPC_URL: https://testnet-rpc.monad.xyz
+        run: forge test --match-contract ForkFirmRouterTest
+        continue-on-error: true # public RPC rate limits can flake; the local suite is the gate
+
+  services:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm -r build
+      - run: pnpm -r test
+
+  indexer:
+    # Envio does not run on Windows, so the indexer is validated here (Linux): codegen checks config.yaml,
+    # schema.graphql and the handler types together.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - working-directory: indexer
+        run: npm install --no-audit --no-fund
+      - working-directory: indexer
+        run: npx envio codegen
+      - working-directory: indexer
+        run: npx tsc --noEmit
