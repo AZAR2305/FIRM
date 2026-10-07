@@ -2,12 +2,21 @@
 # (re)deployment so a redeploy is one config change (spec 9.3). The committed copy points at the Monad-maintained
 # testnet PoolManager and zero addresses for FIRM's own contracts until the first real deployment.
 #
-# Chain id format follows Envio's Monad Testnet page: `id: monad-testnet` (HyperSync https://monad-testnet.hypersync.xyz).
+# Chain id: the installed envio config schema (evm.schema.json, v3.14.0) requires a NUMERIC chain id, so `10143`
+# (Envio's Monad Testnet web page shows `monad-testnet`, which this schema version rejects).
+# Data comes from HyperSync https://monad-testnet.hypersync.xyz (spec 5.4).
 name: firm-indexer
 description: Pools, fills, strikes, probes and hook status for FIRM on Monad Testnet
 
+# tx hash and block timestamp are read by the Fill / Strike / Probe / Skip handlers
+field_selection:
+  transaction_fields:
+    - hash
+  block_fields:
+    - timestamp
+
 chains:
-  - id: monad-testnet
+  - id: 10143
     start_block: 0
     contracts:
       - name: PoolManager
