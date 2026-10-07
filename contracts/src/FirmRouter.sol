@@ -12,6 +12,7 @@ import {Currency} from "@uniswap/v4-core/src/types/Currency.sol";
 
 import {SwapExecutor} from "./base/SwapExecutor.sol";
 import {IScoreboard, Status} from "./interfaces/IScoreboard.sol";
+import {IFirmRouter} from "./interfaces/IFirmRouter.sol";
 import {Route, RouteLib} from "./libraries/RouteLib.sol";
 import {QuoteLib} from "./libraries/QuoteLib.sol";
 import {SafeCall} from "./libraries/SafeCall.sol";
@@ -22,7 +23,7 @@ import {SafeCall} from "./libraries/SafeCall.sol";
 ///         reverts only that leg if the settled output is below the floor. A shortfall is a public strike on
 ///         the hook (Scoreboard) and the router falls back to the next route. The user's funds are untouched
 ///         by a failed leg. Deterministic code decides everything; no oracle, no offchain input.
-contract FirmRouter is SwapExecutor, Ownable2Step, ReentrancyGuard {
+contract FirmRouter is IFirmRouter, SwapExecutor, Ownable2Step, ReentrancyGuard {
     using SafeERC20 for IERC20;
     using PoolIdLibrary for PoolKey;
 
@@ -44,29 +45,8 @@ contract FirmRouter is SwapExecutor, Ownable2Step, ReentrancyGuard {
     uint16 public advTolBps = 50;
 
     // ------------------------------------------------------------------ events / errors
-    /// reasons: 0 BLOCKED, 1 UNRATED_CAP, 2 QUOTE_FAILED, 3 BELOW_MIN_OUT, 4 ADVERTISED_MISMATCH
-    event LegSkipped(bytes32 indexed poolId, address indexed hook, uint8 reason);
-    event Rejected(
-        bytes32 indexed poolId, address indexed hook, uint256 quotedOut, uint256 settledOut, bool execFailed
-    );
-    event Filled(
-        bytes32 indexed poolId,
-        address indexed hook,
-        address indexed user,
-        uint256 amountIn,
-        uint256 quotedOut,
-        uint256 settledOut,
-        uint8 legIndex
-    );
-    event NoFill(address indexed user, uint256 amountIn);
     event CapsSet(uint256 legGasCap, uint256 quoteGasCap, uint16 advTolBps);
 
-    error DeadlinePassed();
-    error BadRouteCount();
-    error RouteTokenMismatch();
-    error Shortfall(uint256 settledOut);
-    error OnlySelf();
-    error InsufficientGas();
     error CapOutOfBounds();
 
     constructor(IPoolManager poolManager_, address quoter_, IScoreboard scoreboard_, address owner_)
@@ -92,7 +72,7 @@ contract FirmRouter is SwapExecutor, Ownable2Step, ReentrancyGuard {
         uint128 minTotalOut,
         address recipient,
         uint64 deadline
-    ) external nonReentrant returns (uint256 amountOut, int256 legIndex) {
+    ) external override nonReentrant returns (uint256 amountOut, int256 legIndex) {
         if (block.timestamp > deadline) revert DeadlinePassed();
         if (routes.length == 0 || routes.length > MAX_LEGS) revert BadRouteCount();
         (address tokenIn, address tokenOut) = _ends(routes);

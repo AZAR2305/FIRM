@@ -14,6 +14,7 @@ import {SwapParams} from "@uniswap/v4-core/src/types/PoolOperation.sol";
 import {IV4Quoter} from "@uniswap/v4-periphery/src/interfaces/IV4Quoter.sol";
 import {BaseTest} from "./Base.t.sol";
 import {FirmRouter} from "../src/FirmRouter.sol";
+import {IFirmRouter} from "../src/interfaces/IFirmRouter.sol";
 import {Route} from "../src/libraries/RouteLib.sol";
 import {Status, HookStats, Params} from "../src/interfaces/IScoreboard.sol";
 import {FixtureHonestHook, FixtureContextHook, FixtureGasGriefHook, FixtureRevertHook, FixtureQuoteOnlyHook} from "../test-fixtures/FixtureHooks.sol";
@@ -358,18 +359,18 @@ contract FirmRouterTest is BaseTest {
     // ------------------------------------------------------------ input validation
     function test_deadlinePassed() public {
         vm.prank(user);
-        vm.expectRevert(FirmRouter.DeadlinePassed.selector);
+        vm.expectRevert(IFirmRouter.DeadlinePassed.selector);
         router.swapExactIn(_routes1(keyA), AMOUNT, 0, user, uint64(block.timestamp - 1));
     }
 
     function test_badRouteCount() public {
         vm.startPrank(user);
         Route[] memory none = new Route[](0);
-        vm.expectRevert(FirmRouter.BadRouteCount.selector);
+        vm.expectRevert(IFirmRouter.BadRouteCount.selector);
         router.swapExactIn(none, AMOUNT, 0, user, uint64(block.timestamp));
         Route[] memory five = new Route[](5);
         for (uint256 i = 0; i < 5; i++) five[i] = _route(keyA);
-        vm.expectRevert(FirmRouter.BadRouteCount.selector);
+        vm.expectRevert(IFirmRouter.BadRouteCount.selector);
         router.swapExactIn(five, AMOUNT, 0, user, uint64(block.timestamp));
         vm.stopPrank();
     }
@@ -378,7 +379,7 @@ contract FirmRouterTest is BaseTest {
         Route[] memory rs = _routes2(keyA, keyC);
         rs[1].zeroForOne = false; // opposite direction
         vm.prank(user);
-        vm.expectRevert(FirmRouter.RouteTokenMismatch.selector);
+        vm.expectRevert(IFirmRouter.RouteTokenMismatch.selector);
         router.swapExactIn(rs, AMOUNT, 0, user, uint64(block.timestamp));
     }
 
@@ -391,7 +392,7 @@ contract FirmRouterTest is BaseTest {
     }
 
     function test_executeLegOnlySelf() public {
-        vm.expectRevert(FirmRouter.OnlySelf.selector);
+        vm.expectRevert(IFirmRouter.OnlySelf.selector);
         router.executeLeg(_route(keyA), AMOUNT, 0);
     }
 

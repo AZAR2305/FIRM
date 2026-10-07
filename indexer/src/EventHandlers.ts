@@ -1,4 +1,4 @@
-import { indexer } from "envio";
+import { indexer, type Hook } from "envio";
 import { ALL_HOOK_MASK, ZERO_ADDRESS, decodeFlags, decodeReason, lc, shortfallBps, STATUS_NAMES } from "./lib";
 
 // Handler rules (spec 9.3):
@@ -7,9 +7,10 @@ import { ALL_HOOK_MASK, ZERO_ADDRESS, decodeFlags, decodeReason, lc, shortfallBp
 //  - Hook status is taken from StatusChanged events, never recomputed offchain.
 //  - shortfallBps uses the same formula as the contract.
 
-type Ctx = Parameters<Parameters<typeof indexer.onEvent>[1]>[0]["context"];
+// the only part of the handler context getOrCreateHook needs
+type HookReader = { Hook: { get(id: string): Promise<Hook | undefined> } };
 
-async function getOrCreateHook(context: Ctx, hookAddress: string) {
+async function getOrCreateHook(context: HookReader, hookAddress: string): Promise<Hook> {
   const id = lc(hookAddress);
   const existing = await context.Hook.get(id);
   if (existing) return existing;
