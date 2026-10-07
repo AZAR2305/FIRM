@@ -1,0 +1,4 @@
+packages:
+  - "services/*"
+  - "bench"
+# The Envio indexer (indexer/) is deliberately NOT a workspace member: it has its own toolchain and lockfile.
