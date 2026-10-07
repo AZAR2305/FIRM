@@ -65,7 +65,15 @@ export const b1: Experiment = async (ctx, cfg): Promise<ExperimentResult> => {
       if (r.events.rejected.length > 0) struck++;
       if (r.events.filled) filled++;
     }
-    const catchRate = deviating === 0 ? "n/a" : pct(Math.min(struck, deviating), deviating);
+    // A hook that deviates on only some executions (D) is drawn independently in the raw and router trials, so a
+    // ratio of the two counts would be noise (and can exceed 100%). Show both rates instead of a fake precision.
+    const probabilistic = deviating > 0 && deviating < cfg.trials;
+    const catchRate =
+      deviating === 0
+        ? "n/a (no deviation)"
+        : probabilistic
+          ? `n/a (probabilistic hook: compare ${deviating}/${cfg.trials} vs ${struck}/${cfg.trials})`
+          : pct(Math.min(struck, deviating), deviating);
     rows.push([
       `${pool} ${fixture}`,
       startStatus,
@@ -81,7 +89,7 @@ export const b1: Experiment = async (ctx, cfg): Promise<ExperimentResult> => {
   notes.push(
     "Deviation is measured on the unprotected RawRouter against the Quoter's quote, with a 10 bps tolerance (the NORMAL/UNRATED tolerance).",
     "FirmRouter trials use a single pool per swap so a rejection is attributable; the hook is reinstated (owner) before each trial so every trial is a first encounter.",
-    "catch rate = strikes recorded / deviating executions, capped at 100%. For probabilistic hooks (D) the router trial and the raw trial draw independent randomness, so the two rates agree only statistically.",
+    "catch rate = strikes recorded / deviating executions, shown for hooks that deviate on every execution. For probabilistic hooks (D) the router trial and the raw trial draw independent randomness, so only the two rates are comparable, and only statistically.",
     "FixtureSenderAwareHook (E) is honest toward the Quoter and FirmRouter, so the router never strikes it (catch rate 0% through the router); it is caught by canary probes from other sender identities (see probes-to-block and B4).",
     "Fixtures are our own contracts: this shows the mechanism works, not that real malicious hooks are caught.",
   );

@@ -18,9 +18,9 @@ const addr = {
 
 for (const [name, a] of Object.entries(addr)) {
   // the `address:` line directly after `- name: <Name>`
-  const re = new RegExp(`(- name: ${name}\\n\\s+address: )0x[0-9a-fA-F]{40}`);
+  const re = new RegExp(`(- name: ${name}\\n\\s+address: )"?0x[0-9a-fA-F]{40}"?`);
   if (!re.test(yaml)) throw new Error(`could not find ${name} in indexer/config.yaml`);
-  yaml = yaml.replace(re, `$1${a}`);
+  yaml = yaml.replace(re, `$1"${a}"`);
 }
 if (dep.startBlock != null) yaml = yaml.replace(/start_block: \d+/, `start_block: ${dep.startBlock}`);
 

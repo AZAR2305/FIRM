@@ -18,12 +18,12 @@ chains:
     start_block: 0
     contracts:
       - name: PoolManager
-        address: 0x451D64ab3b650040d2aE1886602b97ed6eDc643d
+        address: "0x451D64ab3b650040d2aE1886602b97ed6eDc643d"
         handler: src/EventHandlers.ts
         events:
           - event: Initialize(bytes32 indexed id, address indexed currency0, address indexed currency1, uint24 fee, int24 tickSpacing, address hooks, uint160 sqrtPriceX96, int24 tick)
       - name: Scoreboard
-        address: 0x0000000000000000000000000000000000000000
+        address: "0x0000000000000000000000000000000000000000"
         handler: src/EventHandlers.ts
         events:
           - event: FillRecorded(address indexed hook, bytes32 indexed poolId, uint256 quotedOut, uint256 settledOut)
@@ -31,7 +31,7 @@ chains:
           - event: ProbeRecorded(address indexed hook, bytes32 indexed poolId, address indexed probeSender, uint256 amountIn, uint256 quotedOut, uint256 settledOut, uint256 shortfallBps, bool strike)
           - event: StatusChanged(address indexed hook, uint8 oldStatus, uint8 newStatus, bytes32 reason)
       - name: FirmRouter
-        address: 0x0000000000000000000000000000000000000000
+        address: "0x0000000000000000000000000000000000000000"
         handler: src/EventHandlers.ts
         events:
           - event: Filled(bytes32 indexed poolId, address indexed hook, address indexed user, uint256 amountIn, uint256 quotedOut, uint256 settledOut, uint8 legIndex)
@@ -39,7 +39,7 @@ chains:
           - event: LegSkipped(bytes32 indexed poolId, address indexed hook, uint8 reason)
           - event: NoFill(address indexed user, uint256 amountIn)
       - name: CanaryRunner
-        address: 0x0000000000000000000000000000000000000000
+        address: "0x0000000000000000000000000000000000000000"
         handler: src/EventHandlers.ts
         events:
           - event: ProbeDone(bytes32 indexed poolId, address indexed hook, address indexed probeSender, uint128 amountIn, uint256 quotedOut, uint256 settledOut)

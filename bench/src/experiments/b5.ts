@@ -77,6 +77,7 @@ export const b5: Experiment = async (ctx, cfg): Promise<ExperimentResult> => {
     ],
     notes: [
       "Monad charges gas on the gas LIMIT, not gas used. The 'limit needed' columns (eth_estimateGas) are what a user pays; the ratio of limits is the honest overhead figure. 'Used' ratios understate it.",
+      "Why the limit ratio is far above the used ratio: FirmRouter refuses to start a quote or a leg unless gasleft() covers the gas cap (default 700,000) plus a reserve, so that a starved sub-call can never produce a false strike. The smallest valid gas limit is therefore about 0.9M even though a single protected swap uses about 0.2M. The defaults are deliberately conservative until Monad's repriced schedule has been measured; lowering them with setCaps after the testnet measurement lowers the limit users pay for.",
       "FIRM adds one in-transaction Quoter call plus Scoreboard bookkeeping per leg. A fallback chain costs more: each rejected leg adds a quote, a reverted leg and a strike write.",
       "Local anvil forks use Ethereum gas rules, not Monad's repriced schedule, so numbers from a fork are indicative only; the committed testnet numbers are the ones to quote.",
     ],

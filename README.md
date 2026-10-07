@@ -167,6 +167,7 @@ Stated here and in [THREAT_MODEL.md](THREAT_MODEL.md); we do not hide them.
 - Honest hooks with legitimate caller-specific discounts may look suspicious and land in WATCH.
 - **Fixtures are written by us.** Catching them shows the mechanism works, not that real malicious hooks in the field are caught.
 - The V4 Quoter is documented by Uniswap as not intended for onchain calls (revert-based, gas hungry). Spike S1 measured it at roughly 70 to 100k gas per quote on a local EVM; Monad's repricing means this must be re-measured on testnet (`eth_estimateGas`). Caps are owner-tunable.
+- **Gas cost.** Because Monad charges the gas *limit*, and FirmRouter will not start a quote or a leg unless `gasleft()` covers the cap (default 700k each) plus a reserve, a protected swap needs a gas limit of roughly **0.9M** where the unprotected router needs about 0.2M (about 5x at the limit, measured by `eth_estimateGas` in benchmark B5 on a fork; a single protected swap *uses* only about 0.2M). The defaults are deliberately conservative until Monad's repriced gas schedule is measured on testnet; `setCaps` lowers them. Fallback chains cost more again.
 - Owner and reporter addresses are trusted roles for the hackathon (centralisation trade-off). The owner cannot move user funds.
 - Testnet Uniswap v4 here is a Monad-maintained deployment, not an official one, and the testnet can be reset (`Redeploy.sh`).
 - Out of scope: MEV and sandwiching, native-token pools, fee-on-transfer tokens, multi-hop routes, split orders.
