@@ -410,6 +410,72 @@ contract FirmRouterTest is BaseTest {
         assertEq(sb.stats(hookC).strikes, 0, "no false strike from a starved leg");
     }
 
+    // ------------------------------------------------------------ gas: starvation is never blamed on a hook
+    function _swapWithGas(Route[] memory rs, uint256 gasLimit) internal returns (bool ok, uint256 out, int256 leg) {
+        vm.prank(user);
+        bytes memory ret;
+        (ok, ret) = address(router).call{gas: gasLimit}(
+            abi.encodeCall(router.swapExactIn, (rs, AMOUNT, 0, user, uint64(block.timestamp + 1 hours)))
+        );
+        if (ok) (out, leg) = abi.decode(ret, (uint256, int256));
+    }
+
+    /// The smallest gas limit that lets an honest single-leg swap through. It must be near what the swap really uses,
+    /// not near cap + reserve (the previous up-front guard needed about 0.8M here).
+    function test_honestSwapNeedsAGasLimitNearItsRealUse() public {
+        uint256 minGas;
+        for (uint256 g = 150_000; g <= 1_500_000; g += 10_000) {
+            uint256 snap = vm.snapshotState();
+            (bool ok,, int256 leg) = _swapWithGas(_routes1(keyC), g);
+            vm.revertToState(snap);
+            if (ok) {
+                assertEq(leg, 0);
+                minGas = g;
+                break;
+            }
+        }
+        emit log_named_uint("min gas limit for an honest protected swap (local EVM)", minGas);
+        assertGt(minGas, 0, "swap succeeds at some limit");
+        assertLt(minGas, 500_000, "no cap-sized up-front requirement any more");
+    }
+
+    /// Whatever gas the caller supplies, an honest hook is never struck and never skipped because gas ran short:
+    /// the call either fills that hook or reverts (so eth_estimateGas can find a working limit).
+    function test_noGasLimitEverStrikesOrSkipsAnHonestHook() public {
+        for (uint256 g = 100_000; g <= 1_000_000; g += 12_500) {
+            uint256 snap = vm.snapshotState();
+            (bool ok,, int256 leg) = _swapWithGas(_routes2(keyC, keyA), g);
+            if (ok) assertEq(leg, 0, "honest first route must be the one that fills, never skipped for lack of gas");
+            assertEq(sb.stats(hookC).strikes, 0, "starvation must never strike an honest hook");
+            vm.revertToState(snap);
+        }
+    }
+
+    /// A hostile hook is only struck when its leg really had its full gas cap; with less, the call reverts.
+    function test_hostileLegIsOnlyStruckWithFullGas() public {
+        address g = _deployHook(
+            "FixtureHooks.sol:FixtureGasGriefHook", abi.encode(IPoolManager(address(pm)), address(quoter)), BEFORE_SWAP
+        );
+        PoolKey memory keyG = _initPool(g, 100);
+        bool sawRevert;
+        bool sawStrike;
+        for (uint256 gas_ = 200_000; gas_ <= 1_600_000; gas_ += 50_000) {
+            uint256 snap = vm.snapshotState();
+            (bool ok,, int256 leg) = _swapWithGas(_routes2(keyG, keyA), gas_);
+            if (ok) {
+                assertEq(leg, 1, "fell back to A");
+                assertEq(uint8(sb.statusOf(g)), uint8(Status.BLOCKED), "success means the hostile leg really was struck");
+                sawStrike = true;
+            } else {
+                assertEq(sb.stats(g).strikes, 0);
+                sawRevert = true;
+            }
+            vm.revertToState(snap);
+        }
+        assertTrue(sawRevert, "low gas reverts");
+        assertTrue(sawStrike, "enough gas strikes and falls back");
+    }
+
     // ------------------------------------------------------------ admin
     function test_setCapsBoundsAndOwnerOnly() public {
         router.setCaps(600_000, 500_000, 75);

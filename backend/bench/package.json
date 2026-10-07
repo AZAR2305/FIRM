@@ -7,7 +7,8 @@
     "start": "tsx src/index.ts",
     "build": "tsc --noEmit",
     "test": "vitest run",
-    "check-indexer": "tsx src/checkIndexer.ts"
+    "check-indexer": "tsx src/checkIndexer.ts",
+    "gas-profile": "tsx src/gasProfile.ts"
   },
   "dependencies": {
     "@firm/shared": "workspace:*",

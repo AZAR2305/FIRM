@@ -26,8 +26,8 @@ contract CanaryRunner is Ownable2Step, ReentrancyGuard {
     address public immutable quoter;
     IScoreboard public immutable scoreboard;
 
-    uint256 public legGasCap = 700_000;
-    uint256 public quoteGasCap = 700_000;
+    uint256 public legGasCap = 450_000;
+    uint256 public quoteGasCap = 300_000;
 
     event ProbeDone(
         bytes32 indexed poolId,
@@ -63,7 +63,7 @@ contract CanaryRunner is Ownable2Step, ReentrancyGuard {
         address tokenIn = Currency.unwrap(route.zeroForOne ? route.key.currency0 : route.key.currency1);
         address tokenOut = Currency.unwrap(route.zeroForOne ? route.key.currency1 : route.key.currency0);
         if (tokenIn == address(0) || tokenOut == address(0)) revert NativeCurrencyUnsupported();
-        if (gasleft() < ((quoteGasCap + legGasCap) * 64) / 63 + 150_000) revert InsufficientGas();
+        if (gasleft() < ((quoteGasCap + legGasCap) * 64) / 63 + 300_000) revert InsufficientGas();
 
         ProbeSender ps = _senderFor(senderIdx);
         IERC20(tokenIn).safeTransferFrom(msg.sender, address(ps), amountIn);

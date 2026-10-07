@@ -4,18 +4,18 @@
 
 | | |
 |---|---|
-| Generated | 2026-10-07T10:23:59.017Z |
-| Commit | `6f343823dfd1606ff5e66b766eb64eb7465cc120 (+ uncommitted changes)` |
+| Generated | 2026-10-07T11:16:51.398Z |
+| Commit | `ba2565cd239eca0075d9cfc601ab45e45d8b7055 (+ uncommitted changes)` |
 | Chain id | 10143 |
-| Blocks | 68944987 to 68945549 |
+| Blocks | 68950745 to 68951309 |
 | Trials per arm | 20 |
-| Transactions sent | 562 |
-| Duration | 46 s |
+| Transactions sent | 564 |
+| Duration | 52 s |
 | Bench wallet (deployer / owner) | `0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266` |
-| Scoreboard | `0xC0BF43A4Ca27e0976195E6661b099742f10507e5` |
-| FirmRouter | `0x43cA9bAe8dF108684E5EAaA720C25e1b32B0A075` |
-| RawRouter (unprotected comparator) | `0x59C4e2c6a6dC27c259D6d067a039c831e1ff4947` |
-| CanaryRunner | `0x9D3DA37d36BB0B825CD319ed129c2872b893f538` |
+| Scoreboard | `0xB3faFE3b27fCB65689d540c5185a8420310d59dA` |
+| FirmRouter | `0xc050897faEe2b399F5E6cB73517d9380669665f8` |
+| RawRouter (unprotected comparator) | `0xc24Fef71886507C688277C40c7447258c81DD448` |
+| CanaryRunner | `0x19b1b1FeDBA133523Aa826Ec62bda6435B14D9Fb` |
 
 ## What this does and does not show
 
@@ -40,7 +40,7 @@ false_positive_rate    = strikes_on_honest_hook / total_honest_executions
 | Hook | Start status | Probes to BLOCKED | Status after probes | Raw deviating | Router strikes | Router fills | Catch rate (router) |
 |---|---|---|---|---|---|---|---|
 | B FixtureContextHook | UNRATED | 1 | BLOCKED | 20/20 | 20/20 | 0/20 | 100.0% |
-| D FixtureRandomFeeHook | UNRATED | 1 | BLOCKED | 10/20 | 11/20 | 9/20 | n/a (probabilistic hook: compare 10/20 vs 11/20) |
+| D FixtureRandomFeeHook | UNRATED | 2 | BLOCKED | 8/20 | 11/20 | 9/20 | n/a (probabilistic hook: compare 8/20 vs 11/20) |
 | E FixtureSenderAwareHook | UNRATED | 1 | BLOCKED | 20/20 | 0/20 | 20/20 | 0.0% |
 | G FixtureGasGriefHook | UNRATED | 1 | BLOCKED | 20/20 | 20/20 | 0/20 | 100.0% |
 | R FixtureRevertHook | UNRATED | 1 | BLOCKED | 20/20 | 20/20 | 0/20 | 100.0% |
@@ -131,13 +131,14 @@ false_positive_rate    = strikes_on_honest_hook / total_honest_executions
 
 | Pool | Raw gas used | FIRM gas used | Used ratio | Raw gas limit needed | FIRM gas limit needed | Limit ratio | Quoter gas / leg | Cost at limit (FIRM vs Raw) |
 |---|---|---|---|---|---|---|---|---|
-| A (hookless) | 138255 | 195467 | 1.41x | 175004 | 937642 | 5.36x | 43943 | 0.0025 MON vs 0.0004 MON |
-| C (honest hook) | 154263 | 260644 | 1.69x | 195014 | 967298 | 4.96x | 71013 | 0.0026 MON vs 0.0005 MON |
+| A (hookless) | 138255 | 195517 | 1.41x | 175004 | 240291 | 1.37x | 43943 | 0.0007 MON vs 0.0005 MON |
+| C (honest hook) | 154263 | 260694 | 1.69x | 195014 | 305468 | 1.57x | 71013 | 0.0009 MON vs 0.0005 MON |
 
 **Notes**
 
 - Monad charges gas on the gas LIMIT, not gas used. The 'limit needed' columns (eth_estimateGas) are what a user pays; the ratio of limits is the honest overhead figure. 'Used' ratios understate it.
-- Why the limit ratio is far above the used ratio: FirmRouter refuses to start a quote or a leg unless gasleft() covers the gas cap (default 700,000) plus a reserve, so that a starved sub-call can never produce a false strike. The smallest valid gas limit is therefore about 0.9M even though a single protected swap uses about 0.2M. The defaults are deliberately conservative until Monad's repriced schedule has been measured; lowering them with setCaps after the testnet measurement lowers the limit users pay for.
+- The limit ratio is close to the used ratio because FirmRouter has no up-front gas requirement: a quote or leg that succeeds on less than its cap is fine, and a failure without its full cap reverts (InsufficientGas) instead of skipping or striking, which keeps eth_estimateGas honest. The first version demanded cap + reserve up front and needed a limit about 5x the raw swap's (docs/GAS.md).
+- Hostile paths cost more: a gas-griefing first route can burn its whole leg cap before the router falls back, so a correctly sized limit for such a swap is about 1.0M to 1.3M (Monad-adjusted estimate, docs/GAS.md). That is paid once per hostile hook, which is then BLOCKED.
 - FIRM adds one in-transaction Quoter call plus Scoreboard bookkeeping per leg. A fallback chain costs more: each rejected leg adds a quote, a reverted leg and a strike write.
 - Local anvil forks use Ethereum gas rules, not Monad's repriced schedule, so numbers from a fork are indicative only; the committed testnet numbers are the ones to quote.
 
@@ -161,7 +162,7 @@ false_positive_rate    = strikes_on_honest_hook / total_honest_executions
 
 | Samples | p50 (s) | p95 (s) | Timeouts (>60 s) |
 |---|---|---|---|
-| 10 | 1.04 | 1.07 | 0 |
+| 10 | 0.97 | 1.08 | 0 |
 
 **Notes**
 

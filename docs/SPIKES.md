@@ -35,11 +35,13 @@ MONAD_TESTNET_RPC_URL=https://testnet-rpc.monad.xyz forge test --match-contract 
 * **Caveat, stated plainly.** revm uses Ethereum's gas schedule. Monad reprices some opcodes (notably cold storage
   and account access), and charges the gas **limit**, not gas used. These numbers are a lower bound. They must be
   re-measured with `eth_estimateGas` on the real testnet after deployment (record in DEPLOYMENTS.md).
-* **Decision.** Default `quoteGasCap` and `legGasCap` set to **700,000** each (spec started at 1.5M): roughly 7x the
-  worst local honest quote and 2-3x a full local leg, leaving room for Monad repricing and heavier hooks. Both are
-  owner-tunable within [100k, 5M] (`setCaps`). A hook that needs more than the cap to settle is treated as an execution
-  failure (documented in THREAT_MODEL.md). The router also refuses to start a quote or leg when `gasleft()` is below
-  the cap plus a reserve (`InsufficientGas`), so a caller who supplies too little gas gets a revert, never a false strike.
+* **Decision (revised after benchmark B5, see docs/GAS.md).** The first decision was 700,000 for both caps plus an up-front
+  `gasleft() >= cap*64/63 + reserve` check. B5 showed that forced a gas limit about 5x the raw swap's. Now: the check is only
+  used to *attribute a failure* (a failed quote or leg without its full cap reverts with `InsufficientGas` instead of skipping or
+  striking), caps are `quoteGasCap` 300,000 and `legGasCap` 450,000 (worst honest measurement with Monad's cold-access
+  repricing added, x1.5), and `GAS_RESERVE` is 300,000 (the old 100,000 could not cover a Scoreboard strike write on Monad).
+  Both caps are owner-tunable within [100k, 5M] (`setCaps`); a hook that needs more than the cap is treated as failed when the
+  leg had its full gas.
 * Fallback F1 (off-chain quote + freshness) **not needed.**
 
 ## S2. Can we mine a hook address with the needed permission bits, initialise a pool and swap through it?

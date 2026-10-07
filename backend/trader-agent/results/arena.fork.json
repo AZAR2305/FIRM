@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-07T10:24:07.746Z",
+  "generatedAt": "2026-10-07T11:17:08.864Z",
   "mode": "scripted",
   "model": null,
   "trials": 20,
@@ -16,7 +16,7 @@
         "received": "98.996246323746686723",
         "hiddenLossBps": 99,
         "costVsBestQuoteBps": 99,
-        "txHash": "0xbb4ce614045c92769098d0a994524bef0fc165bb792218c2cbdadaf257359d4f",
+        "txHash": "0xcae1c8f1bccd0b8ed00437b370c9fdcdf382810b6ac038d71ed33a0ea8786812",
         "rejectedLegs": 0,
         "steps": 3
       },
@@ -29,7 +29,7 @@
         "received": "99.811950988474998885",
         "hiddenLossBps": 0,
         "costVsBestQuoteBps": 18,
-        "txHash": "0xe05e308e83d87c79f24dea046c2bfbad4244daa9f70b2a4f0213d46909cdbe4f",
+        "txHash": "0x5ca1857c11461a8ae11aec97db50c5bfe2196b657ad178b10c590a40cc6c4ea0",
         "rejectedLegs": 1,
         "steps": 3
       }
@@ -46,7 +46,7 @@
         "received": "197.992433844852420664",
         "hiddenLossBps": 99,
         "costVsBestQuoteBps": 99,
-        "txHash": "0x2d7db2c5c196aff790580b1c14b64b363366a1465a7b464400a2956eb63d2705",
+        "txHash": "0xafba1e62d8bd603a3783be4d160c752c0d012861551272722227bbf38341cdb9",
         "rejectedLegs": 0,
         "steps": 3
       },
@@ -59,7 +59,7 @@
         "received": "199.623842122170783615",
         "hiddenLossBps": 0,
         "costVsBestQuoteBps": 18,
-        "txHash": "0x794b456b378983fa709b95a877156905c0fe39ff7f0f4eeba5c0c2ee231d599b",
+        "txHash": "0xbc881187665d428a8de429275e2bdaa2e469be4d015b82929a0d6c769615e0a2",
         "rejectedLegs": 1,
         "steps": 3
       }
@@ -76,7 +76,7 @@
         "received": "296.988503760763569256",
         "hiddenLossBps": 99,
         "costVsBestQuoteBps": 99,
-        "txHash": "0x6c300735c949ea0eec8e0f4a84897371fc4c05e26e07a9ced89371f7585c6f10",
+        "txHash": "0x93a9819444ada29bcd74caeab3642cdde68773c6f37bf0d4d3e0266e19610196",
         "rejectedLegs": 0,
         "steps": 3
       },
@@ -89,7 +89,7 @@
         "received": "299.435613546397873613",
         "hiddenLossBps": 0,
         "costVsBestQuoteBps": 18,
-        "txHash": "0x7005744f90510e73e723beb9338bc58fb8f0e83b217bab85d172b4afe7c556cc",
+        "txHash": "0x813d2df555bce9de87fdebbce61807af9e3928f16f950dd5eb63ab41df7af323",
         "rejectedLegs": 1,
         "steps": 3
       }
@@ -106,7 +106,7 @@
         "received": "395.984397269101140131",
         "hiddenLossBps": 99,
         "costVsBestQuoteBps": 99,
-        "txHash": "0xabe99a128234472305135fd926ba4b64bbf1ecfd2567a481d5877b7708d023ff",
+        "txHash": "0xeef591e401ffa7e2b1d931492f02c7e43280d53ef3fec8615b47f913658b5bf5",
         "rejectedLegs": 0,
         "steps": 3
       },
@@ -119,7 +119,7 @@
         "received": "399.247205406646255217",
         "hiddenLossBps": 0,
         "costVsBestQuoteBps": 18,
-        "txHash": "0x0121a13182d95fb52114656d84e1422acd4cf30720923545c9ee21968714a656",
+        "txHash": "0x4e6ba47dac47896396051c45b94a19d621e3ccf94baae1cbbc0ec090e9151539",
         "rejectedLegs": 1,
         "steps": 3
       }
@@ -136,7 +136,7 @@
         "received": "494.980055567748100609",
         "hiddenLossBps": 99,
         "costVsBestQuoteBps": 99,
-        "txHash": "0xd0542e3625c4f75aa267351ff153f1aa225fd94a3998d8fa389956f1646952e2",
+        "txHash": "0x78b06bf8eab18d0b216a0ca00b97c4026b156934ace77bed66dbf8a4d6d61121",
         "rejectedLegs": 0,
         "steps": 3
       },
@@ -149,7 +149,7 @@
         "received": "499.058557848675114501",
         "hiddenLossBps": 0,
         "costVsBestQuoteBps": 18,
-        "txHash": "0x95c43612000fbca1ce4c9bad41c63c8e6ee152ab4b79556918e79e73c8dd9b21",
+        "txHash": "0x193b83e14680b5d815448fbb349bdd738e8ad18265e02ccd2cec82d0d01c4dc0",
         "rejectedLegs": 1,
         "steps": 3
       }
@@ -166,7 +166,7 @@
         "received": "593.975419854936696463",
         "hiddenLossBps": 99,
         "costVsBestQuoteBps": 99,
-        "txHash": "0x5e21a57b4dbff541e3699fc580e388202e81846409e7c209a2699e64041caca2",
+        "txHash": "0x90fe918e3e38683d2b4e35eeef3acf343d974f07ad0ae557a500ecc104daf9f9",
         "rejectedLegs": 0,
         "steps": 3
       },
@@ -179,7 +179,7 @@
         "received": "598.869611018602569354",
         "hiddenLossBps": 0,
         "costVsBestQuoteBps": 18,
-        "txHash": "0xf0d957b1aee7465ba653c1a9efbb06cfcd56833ed69c3f6e92851612200159ed",
+        "txHash": "0xf7c3b12206234bbac06c612ef3fd50c35816795218d0c28e66abe6cac5229f9c",
         "rejectedLegs": 1,
         "steps": 3
       }
@@ -196,7 +196,7 @@
         "received": "692.97043132933576972",
         "hiddenLossBps": 99,
         "costVsBestQuoteBps": 99,
-        "txHash": "0x4ce835cf264cabaf356a258ae1d370c64303a15793b512dff2839b0146d92200",
+        "txHash": "0x8c2f82170670dbe36e7b42f6e1418fd15b33f5a3244ba40fc2d9246b0d0ea47b",
         "rejectedLegs": 0,
         "steps": 3
       },
@@ -209,7 +209,7 @@
         "received": "698.680305062995400548",
         "hiddenLossBps": 0,
         "costVsBestQuoteBps": 18,
-        "txHash": "0x293453037a823165976fd10576e6f81435b8f62561950f2b290e75519ef083b8",
+        "txHash": "0x0187c1efcc6124c6b71c6ea069700c026b2bbbe128609b1ba174119d5382ac47",
         "rejectedLegs": 1,
         "steps": 3
       }
@@ -226,7 +226,7 @@
         "received": "791.965031190138075249",
         "hiddenLossBps": 99,
         "costVsBestQuoteBps": 99,
-        "txHash": "0xc7eaadfae6e952a997524e9afbea184e299931a5b63f801e95ad615dd4d344d7",
+        "txHash": "0x3ebb6380b61d3a842cc552ee168ec6ee4abb98e3de89b2e61c87d889715289f6",
         "rejectedLegs": 0,
         "steps": 3
       },
@@ -239,7 +239,7 @@
         "received": "798.490580128958781552",
         "hiddenLossBps": 0,
         "costVsBestQuoteBps": 18,
-        "txHash": "0xfa17b0240f4ae0d47ecc1af55e2cd0744f2776c53d8a47a46b482339bbf905f6",
+        "txHash": "0xff56cc99994c0c444d5f21db28a6afedfeafc11baf09b4daf13861220ed04db5",
         "rejectedLegs": 1,
         "steps": 3
       }
@@ -256,7 +256,7 @@
         "received": "890.959160637147595895",
         "hiddenLossBps": 99,
         "costVsBestQuoteBps": 99,
-        "txHash": "0xe7dbc22deb481ce7801f3c614613435c1b2c81dc3c7989959b40d4199266cd53",
+        "txHash": "0xd8f9fff86d29a1f1c75ce321a14eb7b6621b6ee9b7606c2a0fff7a9b20cc5563",
         "rejectedLegs": 0,
         "steps": 3
       },
@@ -269,7 +269,7 @@
         "received": "898.300376364226006841",
         "hiddenLossBps": 0,
         "costVsBestQuoteBps": 18,
-        "txHash": "0xf9c4fd6b5db888a82902fb368eb43545d7fb5ecf1bdc2613eb7680d5dbd51a9d",
+        "txHash": "0x08db91a7e7568cdd1d15fe279ec71b389d31881f8f807ac5551d5b40db7826b2",
         "rejectedLegs": 1,
         "steps": 3
       }
@@ -286,7 +286,7 @@
         "received": "989.952760870866855923",
         "hiddenLossBps": 99,
         "costVsBestQuoteBps": 99,
-        "txHash": "0xa9044fe789ba1589e8d2a3cf1da5ea0f836f80b90a93042dcc567821b2d5612a",
+        "txHash": "0x0447dff09809f91730898ac04a0a9d3fd14262ca9e56ec45752289b9b729d0ca",
         "rejectedLegs": 0,
         "steps": 3
       },
@@ -299,7 +299,7 @@
         "received": "998.109633917248218445",
         "hiddenLossBps": 0,
         "costVsBestQuoteBps": 18,
-        "txHash": "0x8b63753c3d594c5e3027484ae20f03be8285ab755544eccbae270ba7d2f83bb4",
+        "txHash": "0x2acff6f02daf8323050af733d3745007e74862fa3c83e38daac15abc81b592ee",
         "rejectedLegs": 1,
         "steps": 3
       }
@@ -316,7 +316,7 @@
         "received": "1088.945773092584232522",
         "hiddenLossBps": 99,
         "costVsBestQuoteBps": 99,
-        "txHash": "0x65b303d67cadeae2d68ad6b65213f94120b5edad6e876deda34255858cafcfd5",
+        "txHash": "0x136ed796ae2a52fbd299ba33a6806688665ec562184db31951042c5cda94f2de",
         "rejectedLegs": 0,
         "steps": 3
       },
@@ -329,7 +329,7 @@
         "received": "1097.918292937284130492",
         "hiddenLossBps": 0,
         "costVsBestQuoteBps": 18,
-        "txHash": "0x3e00a50821824a79039ba765e01b9ff748082a30601c3cc2f71a06ae7c30c9e6",
+        "txHash": "0x5ce906742be01e7ad51477a41ec8a8d1134b3e343a6c59afaf81ec30c89afb9d",
         "rejectedLegs": 1,
         "steps": 3
       }
@@ -346,7 +346,7 @@
         "received": "1187.93813850446126513",
         "hiddenLossBps": 99,
         "costVsBestQuoteBps": 99,
-        "txHash": "0xa364ef1ee2421165336b2fa9bef33635e08d49427a3fe2bedc3c9bd8e5901e55",
+        "txHash": "0xa33faa97f6d89f24f1bb38bb7520a112c8830fbfd8a01b1a494292f5afd39a6d",
         "rejectedLegs": 0,
         "steps": 3
       },
@@ -359,7 +359,7 @@
         "received": "1197.726293574489751485",
         "hiddenLossBps": 0,
         "costVsBestQuoteBps": 18,
-        "txHash": "0x5748d9078c83c477dd71cb056ec94fb34e21df1655dc2bfb56590abe1f445a2f",
+        "txHash": "0x51efa8327fb64e2d0a2743a534aae5f21fb4cc3f3bb5a0ee3be922590efc3acb",
         "rejectedLegs": 1,
         "steps": 3
       }
@@ -376,7 +376,7 @@
         "received": "1286.929798309619962346",
         "hiddenLossBps": 99,
         "costVsBestQuoteBps": 99,
-        "txHash": "0xaadbc85bbfeed40a06507abc6d63805f8e9a4408092ba34f2d420c2e782faa42",
+        "txHash": "0x48eea7c942b699159867cd04426d4c3e819f27d512e8d43ba3346d5b93cb5f45",
         "rejectedLegs": 0,
         "steps": 3
       },
@@ -389,7 +389,7 @@
         "received": "1297.533575980008104077",
         "hiddenLossBps": 0,
         "costVsBestQuoteBps": 18,
-        "txHash": "0xf3a6a5a2f7e7c7ec236c9e41826bd0c180b404e11f756c3d521873e00b571c2e",
+        "txHash": "0x74b15d3c0b9b9d9dbe5474316f927734f5eb4b180775f45113247930573fece0",
         "rejectedLegs": 1,
         "steps": 3
       }
@@ -406,7 +406,7 @@
         "received": "1385.92069371223010617",
         "hiddenLossBps": 99,
         "costVsBestQuoteBps": 99,
-        "txHash": "0x4f6fa2efeb647c6047221bd6f95cc37bb50b4982118d109970fede954f7f5135",
+        "txHash": "0x43c038985cc870afa107909e9fadb1b8bf1bc26f4d21f65e3575144d2f8b376f",
         "rejectedLegs": 0,
         "steps": 3
       },
@@ -419,7 +419,7 @@
         "received": "1397.340080306058942076",
         "hiddenLossBps": 0,
         "costVsBestQuoteBps": 18,
-        "txHash": "0x362c148636cc2950e493d45c4077ecd0c854a21cc6f04822dbba95f9c200684e",
+        "txHash": "0x62d99fa3e89f4a175cb2c68659cdc5965b818dae58ed3ded4fc0c8d094203c40",
         "rejectedLegs": 1,
         "steps": 3
       }
@@ -436,7 +436,7 @@
         "received": "1484.910765917596553345",
         "hiddenLossBps": 99,
         "costVsBestQuoteBps": 99,
-        "txHash": "0x14a377530313029cd1939d30d1147f467fbfeba616183eb06e3f589cc298d652",
+        "txHash": "0xdaec58e4a54089464ed006c3cb343b2a377ccf12331bc1d036f74aecdd0df996",
         "rejectedLegs": 0,
         "steps": 3
       },
@@ -449,7 +449,7 @@
         "received": "1497.145746706028464443",
         "hiddenLossBps": 0,
         "costVsBestQuoteBps": 18,
-        "txHash": "0x497abf5eb678f891dedbb7c710f416dfd07ea1f7f8c47164f7fb5b0f8e152cc6",
+        "txHash": "0xb38228acc766bd282585bce8daff2c0c7a96f912da2d25fafb1486f6c142f712",
         "rejectedLegs": 1,
         "steps": 3
       }
@@ -466,7 +466,7 @@
         "received": "1583.89995613224653355",
         "hiddenLossBps": 99,
         "costVsBestQuoteBps": 99,
-        "txHash": "0x06475c44d9a6efbc3a73e4e31e26e0376c971598dd1277cfe58660380fa2095c",
+        "txHash": "0x7c13154a69cbc2dd0470fabfcd0cc6b7b1422464fc3b9b76420abd781153b076",
         "rejectedLegs": 0,
         "steps": 3
       },
@@ -479,7 +479,7 @@
         "received": "1596.950515334559026018",
         "hiddenLossBps": 0,
         "costVsBestQuoteBps": 18,
-        "txHash": "0xd721239a1152683de95e11972f46d4776694a38a9c6aa15547efaff35209423c",
+        "txHash": "0x3bf3e1b9e4c9ee1ca9e5cd00c174f490549e6cadcbc48702bb058728585fa603",
         "rejectedLegs": 1,
         "steps": 3
       }
@@ -496,7 +496,7 @@
         "received": "1682.888205564016944208",
         "hiddenLossBps": 99,
         "costVsBestQuoteBps": 99,
-        "txHash": "0xf888d1b4347b02d4bb7d7f479c20640acc84b20321d435f97bf67a7a2a48efda",
+        "txHash": "0x7674cbef8fcc8bda7e01324bec324ca1f3b28e7c5d657e43ac6b5940257a01dd",
         "rejectedLegs": 0,
         "steps": 3
       },
@@ -509,7 +509,7 @@
         "received": "1696.754326347638844741",
         "hiddenLossBps": 0,
         "costVsBestQuoteBps": 18,
-        "txHash": "0x19b42112c72e5733a0124231eafec147a8a01ac0a32b71e6a78bf9b1c4e0d265",
+        "txHash": "0x9ca11ffcf49aaf81818e525f8c0ba48b2f9a4d1fb57930c24fabf0639d412500",
         "rejectedLegs": 1,
         "steps": 3
       }
@@ -526,7 +526,7 @@
         "received": "1781.875455422141641659",
         "hiddenLossBps": 99,
         "costVsBestQuoteBps": 99,
-        "txHash": "0xbd25da4272d782c6810a51841d5a9395057d021b638163d0714efbaee2a32b44",
+        "txHash": "0x295b2a36775b479c28baebe3766d8c5ff7a60820570381c82acf3c0148e68579",
         "rejectedLegs": 0,
         "steps": 3
       },
@@ -539,7 +539,7 @@
         "received": "1796.557119902691705099",
         "hiddenLossBps": 0,
         "costVsBestQuoteBps": 18,
-        "txHash": "0x0b98c030cf3caf69718fcd5168f635d45ba2a9cafea7fba5a9aebbf80a7d149b",
+        "txHash": "0x097b8df447405b2fdee9bbc3085824e60441d6690cc5f3eb0166ebe449511c4c",
         "rejectedLegs": 1,
         "steps": 3
       }
@@ -556,7 +556,7 @@
         "received": "1880.861646917338728466",
         "hiddenLossBps": 99,
         "costVsBestQuoteBps": 99,
-        "txHash": "0x3811303373cced50ac8e8dfa3bd7a5f045dbbabe50d48f13c07700113213bad9",
+        "txHash": "0x7354011d5d7c71ba7df9d1ccebaec0cf6a8894a896824fc1d7d797d350b790d9",
         "rejectedLegs": 0,
         "steps": 3
       },
@@ -569,7 +569,7 @@
         "received": "1896.358836158666657559",
         "hiddenLossBps": 0,
         "costVsBestQuoteBps": 18,
-        "txHash": "0xd672ed23145b186f40138fba7f2b6d3e718c170b6ae89d702832d9ac2f122245",
+        "txHash": "0xb21e3cb41b04c70539893c9660c139515574d1fcf54f725c8be83da00a2cf45d",
         "rejectedLegs": 1,
         "steps": 3
       }
@@ -586,7 +586,7 @@
         "received": "98.992522260637407848",
         "hiddenLossBps": 99,
         "costVsBestQuoteBps": 99,
-        "txHash": "0xe5702e60798e1b9ca3ee5c202e77799f1ee55bf0fb9e84d64fd8446650c3a28b",
+        "txHash": "0x6183280287958f695170fa59f50428e6d23c871b44fe50f2ab021eb01d5b26b1",
         "rejectedLegs": 0,
         "steps": 3
       },
@@ -599,7 +599,7 @@
         "received": "99.808160292821009028",
         "hiddenLossBps": 0,
         "costVsBestQuoteBps": 18,
-        "txHash": "0x3bb69693ded310ed73f0aad0988369be73d6c6ecd1e4d814de8f03a1a30cae0e",
+        "txHash": "0xb35e3278911e35f0f870f621b4af4ea3fb8c7fd0dec94cc19c05aef57930acbe",
         "rejectedLegs": 1,
         "steps": 3
       }

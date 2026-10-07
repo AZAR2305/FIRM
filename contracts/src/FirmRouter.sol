@@ -31,16 +31,21 @@ contract FirmRouter is IFirmRouter, SwapExecutor, Ownable2Step, ReentrancyGuard 
     uint256 public constant MAX_LEGS = 4;
     /// @dev Return data copied from a leg call: selector + one word is 36 bytes; 68 leaves headroom.
     uint256 internal constant LEG_RETURN_COPY = 68;
-    /// @dev Gas kept back after a capped sub-call so the 63/64 rule can never starve the outer frame.
-    uint256 internal constant GAS_RESERVE = 100_000;
+    /// @dev Gas that must remain after a capped sub-call so the router can always finish: a Scoreboard strike or fill
+    ///      write, events, the next iteration and the refund. Sized from the gas profile (backend/bench gas-profile):
+    ///      recordStrike is about 103k on an Ethereum-schedule EVM and about 139k with Monad cold-access repricing,
+    ///      plus allowance, times a 1.5 margin. 100k (the first value) was too small for Monad.
+    uint256 internal constant GAS_RESERVE = 300_000;
 
     IScoreboard public immutable scoreboard;
     address public immutable quoter;
 
-    /// @notice Gas cap for one leg (swap + hook callbacks). Monad charges the gas limit, so lower is cheaper.
-    uint256 public legGasCap = 700_000;
-    /// @notice Gas cap for one in-transaction Quoter call.
-    uint256 public quoteGasCap = 700_000;
+    /// @notice Gas cap for one leg (swap + hook callbacks). Measured worst honest leg is about 293k with Monad repricing
+    ///         (docs/GAS.md); x1.5 margin, rounded up. Monad charges the gas limit, so lower is cheaper.
+    uint256 public legGasCap = 450_000;
+    /// @notice Gas cap for one in-transaction Quoter call. Measured worst honest quote is about 189k with Monad
+    ///         repricing (docs/GAS.md); x1.5 margin, rounded up.
+    uint256 public quoteGasCap = 300_000;
     /// @notice A leg is skipped if its in-tx quote is below advertisedOut by more than this (bps).
     uint16 public advTolBps = 50;
 
@@ -127,9 +132,13 @@ contract FirmRouter is IFirmRouter, SwapExecutor, Ownable2Step, ReentrancyGuard 
             return (false, 0, 0);
         }
 
-        if (gasleft() < _needed(quoteGasCap)) revert InsufficientGas();
+        // Gas starvation never counts against a hook. If a sub-call FAILS while it was not given its full cap, that proves
+        // nothing about the hook, so the whole call reverts (eth_estimateGas then finds a limit that works) instead of
+        // skipping or striking. If it succeeds on less than its cap, that is fine: no up-front gas requirement.
+        bool quoteFullGas = gasleft() >= _needed(quoteGasCap);
         (uint256 quotedOut,) = QuoteLib.tryQuote(quoter, quoteGasCap, r.key, r.zeroForOne, amountIn, r.hookData);
         if (quotedOut == 0) {
+            if (!quoteFullGas) revert InsufficientGas();
             emit LegSkipped(pid, hook, 2);
             return (false, 0, 0);
         }
@@ -146,9 +155,12 @@ contract FirmRouter is IFirmRouter, SwapExecutor, Ownable2Step, ReentrancyGuard 
             return (false, 0, 0);
         }
 
-        if (gasleft() < _needed(legGasCap)) revert InsufficientGas();
+        bool legFullGas = gasleft() >= _needed(legGasCap);
         bool execFailed;
         (filled, settled, used, execFailed) = _tryLeg(r, amountIn, floor);
+        // A measured Shortfall is a valid strike whatever the gas; a bare failure is only one if the leg had its full cap
+        // (and the reserve needed to finish the call afterwards).
+        if (!filled && execFailed && !legFullGas) revert InsufficientGas();
 
         if (filled) {
             if (hook != address(0)) scoreboard.recordFill(hook, pid, quotedOut, settled);
@@ -197,7 +209,8 @@ contract FirmRouter is IFirmRouter, SwapExecutor, Ownable2Step, ReentrancyGuard 
         }
     }
 
-    /// @dev gas that must be available so a capped call is really given its full cap (63/64 rule) plus a reserve.
+    /// @dev gas that must be available so a capped call is really given its full cap (63/64 rule) plus a reserve for the
+    ///      work after it (Scoreboard write, events, refund). Only used to decide whether a FAILURE is attributable.
     function _needed(uint256 cap) private pure returns (uint256) {
         return (cap * 64) / 63 + GAS_RESERVE;
     }

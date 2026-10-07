@@ -64,7 +64,10 @@ case "$cmd" in
   config)  cat config.yaml ;;
   stop)    npx envio stop 2>&1 || true
            [ -f "$HOME/envio-dev.pid" ] && kill "$(cat "$HOME/envio-dev.pid")" 2>/dev/null || true; rm -f "$HOME/envio-dev.pid"
-           pkill -f "node_modules/.bin/envio" 2>/dev/null || true; pkill -f "node_modules/envio" 2>/dev/null || true; sleep 2 ;;
+           pkill -f "node_modules/.bin/envio" 2>/dev/null || true; pkill -f "node_modules/envio" 2>/dev/null || true
+           # `envio stop` can leave the compose containers up; stop exactly the two it creates (never anything else)
+           docker stop generated-graphql-engine-1 generated-envio-postgres-1 >/dev/null 2>&1 || true
+           sleep 2 ;;
   exec)    bash -c "$*" ;;
   *) echo "unknown command: $cmd" >&2; exit 2 ;;
 esac
