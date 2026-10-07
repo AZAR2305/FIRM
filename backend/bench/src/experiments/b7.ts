@@ -18,7 +18,7 @@ export const b7: Experiment = async (ctx, cfg): Promise<ExperimentResult> => {
     while (Date.now() - t0 < 60_000) {
       const res = await fetch(cfg.envioUrl, {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: { "content-type": "application/json", ...(cfg.envioAdminSecret ? { "x-hasura-admin-secret": cfg.envioAdminSecret } : {}) },
         body: JSON.stringify({ query: `query($h: String!) { Fill(where: {txHash: {_eq: $h}}) { id } }`, variables: { h: r.tx.hash } }),
       }).catch(() => null);
       const body = res ? ((await res.json().catch(() => null)) as { data?: { Fill?: unknown[] } } | null) : null;

@@ -13,6 +13,8 @@ export interface PoolSource {
   poolsForPair(tokenA: Address, tokenB: Address): Promise<PoolInfo[]>;
   /** every non-zero hook known to this source */
   allHooks(): Promise<Address[]>;
+  /** which backend answered the last call (for /health); optional */
+  lastUsed?(): string | undefined;
 }
 
 const ZERO = "0x0000000000000000000000000000000000000000" as Address;
@@ -58,12 +60,14 @@ export class IndexerPoolSource implements PoolSource {
   constructor(
     private readonly url: string,
     private readonly fetchFn: typeof fetch = fetch,
+    /** extra HTTP headers, e.g. Hasura's x-hasura-admin-secret for a local `envio dev` stack */
+    private readonly headers: Record<string, string> = {},
   ) {}
 
   private async query<T>(query: string, variables: Record<string, unknown>, schema: z.ZodType<T>): Promise<T> {
     const res = await this.fetchFn(this.url, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: { "content-type": "application/json", ...this.headers },
       body: JSON.stringify({ query, variables }),
       signal: AbortSignal.timeout(8000),
     });
@@ -100,19 +104,28 @@ export class IndexerPoolSource implements PoolSource {
 
 /** Tries the primary source and falls back to the secondary one on any error. */
 export class FallbackPoolSource implements PoolSource {
+  private used: string | undefined;
   constructor(
     private readonly primary: PoolSource,
     private readonly secondary: PoolSource,
     private readonly log?: Logger,
   ) {}
 
+  lastUsed() {
+    return this.used;
+  }
+
   async poolsForPair(a: Address, b: Address) {
     try {
       const r = await this.primary.poolsForPair(a, b);
-      if (r.length > 0) return r;
+      if (r.length > 0) {
+        this.used = "envio";
+        return r;
+      }
     } catch (e) {
       this.log?.warn("pool source primary failed, using fallback", { err: (e as Error).message });
     }
+    this.used = "deployments (fallback)";
     return this.secondary.poolsForPair(a, b);
   }
 
@@ -124,5 +137,28 @@ export class FallbackPoolSource implements PoolSource {
       this.log?.warn("hook source primary failed, using fallback", { err: (e as Error).message });
     }
     return this.secondary.allHooks();
+  }
+}
+
+/** Adds human-readable pool names (from deployments.json) to pools discovered by another source, e.g. the indexer. */
+export class NamedPoolSource implements PoolSource {
+  private readonly names: Map<string, string>;
+  constructor(
+    private readonly inner: PoolSource,
+    dep: Deployments,
+  ) {
+    this.names = new Map(Object.entries(dep.pools?.list ?? {}).map(([n, p]) => [p.poolId.toLowerCase(), `${n}: ${p.description}`]));
+  }
+
+  lastUsed() {
+    return this.inner.lastUsed?.();
+  }
+
+  async poolsForPair(a: Address, b: Address) {
+    return (await this.inner.poolsForPair(a, b)).map((p) => ({ ...p, description: p.description ?? this.names.get(p.poolId.toLowerCase()) }));
+  }
+
+  allHooks() {
+    return this.inner.allHooks();
   }
 }

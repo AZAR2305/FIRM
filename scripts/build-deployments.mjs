@@ -1,8 +1,7 @@
 // Assembles deployments/10143.json (single source of truth for addresses) and DEPLOYMENTS.md from the Foundry
 // stage files and broadcast receipts. Run automatically by contracts/script/Redeploy.sh.
 import { writeFileSync } from "node:fs";
-import { join } from "node:path";
-import { buildModel, OUT_JSON, ROOT } from "./lib/deployments.mjs";
+import { buildModel, OUT_JSON, OUT_MD, IS_FORK } from "./lib/deployments.mjs";
 
 const EXPLORER = "https://testnet.monadvision.com";
 const m = buildModel();
@@ -63,5 +62,5 @@ ${Object.entries(m.pools.list)
   .join("\n")}
 `;
 }
-writeFileSync(join(ROOT, "DEPLOYMENTS.md"), md);
-console.log("wrote deployments/10143.json and DEPLOYMENTS.md");
+writeFileSync(OUT_MD, md);
+console.log(`wrote ${OUT_JSON} and ${OUT_MD}${IS_FORK ? " (FORK: git-ignored)" : ""}`);

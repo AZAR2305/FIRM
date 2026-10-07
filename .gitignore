@@ -16,3 +16,4 @@ backend/bench/out/*.tmp.md
 reports/
 canary-state.json
 .envio/
+deployments/*.fork.*

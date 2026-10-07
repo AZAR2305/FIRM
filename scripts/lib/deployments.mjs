@@ -7,7 +7,11 @@ import { fileURLToPath } from "node:url";
 export const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 export const STAGE = join(ROOT, "deployments", ".stage");
 export const BROADCAST = join(ROOT, "contracts", "broadcast");
-export const OUT_JSON = join(ROOT, "deployments", "10143.json");
+// FIRM_FORK=1 (local anvil forks) writes *.fork.* files that are git-ignored, so a fork deployment can never be
+// committed as if it were the real testnet one.
+export const IS_FORK = process.env.FIRM_FORK === "1";
+export const OUT_JSON = join(ROOT, "deployments", IS_FORK ? "10143.fork.json" : "10143.json");
+export const OUT_MD = join(ROOT, IS_FORK ? join("deployments", "DEPLOYMENTS.fork.md") : "DEPLOYMENTS.md");
 
 export const CHAIN_ID = 10143;
 

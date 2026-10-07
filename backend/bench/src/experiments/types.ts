@@ -10,6 +10,8 @@ export interface BenchConfig {
   tradeTokens: bigint;
   quoteApiUrl?: string;
   envioUrl?: string;
+  /** Hasura admin secret for a local envio dev stack */
+  envioAdminSecret?: string;
 }
 
 export type Experiment = (ctx: Ctx, cfg: BenchConfig) => Promise<ExperimentResult>;

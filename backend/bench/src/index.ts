@@ -29,6 +29,7 @@ const env = z
     BENCH_OUTPUT: z.string().default("RESULTS.md"),
     QUOTE_API_URL: z.string().url().optional().or(z.literal("").transform(() => undefined)),
     ENVIO_GRAPHQL_URL: z.string().url().optional().or(z.literal("").transform(() => undefined)),
+    ENVIO_ADMIN_SECRET: z.string().optional().or(z.literal("").transform(() => undefined)),
   })
   .parse(process.env);
 
@@ -41,6 +42,7 @@ const cfg: BenchConfig = {
   tradeTokens: env.BENCH_TRADE_TOKENS,
   quoteApiUrl: env.QUOTE_API_URL,
   envioUrl: env.ENVIO_GRAPHQL_URL,
+  envioAdminSecret: env.ENVIO_ADMIN_SECRET,
 };
 
 // P0: B1 B2 B3 B5 B6; P1: B4 B7; P2: B8 (spec 13.2). B1 first: it needs hooks in their fresh state.

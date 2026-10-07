@@ -90,7 +90,25 @@ indexer.onEvent(
   { contract: "Scoreboard", event: "ProbeRecorded", fields: { transaction: ["hash"], block: ["timestamp"] } },
   async ({ event, context }) => {
     const hook = await getOrCreateHook(context, event.params.hook);
-    const next = { ...hook, probes: hook.probes + 1, probeStrikes: hook.probeStrikes + (event.params.strike ? 1 : 0) };
+    let next = { ...hook, probes: hook.probes + 1, probeStrikes: hook.probeStrikes + (event.params.strike ? 1 : 0) };
+    if (event.params.strike) {
+      // The Scoreboard counts a probe strike as a strike but emits only ProbeRecorded for it (no StrikeRecorded), so the
+      // hook's strike counters and the Strike entity must be derived here to match the contract's HookStats.
+      const strikes = next.strikes + 1;
+      const cum = next.cumShortfallBps + event.params.shortfallBps;
+      next = { ...next, strikes, cumShortfallBps: cum, avgShortfallBps: cum / BigInt(Math.max(strikes, 1)), lastStrikeAt: event.block.timestamp };
+      context.Strike.set({
+        id: `${eid(event)}_probe`,
+        pool_id: lc(event.params.poolId),
+        hook_id: hook.id,
+        quotedOut: event.params.quotedOut,
+        settledOut: event.params.settledOut,
+        shortfallBps: Number(shortfallBps(event.params.quotedOut, event.params.settledOut)),
+        execFailed: false,
+        txHash: event.transaction.hash,
+        ts: event.block.timestamp,
+      });
+    }
     context.Hook.set(next);
     context.Probe.set({
       id: eid(event),

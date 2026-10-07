@@ -86,7 +86,7 @@ export function createApp(deps: AppDeps) {
 
   app.get("/health", async (c) => {
     const blockNumber = await chain.blockNumber();
-    return c.json(ser({ ok: true, chainId: dep.chainId, blockNumber, rpcInUse: chain.rpcInUse() ?? null }));
+    return c.json(ser({ ok: true, chainId: dep.chainId, blockNumber, rpcInUse: chain.rpcInUse() ?? null, poolSource: source.lastUsed?.() ?? null }));
   });
 
   app.get("/pools", async (c) => {

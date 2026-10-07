@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+# Run Envio under WSL 2 (Envio does not run on native Windows).
+#
+#   wsl -d Ubuntu -- bash /mnt/c/Users/<you>/FIRM/scripts/wsl-envio.sh <command...>
+#   e.g.  ... wsl-envio.sh codegen | install | dev | dev-bg | logs [n] | stop | start | exec <shell command in the synced envio dir>
+#
+# It (1) puts a Node >= 22.15 first on PATH (installed under ~/tools/node, see below), (2) syncs ./envio from the Windows
+# checkout into the Linux home (~/firm-envio) so npm and the generated code use the fast Linux filesystem and Linux
+# binaries, and (3) runs the command there. A clean PATH is used on purpose: the inherited Windows PATH contains entries
+# with spaces that break non-interactive shells.
+set -euo pipefail
+
+REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+WORK="$HOME/firm-envio"
+NODE_VERSION="${NODE_VERSION:-22.20.0}"
+
+export PATH="$HOME/tools/node/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/mnt/c/Program Files/Docker/Docker/resources/bin"
+
+if [ ! -x "$HOME/tools/node/bin/node" ]; then
+  echo "installing Node $NODE_VERSION into ~/tools/node"
+  mkdir -p "$HOME/tools" && cd "$HOME/tools"
+  curl -fsSL -o node.tar.xz "https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-x64.tar.xz"
+  tar -xJf node.tar.xz && mv "node-v$NODE_VERSION-linux-x64" node && rm node.tar.xz
+fi
+
+mkdir -p "$WORK"
+# copy sources, never node_modules / generated output
+( cd "$REPO/envio" && tar --exclude=node_modules --exclude=generated --exclude=.envio --exclude=build -cf - . ) | ( cd "$WORK" && tar -xf - )
+cd "$WORK"
+
+# Optional overlay for local forks: ENVIO_DEPLOYMENTS=<deployments json> [ENVIO_RPC=<rpc url>] rewrites the synced
+# copy of config.yaml (never the checkout) with that deployment's addresses and RPC.
+if [ -n "${ENVIO_DEPLOYMENTS:-}" ]; then
+  node "$REPO/scripts/gen-indexer-config.mjs" --deployments "$ENVIO_DEPLOYMENTS" --config "$WORK/config.yaml" --out "$WORK/config.yaml" ${ENVIO_RPC:+--rpc "$ENVIO_RPC"}
+fi
+
+cmd="${1:-codegen}"
+shift || true
+case "$cmd" in
+  install) npm install --no-audit --no-fund ;;
+  codegen) [ -d node_modules ] || npm install --no-audit --no-fund; npx envio codegen ;;
+  dev)     [ -d node_modules ] || npm install --no-audit --no-fund; npx envio dev "$@" ;;
+  start)   [ -d node_modules ] || npm install --no-audit --no-fund; npx envio start "$@" ;;
+  dev-bg)  # detached: the dev stack (Postgres + Hasura in Docker, the indexer, GraphQL on :8080) keeps running after this returns
+           [ -d node_modules ] || npm install --no-audit --no-fund
+           TUI_OFF=true nohup npx envio dev --restart > "$HOME/envio-dev.log" 2>&1 &
+           echo $! > "$HOME/envio-dev.pid"; echo "envio dev started (pid $(cat "$HOME/envio-dev.pid")), log: ~/envio-dev.log" ;;
+  logs)    tail -n "${1:-60}" "$HOME/envio-dev.log" ;;
+  stop)    npx envio stop 2>&1 || true
+           [ -f "$HOME/envio-dev.pid" ] && kill "$(cat "$HOME/envio-dev.pid")" 2>/dev/null || true; rm -f "$HOME/envio-dev.pid" ;;
+  exec)    bash -c "$*" ;;
+  *) echo "unknown command: $cmd" >&2; exit 2 ;;
+esac

@@ -26,7 +26,7 @@ describe("quote-api HTTP", () => {
   it("GET /health", async () => {
     const res = await app().a.request("/health");
     expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({ ok: true, chainId: 10143, blockNumber: "123", rpcInUse: "mock" });
+    expect(await res.json()).toEqual({ ok: true, chainId: 10143, blockNumber: "123", rpcInUse: "mock", poolSource: null });
   });
 
   it("POST /route returns ordered routes with bigint amounts as strings", async () => {

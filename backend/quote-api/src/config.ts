@@ -3,6 +3,8 @@ import { z } from "zod";
 const schema = z.object({
   QUOTE_API_PORT: z.coerce.number().int().positive().default(8787),
   ENVIO_GRAPHQL_URL: z.string().url().optional().or(z.literal("").transform(() => undefined)),
+  /** Hasura admin secret for a local `envio dev` stack (its default is "testing"); leave empty for hosted endpoints */
+  ENVIO_ADMIN_SECRET: z.string().optional().or(z.literal("").transform(() => undefined)),
   /** Directory with canary-agent reports: <dir>/<hook>.json */
   REPORTS_DIR: z.string().default("./reports"),
   QUOTE_CACHE_MS: z.coerce.number().int().min(0).default(1500),

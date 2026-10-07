@@ -6,7 +6,8 @@
   "scripts": {
     "start": "tsx src/index.ts",
     "build": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "check-indexer": "tsx src/checkIndexer.ts"
   },
   "dependencies": {
     "@firm/shared": "workspace:*",

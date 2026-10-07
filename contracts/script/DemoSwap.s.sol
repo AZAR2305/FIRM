@@ -26,7 +26,7 @@ contract DemoSwap is Script {
     string internal j;
 
     function run() external {
-        j = vm.readFile("../deployments/10143.json");
+        j = vm.readFile(vm.envOr("FIRM_DEPLOYMENTS_PATH", string("../deployments/10143.json")));
         FirmRouter firm = FirmRouter(vm.parseJsonAddress(j, ".core.firmRouter.address"));
         RawRouter raw = RawRouter(vm.parseJsonAddress(j, ".core.rawRouter.address"));
         Scoreboard sb = Scoreboard(vm.parseJsonAddress(j, ".core.scoreboard.address"));
