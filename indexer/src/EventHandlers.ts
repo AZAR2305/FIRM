@@ -32,7 +32,7 @@ const eid = (e: { chainId: number; block: { number: number }; logIndex: number }
 
 // ---------------------------------------------------------------- PoolManager
 indexer.onEvent(
-  { contract: "PoolManager", event: "Initialize" },
+  { contract: "PoolManager", event: "Initialize", fields: { block: ["timestamp"] } },
   async ({ event, context }) => {
     const hook = lc(event.params.hooks);
     const hasHook = hook !== ZERO_ADDRESS;
@@ -59,7 +59,7 @@ indexer.onEvent(
 );
 
 indexer.onEvent(
-  { contract: "Scoreboard", event: "StrikeRecorded", fields: { transaction: ["hash"] } },
+  { contract: "Scoreboard", event: "StrikeRecorded", fields: { transaction: ["hash"], block: ["timestamp"] } },
   async ({ event, context }) => {
     const hook = await getOrCreateHook(context, event.params.hook);
     const strikes = hook.strikes + 1;
@@ -87,7 +87,7 @@ indexer.onEvent(
 );
 
 indexer.onEvent(
-  { contract: "Scoreboard", event: "ProbeRecorded", fields: { transaction: ["hash"] } },
+  { contract: "Scoreboard", event: "ProbeRecorded", fields: { transaction: ["hash"], block: ["timestamp"] } },
   async ({ event, context }) => {
     const hook = await getOrCreateHook(context, event.params.hook);
     const next = { ...hook, probes: hook.probes + 1, probeStrikes: hook.probeStrikes + (event.params.strike ? 1 : 0) };
@@ -109,7 +109,7 @@ indexer.onEvent(
 );
 
 indexer.onEvent(
-  { contract: "Scoreboard", event: "StatusChanged" },
+  { contract: "Scoreboard", event: "StatusChanged", fields: { block: ["timestamp"] } },
   async ({ event, context }) => {
     const hook = await getOrCreateHook(context, event.params.hook);
     const newStatus = STATUS_NAMES[Number(event.params.newStatus)] ?? "UNRATED";
@@ -127,7 +127,7 @@ indexer.onEvent(
 
 // ---------------------------------------------------------------- FirmRouter
 indexer.onEvent(
-  { contract: "FirmRouter", event: "Filled", fields: { transaction: ["hash"] } },
+  { contract: "FirmRouter", event: "Filled", fields: { transaction: ["hash"], block: ["timestamp"] } },
   async ({ event, context }) => {
     const hook = lc(event.params.hook);
     context.Fill.set({
@@ -146,7 +146,7 @@ indexer.onEvent(
 );
 
 indexer.onEvent(
-  { contract: "FirmRouter", event: "LegSkipped", fields: { transaction: ["hash"] } },
+  { contract: "FirmRouter", event: "LegSkipped", fields: { transaction: ["hash"], block: ["timestamp"] } },
   async ({ event, context }) => {
     const hook = lc(event.params.hook);
     context.Skip.set({
