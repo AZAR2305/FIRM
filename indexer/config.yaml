@@ -8,12 +8,10 @@
 name: firm-indexer
 description: Pools, fills, strikes, probes and hook status for FIRM on Monad Testnet
 
-# tx hash and block timestamp are read by the Fill / Strike / Probe / Skip handlers
+# the tx hash is read by the Fill / Strike / Probe / Skip handlers (block.timestamp is always available)
 field_selection:
   transaction_fields:
     - hash
-  block_fields:
-    - timestamp
 
 chains:
   - id: 10143
