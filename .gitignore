@@ -1,0 +1,15 @@
+node_modules/
+.env
+.env.*
+!.env.example
+*.sqlite
+dist/
+.next/
+contracts/out/
+contracts/cache/
+contracts/broadcast/
+contracts/lib/
+indexer/generated/
+indexer/build/
+.DS_Store
+coverage/
