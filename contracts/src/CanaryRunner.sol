@@ -26,8 +26,8 @@ contract CanaryRunner is Ownable2Step, ReentrancyGuard {
     address public immutable quoter;
     IScoreboard public immutable scoreboard;
 
-    uint256 public legGasCap = 1_500_000;
-    uint256 public quoteGasCap = 1_500_000;
+    uint256 public legGasCap = 700_000;
+    uint256 public quoteGasCap = 700_000;
 
     event ProbeDone(
         bytes32 indexed poolId,

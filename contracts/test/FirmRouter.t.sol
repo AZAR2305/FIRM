@@ -9,8 +9,9 @@ import {PoolKey} from "@uniswap/v4-core/src/types/PoolKey.sol";
 import {Currency} from "@uniswap/v4-core/src/types/Currency.sol";
 import {BeforeSwapDelta, BeforeSwapDeltaLibrary} from "@uniswap/v4-core/src/types/BeforeSwapDelta.sol";
 import {SwapParams} from "@uniswap/v4-core/src/types/PoolOperation.sol";
-import {IV4Quoter} from "@uniswap/v4-periphery/src/interfaces/IV4Quoter.sol";
 
+
+import {IV4Quoter} from "@uniswap/v4-periphery/src/interfaces/IV4Quoter.sol";
 import {BaseTest} from "./Base.t.sol";
 import {FirmRouter} from "../src/FirmRouter.sol";
 import {Route} from "../src/libraries/RouteLib.sol";
@@ -70,7 +71,7 @@ contract FirmRouterTest is BaseTest {
     );
     event NoFill(address indexed user, uint256 amountIn);
 
-    function setUp() public override {
+    function setUp() public virtual override {
         super.setUp();
         keyA = _initPool(address(0), 2500);
 

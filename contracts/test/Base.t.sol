@@ -13,6 +13,7 @@ import {Hooks} from "@uniswap/v4-core/src/libraries/Hooks.sol";
 import {TickMath} from "@uniswap/v4-core/src/libraries/TickMath.sol";
 import {LPFeeLibrary} from "@uniswap/v4-core/src/libraries/LPFeeLibrary.sol";
 import {V4Quoter} from "@uniswap/v4-periphery/src/lens/V4Quoter.sol";
+import {IV4Quoter} from "@uniswap/v4-periphery/src/interfaces/IV4Quoter.sol";
 
 import {Scoreboard} from "../src/Scoreboard.sol";
 import {FirmRouter} from "../src/FirmRouter.sol";
@@ -35,8 +36,8 @@ abstract contract BaseTest is Test {
     int24 internal constant TICK_SPACING = 60;
     uint256 internal constant LIQUIDITY = 1e27;
 
-    PoolManager internal pm;
-    V4Quoter internal quoter;
+    IPoolManager internal pm;
+    IV4Quoter internal quoter;
     Scoreboard internal sb;
     FirmRouter internal router;
     RawRouter internal raw;
@@ -50,8 +51,8 @@ abstract contract BaseTest is Test {
     uint256 internal hookCounter;
 
     function setUp() public virtual {
-        pm = new PoolManager(address(this));
-        quoter = new V4Quoter(IPoolManager(address(pm)));
+        pm = _newPoolManager();
+        quoter = _newQuoter(pm);
         sb = new Scoreboard(address(this));
         router = new FirmRouter(IPoolManager(address(pm)), address(quoter), sb, address(this));
         raw = new RawRouter(IPoolManager(address(pm)));
@@ -84,6 +85,15 @@ abstract contract BaseTest is Test {
         Params memory p = sb.getParams();
         p.unratedCap = 10_000e18;
         sb.setParams(p);
+    }
+
+    // ---------------------------------------------------------------- overridable core (fork tests swap in the real ones)
+    function _newPoolManager() internal virtual returns (IPoolManager) {
+        return IPoolManager(address(new PoolManager(address(this))));
+    }
+
+    function _newQuoter(IPoolManager pm_) internal virtual returns (IV4Quoter) {
+        return IV4Quoter(address(new V4Quoter(pm_)));
     }
 
     // ---------------------------------------------------------------- helpers

@@ -37,9 +37,9 @@ contract FirmRouter is SwapExecutor, Ownable2Step, ReentrancyGuard {
     address public immutable quoter;
 
     /// @notice Gas cap for one leg (swap + hook callbacks). Monad charges the gas limit, so lower is cheaper.
-    uint256 public legGasCap = 1_500_000;
+    uint256 public legGasCap = 700_000;
     /// @notice Gas cap for one in-transaction Quoter call.
-    uint256 public quoteGasCap = 1_500_000;
+    uint256 public quoteGasCap = 700_000;
     /// @notice A leg is skipped if its in-tx quote is below advertisedOut by more than this (bps).
     uint16 public advTolBps = 50;
 
