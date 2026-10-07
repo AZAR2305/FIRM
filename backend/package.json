@@ -9,14 +9,14 @@
     "node": ">=22"
   },
   "scripts": {
-    "abis": "node scripts/gen-abis.mjs",
+    "abis": "node ../scripts/gen-abis.mjs",
     "build": "pnpm -r build",
     "test": "pnpm -r test",
     "quote-api": "pnpm --filter @firm/quote-api start",
     "canary": "pnpm --filter @firm/canary-agent start",
     "bench": "pnpm --filter @firm/bench start",
-    "contracts:test": "cd contracts && forge test",
-    "deployments": "node scripts/build-deployments.mjs"
+    "contracts:test": "cd ../contracts && forge test",
+    "deployments": "node ../scripts/build-deployments.mjs"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

@@ -25,7 +25,7 @@ importers:
     dependencies:
       '@firm/shared':
         specifier: workspace:*
-        version: link:../services/shared
+        version: link:../shared
       viem:
         specifier: ^2.21.0
         version: 2.57.3(typescript@5.9.3)(zod@3.25.76)
@@ -33,7 +33,7 @@ importers:
         specifier: ^3.24.0
         version: 3.25.76
 
-  services/canary-agent:
+  canary-agent:
     dependencies:
       '@firm/shared':
         specifier: workspace:*
@@ -45,7 +45,7 @@ importers:
         specifier: ^3.24.0
         version: 3.25.76
 
-  services/quote-api:
+  quote-api:
     dependencies:
       '@firm/shared':
         specifier: workspace:*
@@ -63,7 +63,7 @@ importers:
         specifier: ^3.24.0
         version: 3.25.76
 
-  services/shared:
+  shared:
     dependencies:
       viem:
         specifier: ^2.21.0

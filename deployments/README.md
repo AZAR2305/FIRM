@@ -2,7 +2,7 @@
 
 `10143.json` is the **single source of truth for addresses** on Monad Testnet (chain 10143). It is written by
 `contracts/script/Redeploy.sh` (through `scripts/build-deployments.mjs`, which merges the Foundry stage files and the
-broadcast receipts) and read by `quote-api`, `canary-agent`, `bench` and the indexer config generator. `../DEPLOYMENTS.md`
+broadcast receipts) and read by `quote-api`, `canary-agent`, `bench` and the Envio config generator. `../DEPLOYMENTS.md`
 is generated from it.
 
 There is **no committed `10143.json` yet**: FIRM has not been deployed to the public testnet from this repository (it needs
@@ -11,7 +11,7 @@ deployment, commit `10143.json` and `DEPLOYMENTS.md`.
 
 ```bash
 cd contracts && DEPLOYER_ACCOUNT=firm-deployer VERIFY=1 ./script/Redeploy.sh
-node ../scripts/gen-indexer-config.mjs     # point the indexer at it
+node ../scripts/gen-indexer-config.mjs     # point envio/ at it
 ```
 
 `.stage/` holds intermediate files from the individual forge scripts and is git-ignored.

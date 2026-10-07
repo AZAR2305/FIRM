@@ -10,10 +10,10 @@ import {
   decodeHookFlags,
   shortfallBps,
 } from "../src";
-import { decodeFlags, decodeReason, shortfallBps as idxShortfall } from "../../../indexer/src/lib";
+import { decodeFlags, decodeReason, shortfallBps as idxShortfall } from "../../../envio/src/lib";
 
 const root = join(__dirname, "..", "..", "..");
-const yaml = readFileSync(join(root, "indexer", "config.yaml"), "utf8");
+const yaml = readFileSync(join(root, "envio", "config.yaml"), "utf8");
 
 const abis: Record<string, Abi> = {
   PoolManager: IPoolManagerAbi as Abi,
@@ -22,7 +22,7 @@ const abis: Record<string, Abi> = {
   CanaryRunner: CanaryRunnerAbi as Abi,
 };
 
-/** contract name -> event signature strings declared in indexer/config.yaml */
+/** contract name -> event signature strings declared in envio/config.yaml */
 function configEvents(): Record<string, string[]> {
   const out: Record<string, string[]> = {};
   let current = "";
@@ -35,7 +35,7 @@ function configEvents(): Record<string, string[]> {
   return out;
 }
 
-describe("indexer/config.yaml matches the contracts", () => {
+describe("envio/config.yaml matches the contracts", () => {
   const events = configEvents();
 
   it("declares the four FIRM contracts plus the PoolManager", () => {

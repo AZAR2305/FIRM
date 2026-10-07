@@ -25,8 +25,9 @@ Network: Monad Testnet (chain 10143). The full spec is in docs/FIRM-spec.pdf (v1
 ## Commands
 - contracts: cd contracts && forge build && forge test -vvv
 - deploy: cd contracts && ./script/Redeploy.sh
-- services: pnpm -r build && pnpm -r test
-- benchmark: pnpm bench
+- backend: cd backend && pnpm install && pnpm -r build && pnpm -r test
+- envio (run under WSL, it does not run on native Windows): cd envio && npm install && npx envio codegen
+- benchmark: cd backend && pnpm bench
 
 ## Key facts
 - Foundry v1.8.0 pinned by spec (local is 1.7.1), Solidity 0.8.26, EVM cancun. Gas on Monad is charged on the gas limit.

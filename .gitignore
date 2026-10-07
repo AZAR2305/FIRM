@@ -8,11 +8,11 @@ dist/
 contracts/out/
 contracts/cache/
 contracts/broadcast/
-indexer/generated/
-indexer/build/
+envio/generated/
+envio/build/
 .DS_Store
 coverage/
-bench/out/*.tmp.md
+backend/bench/out/*.tmp.md
 reports/
 canary-state.json
 .envio/

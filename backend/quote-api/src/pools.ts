@@ -53,7 +53,7 @@ const gqlPool = z.object({
   hook: z.object({ id: z.string() }).nullable().optional(),
 });
 
-/** Pools discovered by the Envio indexer (schema in indexer/schema.graphql). */
+/** Pools discovered by the Envio indexer (schema in envio/schema.graphql). */
 export class IndexerPoolSource implements PoolSource {
   constructor(
     private readonly url: string,

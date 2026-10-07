@@ -38,7 +38,7 @@ A naive router picks B and receives **819.18**. FIRM quotes B, executes, sees th
 | Deploy scripts, hook mining, pool seeding, verification, one-command redeploy | Done and exercised end to end on an anvil fork of testnet. |
 | `quote-api` (Hono + viem): route ordering, Multicall3 quoting, hook endpoints | Done, tested, exercised against the deployed contracts. |
 | `canary-agent`: bytecode analysis, probe matrix, idempotent scheduler, reports | Done, tested, exercised against the deployed contracts. |
-| Benchmark (`bench/`, B1 to B6, B8; B7 needs the indexer) | Done. A local-fork run is committed in [bench/out/RESULTS.fork.md](bench/out/RESULTS.fork.md), clearly labelled as not a testnet measurement. |
+| Benchmark (`bench/`, B1 to B6, B8; B7 needs the indexer) | Done. A local-fork run is committed in [backend/bench/out/RESULTS.fork.md](backend/bench/out/RESULTS.fork.md), clearly labelled as not a testnet measurement. |
 | Envio indexer (`indexer/`) | Written. Its 13 event signatures are cross-checked against the contract ABIs in tests. Envio does not run on Windows, so codegen runs in CI (Linux). **Not yet run against a live deployment.** |
 | **Public testnet deployment** | **Not done yet.** It needs a funded deployer key (about 2 MON). See "Deploy". [DEPLOYMENTS.md](DEPLOYMENTS.md) is a placeholder until then. |
 | Web app (`apps/web`) | **Not part of this build** (contracts and backend were the scope). The `/swap`, `/leaderboard`, `/integrate` screens of the spec are still to do. |

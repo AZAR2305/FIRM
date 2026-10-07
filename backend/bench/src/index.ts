@@ -17,7 +17,7 @@ import { b7 } from "./experiments/b7";
 import { b8 } from "./experiments/b8";
 import type { BenchConfig, Experiment } from "./experiments/types";
 
-const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
+const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const env = z
   .object({
     BENCH_PRIVATE_KEY: z.string().regex(/^0x[0-9a-fA-F]{64}$/, "BENCH_PRIVATE_KEY must be the 0x-prefixed deployer (owner) testnet key"),

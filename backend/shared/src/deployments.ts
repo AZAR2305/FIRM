@@ -75,7 +75,7 @@ export type Deployments = z.infer<typeof deploymentsSchema>;
 /** deployments/10143.json is the single source of truth for addresses. Override with FIRM_DEPLOYMENTS_PATH. */
 export function deploymentsPath(): string {
   if (process.env.FIRM_DEPLOYMENTS_PATH) return process.env.FIRM_DEPLOYMENTS_PATH;
-  // services/shared/src -> repo root
+  // backend/shared/src -> repo root
   return join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "deployments", "10143.json");
 }
 

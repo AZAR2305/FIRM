@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
-/** What canary-agent writes per hook (services/canary-agent/src/report.ts). The LLM text is advisory only. */
+/** What canary-agent writes per hook (backend/canary-agent/src/report.ts). The LLM text is advisory only. */
 export interface HookReport {
   hook: string;
   createdAt: string;

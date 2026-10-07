@@ -1,0 +1,9 @@
+packages:
+  - "shared"
+  - "quote-api"
+  - "canary-agent"
+  - "firm-mcp"
+  - "trader-agent"
+  - "bench"
+# The Envio indexer lives in ../envio (own toolchain, runs under WSL/Linux) and the frontend in ../frontend;
+# neither is a member of this workspace.
