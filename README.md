@@ -32,7 +32,7 @@ A naive router picks B and receives **819.18**. FIRM quotes B, executes, sees th
 
 | Component | State |
 |---|---|
-| Contracts: `Scoreboard`, `FirmRouter`, `RawRouter` (unprotected comparator), `CanaryRunner` + `ProbeSender`, shared `SwapExecutor` | Done. 90 Foundry tests (unit, fuzz, invariants), plus the 30-test router suite re-run on a testnet fork. |
+| Contracts: `Scoreboard`, `FirmRouter`, `RawRouter` (unprotected comparator), `CanaryRunner` + `ProbeSender`, shared `SwapExecutor` | Done. 95 Foundry tests (unit, fuzz, stateful invariants), plus the 30-test router suite re-run on a testnet fork. |
 | Quarantined fixtures: honest, context-spoofing, random-fee, sender-aware, gas-grief, revert, quote-only hooks; mock tokens | Done (`contracts/test-fixtures`, testnet only). |
 | Fork verification | The router suite (30 tests) also passes against a fork of Monad Testnet using the **real deployed PoolManager and V4Quoter**. See [docs/SPIKES.md](docs/SPIKES.md). |
 | Deploy scripts, hook mining, pool seeding, verification, one-command redeploy | Done and exercised end to end on an anvil fork of testnet. |
