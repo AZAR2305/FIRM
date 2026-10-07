@@ -7,7 +7,9 @@
 // --deployments  deployments file (default: FIRM_DEPLOYMENTS_PATH or deployments/10143.json)
 // --config       template to read (default: envio/config.yaml)
 // --out          where to write (default: overwrite the template in place)
-// --rpc          also pin chain 10143 to this RPC (used for local forks: HyperSync does not index them)
+// --rpc          also pin chain 10143 to this RPC (local forks: HyperSync does not index them; or any RPC, because
+//                HyperSync needs an ENVIO_API_TOKEN while RPC mode does not)
+// --rpc-only     only add the RPC; keep the addresses in the template (no deployments file needed)
 import { readFileSync, writeFileSync } from "node:fs";
 import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -22,27 +24,30 @@ const cfgPath = resolve(arg("config") ?? join(root, "envio", "config.yaml"));
 const outPath = resolve(arg("out") ?? cfgPath);
 const rpc = arg("rpc");
 
-const dep = JSON.parse(readFileSync(depPath, "utf8"));
+const rpcOnly = process.argv.includes("--rpc-only");
+const dep = rpcOnly ? null : JSON.parse(readFileSync(depPath, "utf8"));
 let yaml = readFileSync(cfgPath, "utf8");
 
-const addr = {
+const addr = dep && {
   PoolManager: dep.infra.poolManager,
   Scoreboard: dep.core.scoreboard.address,
   FirmRouter: dep.core.firmRouter.address,
   CanaryRunner: dep.core.canaryRunner.address,
 };
 
-for (const [name, a] of Object.entries(addr)) {
+for (const [name, a] of Object.entries(addr ?? {})) {
   // the `address:` line directly after `- name: <Name>`
   const re = new RegExp(`(- name: ${name}\\n\\s+address: )"?0x[0-9a-fA-F]{40}"?`);
   if (!re.test(yaml)) throw new Error(`could not find ${name} in ${cfgPath}`);
   yaml = yaml.replace(re, `$1"${a}"`);
 }
-if (dep.startBlock != null) yaml = yaml.replace(/start_block: \d+/, `start_block: ${dep.startBlock}`);
+if (dep?.startBlock != null) yaml = yaml.replace(/start_block: \d+/, `start_block: ${dep.startBlock}`);
 // `for: sync` makes this RPC the main source for historical AND live data (HyperSync would otherwise stay primary)
 if (rpc && !/^\s+rpc:/m.test(yaml)) {
-  yaml = yaml.replace(/(  - id: 10143\n)/, `$1    rpc:\n      - url: ${rpc}\n        for: sync\n`);
+  // initial_block_interval + interval_ceiling 100: the public testnet RPCs reject eth_getLogs ranges above 100 blocks, and
+  // without a ceiling Envio keeps widening the window until it hits that error
+  yaml = yaml.replace(/(  - id: 10143\n)/, `$1    rpc:\n      - url: ${rpc}\n        for: sync\n        initial_block_interval: 100\n        interval_ceiling: 100\n`);
 }
 
 writeFileSync(outPath, yaml);
-console.log(`${outPath} updated from ${depPath}: start_block ${dep.startBlock}, ${Object.keys(addr).length} contracts${rpc ? `, rpc ${rpc}` : ""}`);
+console.log(`${outPath} updated${dep ? ` from ${depPath}: start_block ${dep.startBlock}, ${Object.keys(addr).length} contracts` : ""}${rpc ? `, rpc ${rpc}` : ""}`);

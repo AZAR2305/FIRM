@@ -1,4 +1,6 @@
-import { readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { parseAbiItem, toEventSelector, type Abi, type AbiEvent } from "viem";
@@ -74,5 +76,52 @@ describe("indexer helpers mirror the shared implementations", () => {
     const hex = "0x" + Buffer.from("SEVERE_SHORTFALL").toString("hex").padEnd(64, "0");
     expect(decodeReason(hex)).toBe("SEVERE_SHORTFALL");
     expect(decodeReason("0x" + "00".repeat(32))).toBe("");
+  });
+});
+
+describe("scripts/gen-indexer-config.mjs", () => {
+  const script = join(root, "scripts", "gen-indexer-config.mjs");
+  const run = (...args: string[]) => execFileSync(process.execPath, [script, ...args], { encoding: "utf8" });
+  const dir = mkdtempSync(join(tmpdir(), "genidx-"));
+  const out = join(dir, "config.yaml");
+  const dep = {
+    infra: { poolManager: "0x1111111111111111111111111111111111111111" },
+    core: {
+      scoreboard: { address: "0x2222222222222222222222222222222222222222" },
+      firmRouter: { address: "0x3333333333333333333333333333333333333333" },
+      canaryRunner: { address: "0x4444444444444444444444444444444444444444" },
+    },
+    startBlock: 4242,
+  };
+  writeFileSync(join(dir, "dep.json"), JSON.stringify(dep));
+
+  it("rewrites the four contract addresses and the start block, and quotes them", () => {
+    run("--deployments", join(dir, "dep.json"), "--out", out);
+    const y = readFileSync(out, "utf8");
+    for (const a of ["1111", "2222", "3333", "4444"]) expect(y).toContain(`address: "0x${a.repeat(10)}`);
+    expect(y).toContain("start_block: 4242");
+    expect(y).not.toMatch(/^\s+rpc:/m);
+  });
+
+  it("--rpc makes the RPC the main source (for: sync) with a 100-block log window", () => {
+    run("--deployments", join(dir, "dep.json"), "--out", out, "--rpc", "http://127.0.0.1:8546");
+    const y = readFileSync(out, "utf8");
+    expect(y).toContain("url: http://127.0.0.1:8546");
+    expect(y).toContain("for: sync");
+    expect(y).toContain("initial_block_interval: 100");
+    expect(y).toContain("interval_ceiling: 100");
+  });
+
+  it("--rpc-only keeps the template's addresses", () => {
+    run("--rpc-only", "--rpc", "https://rpc.example", "--out", out);
+    const y = readFileSync(out, "utf8");
+    expect(y).toContain("url: https://rpc.example");
+    expect(y).toContain("0x451D64ab3b650040d2aE1886602b97ed6eDc643d");
+  });
+
+  it("is idempotent: running twice does not duplicate the rpc block", () => {
+    run("--rpc-only", "--rpc", "https://rpc.example", "--out", out);
+    run("--rpc-only", "--rpc", "https://rpc.example", "--config", out, "--out", out);
+    expect((readFileSync(out, "utf8").match(/^\s+rpc:/gm) ?? []).length).toBe(1);
   });
 });

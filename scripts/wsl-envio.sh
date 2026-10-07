@@ -32,7 +32,12 @@ cd "$WORK"
 # copy of config.yaml (never the checkout) with that deployment's addresses and RPC.
 if [ -n "${ENVIO_DEPLOYMENTS:-}" ]; then
   node "$REPO/scripts/gen-indexer-config.mjs" --deployments "$ENVIO_DEPLOYMENTS" --config "$WORK/config.yaml" --out "$WORK/config.yaml" ${ENVIO_RPC:+--rpc "$ENVIO_RPC"}
+elif [ -n "${ENVIO_RPC:-}" ]; then
+  node "$REPO/scripts/gen-indexer-config.mjs" --rpc-only --config "$WORK/config.yaml" --out "$WORK/config.yaml" --rpc "$ENVIO_RPC"
 fi
+
+# ENVIO_START_BLOCK=<n> overrides start_block in the synced copy (e.g. a recent block, to try HyperSync without a full backfill)
+if [ -n "${ENVIO_START_BLOCK:-}" ]; then sed -i "s/start_block: [0-9]*/start_block: $ENVIO_START_BLOCK/" "$WORK/config.yaml"; fi
 
 cmd="${1:-codegen}"
 shift || true
@@ -46,8 +51,11 @@ case "$cmd" in
            TUI_OFF=true nohup npx envio dev --restart > "$HOME/envio-dev.log" 2>&1 &
            echo $! > "$HOME/envio-dev.pid"; echo "envio dev started (pid $(cat "$HOME/envio-dev.pid")), log: ~/envio-dev.log" ;;
   logs)    tail -n "${1:-60}" "$HOME/envio-dev.log" ;;
+  loggrep) grep -E "${1:?pattern}" "$HOME/envio-dev.log" | tail -n "${2:-20}" ;;
+  config)  cat config.yaml ;;
   stop)    npx envio stop 2>&1 || true
-           [ -f "$HOME/envio-dev.pid" ] && kill "$(cat "$HOME/envio-dev.pid")" 2>/dev/null || true; rm -f "$HOME/envio-dev.pid" ;;
+           [ -f "$HOME/envio-dev.pid" ] && kill "$(cat "$HOME/envio-dev.pid")" 2>/dev/null || true; rm -f "$HOME/envio-dev.pid"
+           pkill -f "node_modules/.bin/envio" 2>/dev/null || true; pkill -f "node_modules/envio" 2>/dev/null || true; sleep 2 ;;
   exec)    bash -c "$*" ;;
   *) echo "unknown command: $cmd" >&2; exit 2 ;;
 esac
