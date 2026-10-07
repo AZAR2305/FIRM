@@ -16,7 +16,7 @@ do. The backend finds routes, probes hooks, exposes tools to agents, and measure
 cd backend
 pnpm install
 pnpm -r build          # typecheck every package
-pnpm -r test           # 104 tests
+pnpm -r test           # 93 tests
 ```
 
 ## Run it

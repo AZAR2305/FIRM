@@ -4,13 +4,13 @@
 
 | | |
 |---|---|
-| Generated | 2026-10-07T06:38:31.437Z |
-| Commit | `fdea8f5d5520b52df9e146210aebaf7326f52f90 (+ uncommitted changes)` |
+| Generated | 2026-10-07T10:23:59.017Z |
+| Commit | `6f343823dfd1606ff5e66b766eb64eb7465cc120 (+ uncommitted changes)` |
 | Chain id | 10143 |
-| Blocks | 68899836 to 68900386 |
+| Blocks | 68944987 to 68945549 |
 | Trials per arm | 20 |
-| Transactions sent | 550 |
-| Duration | 390 s |
+| Transactions sent | 562 |
+| Duration | 46 s |
 | Bench wallet (deployer / owner) | `0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266` |
 | Scoreboard | `0xC0BF43A4Ca27e0976195E6661b099742f10507e5` |
 | FirmRouter | `0x43cA9bAe8dF108684E5EAaA720C25e1b32B0A075` |
@@ -40,7 +40,7 @@ false_positive_rate    = strikes_on_honest_hook / total_honest_executions
 | Hook | Start status | Probes to BLOCKED | Status after probes | Raw deviating | Router strikes | Router fills | Catch rate (router) |
 |---|---|---|---|---|---|---|---|
 | B FixtureContextHook | UNRATED | 1 | BLOCKED | 20/20 | 20/20 | 0/20 | 100.0% |
-| D FixtureRandomFeeHook | UNRATED | 2 | BLOCKED | 11/20 | 8/20 | 12/20 | n/a (probabilistic hook: compare 11/20 vs 8/20) |
+| D FixtureRandomFeeHook | UNRATED | 1 | BLOCKED | 10/20 | 11/20 | 9/20 | n/a (probabilistic hook: compare 10/20 vs 11/20) |
 | E FixtureSenderAwareHook | UNRATED | 1 | BLOCKED | 20/20 | 0/20 | 20/20 | 0.0% |
 | G FixtureGasGriefHook | UNRATED | 1 | BLOCKED | 20/20 | 20/20 | 0/20 | 100.0% |
 | R FixtureRevertHook | UNRATED | 1 | BLOCKED | 20/20 | 20/20 | 0/20 | 100.0% |
@@ -131,8 +131,8 @@ false_positive_rate    = strikes_on_honest_hook / total_honest_executions
 
 | Pool | Raw gas used | FIRM gas used | Used ratio | Raw gas limit needed | FIRM gas limit needed | Limit ratio | Quoter gas / leg | Cost at limit (FIRM vs Raw) |
 |---|---|---|---|---|---|---|---|---|
-| A (hookless) | 138255 | 195467 | 1.41x | 175004 | 937642 | 5.36x | 43943 | 0.0009 MON vs 0.0001 MON |
-| C (honest hook) | 154263 | 260644 | 1.69x | 195014 | 967298 | 4.96x | 71013 | 0.0009 MON vs 0.0001 MON |
+| A (hookless) | 138255 | 195467 | 1.41x | 175004 | 937642 | 5.36x | 43943 | 0.0025 MON vs 0.0004 MON |
+| C (honest hook) | 154263 | 260644 | 1.69x | 195014 | 967298 | 4.96x | 71013 | 0.0026 MON vs 0.0005 MON |
 
 **Notes**
 
@@ -157,7 +157,15 @@ false_positive_rate    = strikes_on_honest_hook / total_honest_executions
 
 ## B7. Dashboard latency
 
-_Skipped: ENVIO_GRAPHQL_URL is not set: no indexer to measure._
+**Method.** Time from tx confirmation to the Fill appearing in the Envio GraphQL endpoint.
+
+| Samples | p50 (s) | p95 (s) | Timeouts (>60 s) |
+|---|---|---|---|
+| 10 | 1.04 | 1.07 | 0 |
+
+**Notes**
+
+- Latency is measured from the moment the receipt is observed, so it excludes block time but includes indexer ingestion and the 250 ms poll interval.
 
 ## B8. Agent arena (scripted trader)
 
@@ -180,20 +188,20 @@ _Skipped: ENVIO_GRAPHQL_URL is not set: no indexer to measure._
 | 3 | 300 | Q 299.9997 | 296.9997 | 99 | 299.4470 | 0 | 2 |
 | 4 | 400 | Q 399.9993 | 395.9993 | 99 | 399.2624 | 0 | 2 |
 | 5 | 500 | Q 499.9987 | 494.9987 | 99 | 499.0776 | 0 | 2 |
-| 6 | 600 | Q 599.9978 | 593.9978 | 99 | 598.8925 | 0 | 2 |
-| 7 | 700 | Q 699.9965 | 692.9966 | 99 | 698.7070 | 0 | 2 |
-| 8 | 800 | Q 799.9949 | 791.9949 | 99 | 798.5211 | 0 | 2 |
-| 9 | 900 | Q 899.9927 | 890.9928 | 99 | 898.3347 | 0 | 2 |
-| 10 | 1000 | Q 999.9900 | 989.9901 | 99 | 998.1478 | 0 | 2 |
-| 11 | 1100 | Q 1099.9868 | 1088.9869 | 99 | 1097.9603 | 0 | 2 |
-| 12 | 1200 | Q 1199.9828 | 1187.9830 | 99 | 1197.7721 | 0 | 2 |
-| 13 | 1300 | Q 1299.9782 | 1286.9784 | 99 | 1297.5832 | 0 | 2 |
-| 14 | 1400 | Q 1399.9728 | 1385.9731 | 99 | 1397.3935 | 0 | 2 |
-| 15 | 1500 | Q 1499.9665 | 1484.9669 | 99 | 1497.2030 | 0 | 2 |
-| 16 | 1600 | Q 1599.9594 | 1583.9598 | 99 | 1597.0116 | 0 | 2 |
-| 17 | 1700 | Q 1699.9513 | 1682.9518 | 99 | 1696.8192 | 0 | 2 |
-| 18 | 1800 | Q 1799.9422 | 1781.9428 | 99 | 1796.6258 | 0 | 2 |
-| 19 | 1900 | Q 1899.9320 | 1880.9327 | 99 | 1896.4314 | 0 | 2 |
+| 6 | 600 | Q 599.9978 | 593.9978 | 99 | 598.8924 | 0 | 2 |
+| 7 | 700 | Q 699.9965 | 692.9966 | 99 | 698.7069 | 0 | 2 |
+| 8 | 800 | Q 799.9949 | 791.9949 | 99 | 798.5210 | 0 | 2 |
+| 9 | 900 | Q 899.9927 | 890.9928 | 99 | 898.3346 | 0 | 2 |
+| 10 | 1000 | Q 999.9900 | 989.9901 | 99 | 998.1477 | 0 | 2 |
+| 11 | 1100 | Q 1099.9868 | 1088.9869 | 99 | 1097.9602 | 0 | 2 |
+| 12 | 1200 | Q 1199.9828 | 1187.9830 | 99 | 1197.7720 | 0 | 2 |
+| 13 | 1300 | Q 1299.9782 | 1286.9784 | 99 | 1297.5831 | 0 | 2 |
+| 14 | 1400 | Q 1399.9728 | 1385.9731 | 99 | 1397.3934 | 0 | 2 |
+| 15 | 1500 | Q 1499.9665 | 1484.9669 | 99 | 1497.2029 | 0 | 2 |
+| 16 | 1600 | Q 1599.9594 | 1583.9598 | 99 | 1597.0114 | 0 | 2 |
+| 17 | 1700 | Q 1699.9513 | 1682.9518 | 99 | 1696.8191 | 0 | 2 |
+| 18 | 1800 | Q 1799.9422 | 1781.9428 | 99 | 1796.6257 | 0 | 2 |
+| 19 | 1900 | Q 1899.9320 | 1880.9327 | 99 | 1896.4312 | 0 | 2 |
 | 20 | 100 | Q 99.9962 | 98.9962 | 99 | 99.8119 | 0 | 2 |
 
 **Notes**

@@ -48,8 +48,17 @@ case "$cmd" in
   start)   [ -d node_modules ] || npm install --no-audit --no-fund; npx envio start "$@" ;;
   dev-bg)  # detached: the dev stack (Postgres + Hasura in Docker, the indexer, GraphQL on :8080) keeps running after this returns
            [ -d node_modules ] || npm install --no-audit --no-fund
-           TUI_OFF=true nohup npx envio dev --restart > "$HOME/envio-dev.log" 2>&1 &
-           echo $! > "$HOME/envio-dev.pid"; echo "envio dev started (pid $(cat "$HOME/envio-dev.pid")), log: ~/envio-dev.log" ;;
+           : > "$HOME/envio-dev.log"
+           # setsid: a new session, so the indexer is not torn down with this (short-lived) WSL invocation
+           TUI_OFF=true setsid nohup npx envio dev --restart > "$HOME/envio-dev.log" 2>&1 < /dev/null &
+           echo $! > "$HOME/envio-dev.pid"
+           # stay attached until indexing has started (or failed), so the distro cannot idle out underneath it
+           for _ in $(seq 1 90); do
+             if grep -q "Starting indexing" "$HOME/envio-dev.log" 2>/dev/null; then echo "envio dev up (pid $(cat "$HOME/envio-dev.pid")), log: ~/envio-dev.log"; exit 0; fi
+             if grep -q "ERROR" "$HOME/envio-dev.log" 2>/dev/null; then echo "envio dev failed to start:"; tail -n 12 "$HOME/envio-dev.log"; exit 1; fi
+             sleep 2
+           done
+           echo "envio dev still starting; see ~/envio-dev.log" ;;
   logs)    tail -n "${1:-60}" "$HOME/envio-dev.log" ;;
   loggrep) grep -E "${1:?pattern}" "$HOME/envio-dev.log" | tail -n "${2:-20}" ;;
   config)  cat config.yaml ;;

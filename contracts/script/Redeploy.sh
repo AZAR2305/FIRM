@@ -33,6 +33,24 @@ if [ "$CHAIN_ID" != "10143" ]; then
   exit 1
 fi
 
+# Balance pre-check (not on forks): a half-finished deployment on the real testnet is the annoying failure mode.
+# The deployer address comes from DEPLOYER_ADDRESS, or is derived from DEPLOYER_PRIVATE_KEY; with a keystore account and
+# no DEPLOYER_ADDRESS the check is skipped.
+if [ "${FIRM_FORK:-0}" != "1" ]; then
+  ADDR="${DEPLOYER_ADDRESS:-}"
+  if [ -z "$ADDR" ] && [ -n "${DEPLOYER_PRIVATE_KEY:-}" ]; then ADDR="$(cast wallet address --private-key "$DEPLOYER_PRIVATE_KEY")"; fi
+  if [ -n "$ADDR" ]; then
+    MIN_MON="${MIN_BALANCE_MON:-2.5}"
+    BAL="$(cast balance "$ADDR" --rpc-url "$RPC" --ether)"
+    if ! awk -v b="$BAL" -v m="$MIN_MON" 'BEGIN { exit !(b + 0 >= m + 0) }'; then
+      echo "Deployer $ADDR holds $BAL MON; a full deployment needs about $MIN_MON MON." >&2
+      echo "Fund it at https://faucet.monad.xyz (browser only) and run this again." >&2
+      exit 1
+    fi
+    echo "deployer $ADDR holds $BAL MON"
+  fi
+fi
+
 mkdir -p ../deployments/.stage
 rm -f ../deployments/.stage/*.json
 

@@ -30,38 +30,39 @@ A naive router picks B and receives **819.18**. FIRM quotes B, executes, sees th
 
 ## Status: what is built and what is verified
 
-| Component | State |
+| Area | State |
 |---|---|
-| Contracts: `Scoreboard`, `FirmRouter`, `RawRouter` (unprotected comparator), `CanaryRunner` + `ProbeSender`, shared `SwapExecutor` | Done. 95 Foundry tests (unit, fuzz, stateful invariants), plus the 30-test router suite re-run on a testnet fork. |
-| Quarantined fixtures: honest, context-spoofing, random-fee, sender-aware, gas-grief, revert, quote-only hooks; mock tokens | Done (`contracts/test-fixtures`, testnet only). |
-| Fork verification | The router suite (30 tests) also passes against a fork of Monad Testnet using the **real deployed PoolManager and V4Quoter**. See [docs/SPIKES.md](docs/SPIKES.md). |
-| Deploy scripts, hook mining, pool seeding, verification, one-command redeploy | Done and exercised end to end on an anvil fork of testnet. |
-| `quote-api` (Hono + viem): route ordering, Multicall3 quoting, hook endpoints | Done, tested, exercised against the deployed contracts. |
-| `canary-agent`: bytecode analysis, probe matrix, idempotent scheduler, reports | Done, tested, exercised against the deployed contracts. |
-| Benchmark (`bench/`, B1 to B6, B8; B7 needs the indexer) | Done. A local-fork run is committed in [backend/bench/out/RESULTS.fork.md](backend/bench/out/RESULTS.fork.md), clearly labelled as not a testnet measurement. |
-| Envio indexer (`indexer/`) | Written. Its 13 event signatures are cross-checked against the contract ABIs in tests. Envio does not run on Windows, so codegen runs in CI (Linux). **Not yet run against a live deployment.** |
-| **Public testnet deployment** | **Not done yet.** It needs a funded deployer key (about 2 MON). See "Deploy". [DEPLOYMENTS.md](DEPLOYMENTS.md) is a placeholder until then. |
-| Web app (`apps/web`) | **Not part of this build** (contracts and backend were the scope). The `/swap`, `/leaderboard`, `/integrate` screens of the spec are still to do. |
-| `BondVault`, LLM `trader-agent` / `firm-mcp`, Arena, passkeys, MetaMask plugin | Deferred (P2 in the spec). B8 uses a scripted trader instead of an LLM. |
+| **contracts/** `Scoreboard`, `FirmRouter`, `RawRouter` (unprotected comparator), `CanaryRunner` + `ProbeSender`, shared `SwapExecutor` | Done. 95 Foundry tests (unit, fuzz, stateful invariants), plus the 30-test router suite re-run on a fork of Monad Testnet using the **real deployed PoolManager and V4Quoter** ([docs/SPIKES.md](docs/SPIKES.md)). |
+| contracts: quarantined fixtures (honest, context-spoofing, random-fee, sender-aware, gas-grief, revert, quote-only hooks), mock tokens | Done (`contracts/test-fixtures`, testnet only). |
+| contracts: deploy, hook mining, pool seeding, verification, one-command redeploy | Done; exercised end to end on a fork of testnet (WSL anvil) and the demo swap reproduces the spec numbers. |
+| **backend/** `quote-api` | Done, tested; served from the **Envio index** against a live deployment (`/health` reports `poolSource: envio`). |
+| backend: `canary-agent` | Done, tested; probed every fixture hook live (honest hook: 24 clean probes, 0 strikes; the five misbehaving hooks blocked in 1 to 3 probes). |
+| backend: `firm-mcp` (MCP tool server) and `trader-agent` (LLM tool-calling loop + scripted fallback + arena) | Done, tested over the real MCP protocol; ran live over stdio MCP against the fork. **No LLM endpoint was configured, so the live arena run is the scripted trader**, labelled `"mode": "scripted"`; the LLM loop is covered by tests against a mock OpenAI-compatible endpoint, not by a real model. |
+| backend: `bench` (B1 to B8) | Done; a fork run is committed in [backend/bench/out/RESULTS.fork.md](backend/bench/out/RESULTS.fork.md), clearly labelled as not a testnet measurement. |
+| **envio/** Envio HyperIndex | **Runs for real under WSL 2 + Docker** (Postgres + Hasura) against a live FIRM deployment on a testnet fork: indexed 8 pools, 7 hooks, fills, strikes, probes, status changes and skips, and `pnpm check-indexer` confirms it matches the Scoreboard for every hook. Also run against the real Monad Testnet RPC. HyperSync needs a free `ENVIO_API_TOKEN` (not set). See [envio/README.md](envio/README.md). |
+| **Public testnet deployment** | **Not done yet.** It needs a funded deployer wallet (about 3 MON; the faucet is browser-only). A wallet is already generated in the git-ignored `.env`. [DEPLOYMENTS.md](DEPLOYMENTS.md) is a placeholder until then. |
+| **frontend/** | Empty placeholder by request ([frontend/README.md](frontend/README.md)). |
+| `BondVault`, passkeys, MetaMask plugin | Deferred (P2 in the spec). |
 
 ## Architecture
 
 ```
-            Web app (not in this build)
-                 |
-                 v
-   quote-api (Hono + viem) <---- Envio HyperIndex (GraphQL) <---- events
-        | order routes                                              ^
-        v                                                           |
- +--------------------- Monad Testnet (10143) -----------------------+
+   frontend/ (placeholder)
+        |
+        v
+   backend/quote-api  <------ envio/ (HyperIndex, GraphQL) <------ events
+        | order routes                                               ^
+        v                                                            |
+ +--------------------- Monad Testnet (10143) ----------------------+
  |  FirmRouter   Scoreboard   CanaryRunner/ProbeSender   RawRouter  |
  |  Uniswap v4 PoolManager + V4Quoter + hooks and pools             |
- +------------------------------------------------------------------+
-        ^                                   ^
-   canary-agent (probes, reports)      bench (B1..B8 -> RESULTS)
+ +-----------------------------------------------------------------+
+        ^                    ^                         ^
+ backend/canary-agent   backend/firm-mcp  <--MCP-->  backend/trader-agent
+ (probes, reports)      (tools for agents)           (naive trader: LLM or scripted)
 ```
 
-Contracts make every fund and status decision. The indexer is display only. quote-api only orders candidates (FirmRouter re-quotes and re-checks everything onchain). An LLM, if configured, only writes prose.
+Contracts make every fund and status decision. The indexer is display only. quote-api only orders candidates (FirmRouter re-quotes and re-checks everything onchain). An LLM, if configured, only writes prose or drives a demo agent whose one swap tool is `firm_swap`.
 
 ### One protected swap
 
@@ -82,20 +83,27 @@ contracts/        Foundry project (solc 0.8.26, cancun)
   test-fixtures/  QUARANTINED misbehaving hooks, mock tokens, liquidity helper (testnet only)
   script/         Deploy, DeployFixtures, SeedPools, DemoSwap, HookMiner, Redeploy.sh, Verify.sh
   test/           unit, fuzz, invariant, spike and fork tests
-indexer/          Envio HyperIndex: config.yaml, schema.graphql, handlers
-services/
-  shared/         generated ABIs, deployments loader, rate-limited RPC pool, math, hook flags
+backend/          pnpm workspace (Node 22, viem), see backend/README.md
+  shared/         generated ABIs, deployments loader, rate-limited RPC pool, math, hook flags, receipt-writer
   quote-api/      route ordering service
   canary-agent/   dust probes, static analysis, reports
-bench/            benchmark runner that writes RESULTS
-scripts/          deployment assembly, ABI generation, indexer config generation
+  firm-mcp/       MCP tool server for agents
+  trader-agent/   LLM / scripted trader and the arena
+  bench/          B1..B8 benchmark runner (writes RESULTS) and the Envio consistency check
+envio/            Envio HyperIndex: config.yaml, schema.graphql, handlers (runs under WSL/Linux), see envio/README.md
+frontend/         placeholder
+scripts/          deployment assembly, ABI generation, Envio config generation, WSL helpers (wsl-envio.sh, wsl-anvil.sh)
 deployments/      10143.json (written by scripts; single source of truth for addresses)
 docs/             SPIKES.md, FIRM-spec.pdf
 ```
 
+`contracts`, `backend` and `envio` each have their own toolchain and lockfile. They talk only through `deployments/10143.json`,
+the contract ABIs and the HTTP/GraphQL APIs.
+
 ## Quick start
 
-Prerequisites: Foundry, Node 22, pnpm 10. Clone with submodules: `git clone --recurse-submodules <repo>`.
+Prerequisites: Foundry, Node 22, pnpm 10 (and, for Envio on Windows: WSL 2 Ubuntu + Docker Desktop). Clone with submodules:
+`git clone --recurse-submodules <repo>`.
 
 ```bash
 # contracts: unit, fuzz and invariant tests (local PoolManager and the real V4Quoter code)
@@ -104,35 +112,43 @@ cd contracts && forge test
 # the same router suite against a fork of Monad Testnet (the real deployed PoolManager and Quoter)
 MONAD_TESTNET_RPC_URL=https://testnet-rpc.monad.xyz forge test --match-contract ForkFirmRouterTest
 
-# services
-pnpm install && pnpm -r build && pnpm -r test
+# backend
+cd backend && pnpm install && pnpm -r build && pnpm -r test
+
+# envio (Linux or WSL): validates config + schema + handlers
+cd envio && npm install && npx envio codegen
 ```
 
 ### Deploy to Monad Testnet
 
-Needs about 2 MON from <https://faucet.monad.xyz> on the deployer. Gas is charged on the **gas limit**, so scripts keep the estimate multiplier tight.
+Needs about 3 MON from <https://faucet.monad.xyz> on the deployer (the faucet is browser-only). Gas is charged on the **gas limit**, so scripts keep the estimate multiplier tight.
 
 ```bash
+cp .env.example .env                               # fill in the deployer key (testnet only), or use a Foundry keystore:
 cast wallet import firm-deployer --interactive     # never put a key in git
 cd contracts
 DEPLOYER_ACCOUNT=firm-deployer VERIFY=1 ./script/Redeploy.sh
 ```
 
-`Redeploy.sh` deploys the contracts, the fixtures and the seeded pools, writes `deployments/10143.json` and `DEPLOYMENTS.md`, and (with `VERIFY=1`) verifies every contract on MonadVision via Sourcify. After a testnet reset, run it again.
+`Redeploy.sh` checks the chain id and the deployer balance, deploys the contracts, the fixtures and the seeded pools, writes
+`deployments/10143.json` and `DEPLOYMENTS.md`, and (with `VERIFY=1`) verifies every contract on MonadVision via Sourcify. After a
+testnet reset, run it again. Set `FIRM_FORK=1` when deploying to a local fork: output then goes to git-ignored `*.fork.*` files.
 
-Then, with your testnet keys in `.env` (see `.env.example`):
+Then, with your testnet keys in `.env`:
 
 ```bash
 cd contracts && forge script script/DemoSwap.s.sol:DemoSwap --rpc-url $MONAD_TESTNET_RPC_URL --account firm-deployer --broadcast --slow
-pnpm quote-api                      # http://localhost:8787
-pnpm canary once                    # probe every fixture pool, write reports/
-BENCH_PRIVATE_KEY=0x... pnpm bench  # regenerates RESULTS.md
-node scripts/gen-indexer-config.mjs # point the indexer at the new deployment
+cd ../backend
+pnpm quote-api                                   # http://localhost:8787
+pnpm canary once                                 # probe every fixture pool, write reports/
+pnpm --filter @firm/trader-agent start           # arena: unprotected vs protected agent -> results/arena.json
+BENCH_PRIVATE_KEY=0x... pnpm bench               # regenerates RESULTS.md
+cd .. && node scripts/gen-indexer-config.mjs     # point envio/ at the new deployment, then run it (envio/README.md)
 ```
 
 ### quote-api
 
-`GET /health`, `GET /pools?tokenIn&tokenOut`, `POST /route {tokenIn, tokenOut, amountIn, maxLegs?, wallet?}`, `GET /hooks[?status=]`, `GET /hooks/:addr`, `GET /hooks/:addr/report`. Amounts are decimal strings in token base units. The `calldataRoutes` in a `/route` response are exactly what to pass to `FirmRouter.swapExactIn`.
+`GET /health` (says which pool source answered), `GET /pools?tokenIn&tokenOut`, `POST /route {tokenIn, tokenOut, amountIn, maxLegs?, wallet?}`, `GET /hooks[?status=]`, `GET /hooks/:addr`, `GET /hooks/:addr/report`. Amounts are decimal strings in token base units. The `calldataRoutes` in a `/route` response are exactly what to pass to `FirmRouter.swapExactIn`.
 
 ### Using the Scoreboard from another router
 

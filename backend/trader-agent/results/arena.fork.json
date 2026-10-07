@@ -1,0 +1,622 @@
+{
+  "generatedAt": "2026-10-07T10:24:07.746Z",
+  "mode": "scripted",
+  "model": null,
+  "trials": 20,
+  "runs": [
+    {
+      "i": 1,
+      "amountIn": "100",
+      "unprotected": {
+        "ok": true,
+        "tool": "raw_swap",
+        "pool": "Q: FixtureQuoteOnlyHook (dynamic fee)",
+        "bestQuote": "99.996208307830628468",
+        "paidLegQuote": "99.996208307830628468",
+        "received": "98.996246323746686723",
+        "hiddenLossBps": 99,
+        "costVsBestQuoteBps": 99,
+        "txHash": "0xbb4ce614045c92769098d0a994524bef0fc165bb792218c2cbdadaf257359d4f",
+        "rejectedLegs": 0,
+        "steps": 3
+      },
+      "protected": {
+        "ok": true,
+        "tool": "firm_swap",
+        "pool": null,
+        "bestQuote": "99.996208307830628468",
+        "paidLegQuote": "99.811950988474998885",
+        "received": "99.811950988474998885",
+        "hiddenLossBps": 0,
+        "costVsBestQuoteBps": 18,
+        "txHash": "0xe05e308e83d87c79f24dea046c2bfbad4244daa9f70b2a4f0213d46909cdbe4f",
+        "rejectedLegs": 1,
+        "steps": 3
+      }
+    },
+    {
+      "i": 2,
+      "amountIn": "200",
+      "unprotected": {
+        "ok": true,
+        "tool": "raw_swap",
+        "pool": "Q: FixtureQuoteOnlyHook (dynamic fee)",
+        "bestQuote": "199.992357019065817076",
+        "paidLegQuote": "199.992357019065817076",
+        "received": "197.992433844852420664",
+        "hiddenLossBps": 99,
+        "costVsBestQuoteBps": 99,
+        "txHash": "0x2d7db2c5c196aff790580b1c14b64b363366a1465a7b464400a2956eb63d2705",
+        "rejectedLegs": 0,
+        "steps": 3
+      },
+      "protected": {
+        "ok": true,
+        "tool": "firm_swap",
+        "pool": null,
+        "bestQuote": "199.992357019065817076",
+        "paidLegQuote": "199.623842122170783615",
+        "received": "199.623842122170783615",
+        "hiddenLossBps": 0,
+        "costVsBestQuoteBps": 18,
+        "txHash": "0x794b456b378983fa709b95a877156905c0fe39ff7f0f4eeba5c0c2ee231d599b",
+        "rejectedLegs": 1,
+        "steps": 3
+      }
+    },
+    {
+      "i": 3,
+      "amountIn": "300",
+      "unprotected": {
+        "ok": true,
+        "tool": "raw_swap",
+        "pool": "Q: FixtureQuoteOnlyHook (dynamic fee)",
+        "bestQuote": "299.988386737187309907",
+        "paidLegQuote": "299.988386737187309907",
+        "received": "296.988503760763569256",
+        "hiddenLossBps": 99,
+        "costVsBestQuoteBps": 99,
+        "txHash": "0x6c300735c949ea0eec8e0f4a84897371fc4c05e26e07a9ced89371f7585c6f10",
+        "rejectedLegs": 0,
+        "steps": 3
+      },
+      "protected": {
+        "ok": true,
+        "tool": "firm_swap",
+        "pool": null,
+        "bestQuote": "299.988386737187309907",
+        "paidLegQuote": "299.435613546397873613",
+        "received": "299.435613546397873613",
+        "hiddenLossBps": 0,
+        "costVsBestQuoteBps": 18,
+        "txHash": "0x7005744f90510e73e723beb9338bc58fb8f0e83b217bab85d172b4afe7c556cc",
+        "rejectedLegs": 1,
+        "steps": 3
+      }
+    },
+    {
+      "i": 4,
+      "amountIn": "400",
+      "unprotected": {
+        "ok": true,
+        "tool": "raw_swap",
+        "pool": "Q: FixtureQuoteOnlyHook (dynamic fee)",
+        "bestQuote": "399.984238065853611654",
+        "paidLegQuote": "399.984238065853611654",
+        "received": "395.984397269101140131",
+        "hiddenLossBps": 99,
+        "costVsBestQuoteBps": 99,
+        "txHash": "0xabe99a128234472305135fd926ba4b64bbf1ecfd2567a481d5877b7708d023ff",
+        "rejectedLegs": 0,
+        "steps": 3
+      },
+      "protected": {
+        "ok": true,
+        "tool": "firm_swap",
+        "pool": null,
+        "bestQuote": "399.984238065853611654",
+        "paidLegQuote": "399.247205406646255217",
+        "received": "399.247205406646255217",
+        "hiddenLossBps": 0,
+        "costVsBestQuoteBps": 18,
+        "txHash": "0x0121a13182d95fb52114656d84e1422acd4cf30720923545c9ee21968714a656",
+        "rejectedLegs": 1,
+        "steps": 3
+      }
+    },
+    {
+      "i": 5,
+      "amountIn": "500",
+      "unprotected": {
+        "ok": true,
+        "tool": "raw_swap",
+        "pool": "Q: FixtureQuoteOnlyHook (dynamic fee)",
+        "bestQuote": "499.979851608988189122",
+        "paidLegQuote": "499.979851608988189122",
+        "received": "494.980055567748100609",
+        "hiddenLossBps": 99,
+        "costVsBestQuoteBps": 99,
+        "txHash": "0xd0542e3625c4f75aa267351ff153f1aa225fd94a3998d8fa389956f1646952e2",
+        "rejectedLegs": 0,
+        "steps": 3
+      },
+      "protected": {
+        "ok": true,
+        "tool": "firm_swap",
+        "pool": null,
+        "bestQuote": "499.979851608988189122",
+        "paidLegQuote": "499.058557848675114501",
+        "received": "499.058557848675114501",
+        "hiddenLossBps": 0,
+        "costVsBestQuoteBps": 18,
+        "txHash": "0x95c43612000fbca1ce4c9bad41c63c8e6ee152ab4b79556918e79e73c8dd9b21",
+        "rejectedLegs": 1,
+        "steps": 3
+      }
+    },
+    {
+      "i": 6,
+      "amountIn": "600",
+      "unprotected": {
+        "ok": true,
+        "tool": "raw_swap",
+        "pool": "Q: FixtureQuoteOnlyHook (dynamic fee)",
+        "bestQuote": "599.975167970867672002",
+        "paidLegQuote": "599.975167970867672002",
+        "received": "593.975419854936696463",
+        "hiddenLossBps": 99,
+        "costVsBestQuoteBps": 99,
+        "txHash": "0x5e21a57b4dbff541e3699fc580e388202e81846409e7c209a2699e64041caca2",
+        "rejectedLegs": 0,
+        "steps": 3
+      },
+      "protected": {
+        "ok": true,
+        "tool": "firm_swap",
+        "pool": null,
+        "bestQuote": "599.975167970867672002",
+        "paidLegQuote": "598.869611018602569354",
+        "received": "598.869611018602569354",
+        "hiddenLossBps": 0,
+        "costVsBestQuoteBps": 18,
+        "txHash": "0xf0d957b1aee7465ba653c1a9efbb06cfcd56833ed69c3f6e92851612200159ed",
+        "rejectedLegs": 1,
+        "steps": 3
+      }
+    },
+    {
+      "i": 7,
+      "amountIn": "700",
+      "unprotected": {
+        "ok": true,
+        "tool": "raw_swap",
+        "pool": "Q: FixtureQuoteOnlyHook (dynamic fee)",
+        "bestQuote": "699.970127756210052659",
+        "paidLegQuote": "699.970127756210052659",
+        "received": "692.97043132933576972",
+        "hiddenLossBps": 99,
+        "costVsBestQuoteBps": 99,
+        "txHash": "0x4ce835cf264cabaf356a258ae1d370c64303a15793b512dff2839b0146d92200",
+        "rejectedLegs": 0,
+        "steps": 3
+      },
+      "protected": {
+        "ok": true,
+        "tool": "firm_swap",
+        "pool": null,
+        "bestQuote": "699.970127756210052659",
+        "paidLegQuote": "698.680305062995400548",
+        "received": "698.680305062995400548",
+        "hiddenLossBps": 0,
+        "costVsBestQuoteBps": 18,
+        "txHash": "0x293453037a823165976fd10576e6f81435b8f62561950f2b290e75519ef083b8",
+        "rejectedLegs": 1,
+        "steps": 3
+      }
+    },
+    {
+      "i": 8,
+      "amountIn": "800",
+      "unprotected": {
+        "ok": true,
+        "tool": "raw_swap",
+        "pool": "Q: FixtureQuoteOnlyHook (dynamic fee)",
+        "bestQuote": "799.9646715702628847",
+        "paidLegQuote": "799.9646715702628847",
+        "received": "791.965031190138075249",
+        "hiddenLossBps": 99,
+        "costVsBestQuoteBps": 99,
+        "txHash": "0xc7eaadfae6e952a997524e9afbea184e299931a5b63f801e95ad615dd4d344d7",
+        "rejectedLegs": 0,
+        "steps": 3
+      },
+      "protected": {
+        "ok": true,
+        "tool": "firm_swap",
+        "pool": null,
+        "bestQuote": "799.9646715702628847",
+        "paidLegQuote": "798.490580128958781552",
+        "received": "798.490580128958781552",
+        "hiddenLossBps": 0,
+        "costVsBestQuoteBps": 18,
+        "txHash": "0xfa17b0240f4ae0d47ecc1af55e2cd0744f2776c53d8a47a46b482339bbf905f6",
+        "rejectedLegs": 1,
+        "steps": 3
+      }
+    },
+    {
+      "i": 9,
+      "amountIn": "900",
+      "unprotected": {
+        "ok": true,
+        "tool": "raw_swap",
+        "pool": "Q: FixtureQuoteOnlyHook (dynamic fee)",
+        "bestQuote": "899.958740018891480077",
+        "paidLegQuote": "899.958740018891480077",
+        "received": "890.959160637147595895",
+        "hiddenLossBps": 99,
+        "costVsBestQuoteBps": 99,
+        "txHash": "0xe7dbc22deb481ce7801f3c614613435c1b2c81dc3c7989959b40d4199266cd53",
+        "rejectedLegs": 0,
+        "steps": 3
+      },
+      "protected": {
+        "ok": true,
+        "tool": "firm_swap",
+        "pool": null,
+        "bestQuote": "899.958740018891480077",
+        "paidLegQuote": "898.300376364226006841",
+        "received": "898.300376364226006841",
+        "hiddenLossBps": 0,
+        "costVsBestQuoteBps": 18,
+        "txHash": "0xf9c4fd6b5db888a82902fb368eb43545d7fb5ecf1bdc2613eb7680d5dbd51a9d",
+        "rejectedLegs": 1,
+        "steps": 3
+      }
+    },
+    {
+      "i": 10,
+      "amountIn": "1000",
+      "unprotected": {
+        "ok": true,
+        "tool": "raw_swap",
+        "pool": "Q: FixtureQuoteOnlyHook (dynamic fee)",
+        "bestQuote": "999.952273708667104474",
+        "paidLegQuote": "999.952273708667104474",
+        "received": "989.952760870866855923",
+        "hiddenLossBps": 99,
+        "costVsBestQuoteBps": 99,
+        "txHash": "0xa9044fe789ba1589e8d2a3cf1da5ea0f836f80b90a93042dcc567821b2d5612a",
+        "rejectedLegs": 0,
+        "steps": 3
+      },
+      "protected": {
+        "ok": true,
+        "tool": "firm_swap",
+        "pool": null,
+        "bestQuote": "999.952273708667104474",
+        "paidLegQuote": "998.109633917248218445",
+        "received": "998.109633917248218445",
+        "hiddenLossBps": 0,
+        "costVsBestQuoteBps": 18,
+        "txHash": "0x8b63753c3d594c5e3027484ae20f03be8285ab755544eccbae270ba7d2f83bb4",
+        "rejectedLegs": 1,
+        "steps": 3
+      }
+    },
+    {
+      "i": 11,
+      "amountIn": "1100",
+      "unprotected": {
+        "ok": true,
+        "tool": "raw_swap",
+        "pool": "Q: FixtureQuoteOnlyHook (dynamic fee)",
+        "bestQuote": "1099.945213246955170733",
+        "paidLegQuote": "1099.945213246955170733",
+        "received": "1088.945773092584232522",
+        "hiddenLossBps": 99,
+        "costVsBestQuoteBps": 99,
+        "txHash": "0x65b303d67cadeae2d68ad6b65213f94120b5edad6e876deda34255858cafcfd5",
+        "rejectedLegs": 0,
+        "steps": 3
+      },
+      "protected": {
+        "ok": true,
+        "tool": "firm_swap",
+        "pool": null,
+        "bestQuote": "1099.945213246955170733",
+        "paidLegQuote": "1097.918292937284130492",
+        "received": "1097.918292937284130492",
+        "hiddenLossBps": 0,
+        "costVsBestQuoteBps": 18,
+        "txHash": "0x3e00a50821824a79039ba765e01b9ff748082a30601c3cc2f71a06ae7c30c9e6",
+        "rejectedLegs": 1,
+        "steps": 3
+      }
+    },
+    {
+      "i": 12,
+      "amountIn": "1200",
+      "unprotected": {
+        "ok": true,
+        "tool": "raw_swap",
+        "pool": "Q: FixtureQuoteOnlyHook (dynamic fee)",
+        "bestQuote": "1199.937499242003430088",
+        "paidLegQuote": "1199.937499242003430088",
+        "received": "1187.93813850446126513",
+        "hiddenLossBps": 99,
+        "costVsBestQuoteBps": 99,
+        "txHash": "0xa364ef1ee2421165336b2fa9bef33635e08d49427a3fe2bedc3c9bd8e5901e55",
+        "rejectedLegs": 0,
+        "steps": 3
+      },
+      "protected": {
+        "ok": true,
+        "tool": "firm_swap",
+        "pool": null,
+        "bestQuote": "1199.937499242003430088",
+        "paidLegQuote": "1197.726293574489751485",
+        "received": "1197.726293574489751485",
+        "hiddenLossBps": 0,
+        "costVsBestQuoteBps": 18,
+        "txHash": "0x5748d9078c83c477dd71cb056ec94fb34e21df1655dc2bfb56590abe1f445a2f",
+        "rejectedLegs": 1,
+        "steps": 3
+      }
+    },
+    {
+      "i": 13,
+      "amountIn": "1300",
+      "unprotected": {
+        "ok": true,
+        "tool": "raw_swap",
+        "pool": "Q: FixtureQuoteOnlyHook (dynamic fee)",
+        "bestQuote": "1299.929072303030160949",
+        "paidLegQuote": "1299.929072303030160949",
+        "received": "1286.929798309619962346",
+        "hiddenLossBps": 99,
+        "costVsBestQuoteBps": 99,
+        "txHash": "0xaadbc85bbfeed40a06507abc6d63805f8e9a4408092ba34f2d420c2e782faa42",
+        "rejectedLegs": 0,
+        "steps": 3
+      },
+      "protected": {
+        "ok": true,
+        "tool": "firm_swap",
+        "pool": null,
+        "bestQuote": "1299.929072303030160949",
+        "paidLegQuote": "1297.533575980008104077",
+        "received": "1297.533575980008104077",
+        "hiddenLossBps": 0,
+        "costVsBestQuoteBps": 18,
+        "txHash": "0xf3a6a5a2f7e7c7ec236c9e41826bd0c180b404e11f756c3d521873e00b571c2e",
+        "rejectedLegs": 1,
+        "steps": 3
+      }
+    },
+    {
+      "i": 14,
+      "amountIn": "1400",
+      "unprotected": {
+        "ok": true,
+        "tool": "raw_swap",
+        "pool": "Q: FixtureQuoteOnlyHook (dynamic fee)",
+        "bestQuote": "1399.919873040312354992",
+        "paidLegQuote": "1399.919873040312354992",
+        "received": "1385.92069371223010617",
+        "hiddenLossBps": 99,
+        "costVsBestQuoteBps": 99,
+        "txHash": "0x4f6fa2efeb647c6047221bd6f95cc37bb50b4982118d109970fede954f7f5135",
+        "rejectedLegs": 0,
+        "steps": 3
+      },
+      "protected": {
+        "ok": true,
+        "tool": "firm_swap",
+        "pool": null,
+        "bestQuote": "1399.919873040312354992",
+        "paidLegQuote": "1397.340080306058942076",
+        "received": "1397.340080306058942076",
+        "hiddenLossBps": 0,
+        "costVsBestQuoteBps": 18,
+        "txHash": "0x362c148636cc2950e493d45c4077ecd0c854a21cc6f04822dbba95f9c200684e",
+        "rejectedLegs": 1,
+        "steps": 3
+      }
+    },
+    {
+      "i": 15,
+      "amountIn": "1500",
+      "unprotected": {
+        "ok": true,
+        "tool": "raw_swap",
+        "pool": "Q: FixtureQuoteOnlyHook (dynamic fee)",
+        "bestQuote": "1499.909842065273900318",
+        "paidLegQuote": "1499.909842065273900318",
+        "received": "1484.910765917596553345",
+        "hiddenLossBps": 99,
+        "costVsBestQuoteBps": 99,
+        "txHash": "0x14a377530313029cd1939d30d1147f467fbfeba616183eb06e3f589cc298d652",
+        "rejectedLegs": 0,
+        "steps": 3
+      },
+      "protected": {
+        "ok": true,
+        "tool": "firm_swap",
+        "pool": null,
+        "bestQuote": "1499.909842065273900318",
+        "paidLegQuote": "1497.145746706028464443",
+        "received": "1497.145746706028464443",
+        "hiddenLossBps": 0,
+        "costVsBestQuoteBps": 18,
+        "txHash": "0x497abf5eb678f891dedbb7c710f416dfd07ea1f7f8c47164f7fb5b0f8e152cc6",
+        "rejectedLegs": 1,
+        "steps": 3
+      }
+    },
+    {
+      "i": 16,
+      "amountIn": "1600",
+      "unprotected": {
+        "ok": true,
+        "tool": "raw_swap",
+        "pool": "Q: FixtureQuoteOnlyHook (dynamic fee)",
+        "bestQuote": "1599.898919990573761435",
+        "paidLegQuote": "1599.898919990573761435",
+        "received": "1583.89995613224653355",
+        "hiddenLossBps": 99,
+        "costVsBestQuoteBps": 99,
+        "txHash": "0x06475c44d9a6efbc3a73e4e31e26e0376c971598dd1277cfe58660380fa2095c",
+        "rejectedLegs": 0,
+        "steps": 3
+      },
+      "protected": {
+        "ok": true,
+        "tool": "firm_swap",
+        "pool": null,
+        "bestQuote": "1599.898919990573761435",
+        "paidLegQuote": "1596.950515334559026018",
+        "received": "1596.950515334559026018",
+        "hiddenLossBps": 0,
+        "costVsBestQuoteBps": 18,
+        "txHash": "0xd721239a1152683de95e11972f46d4776694a38a9c6aa15547efaff35209423c",
+        "rejectedLegs": 1,
+        "steps": 3
+      }
+    },
+    {
+      "i": 17,
+      "amountIn": "1700",
+      "unprotected": {
+        "ok": true,
+        "tool": "raw_swap",
+        "pool": "Q: FixtureQuoteOnlyHook (dynamic fee)",
+        "bestQuote": "1699.887047430194155812",
+        "paidLegQuote": "1699.887047430194155812",
+        "received": "1682.888205564016944208",
+        "hiddenLossBps": 99,
+        "costVsBestQuoteBps": 99,
+        "txHash": "0xf888d1b4347b02d4bb7d7f479c20640acc84b20321d435f97bf67a7a2a48efda",
+        "rejectedLegs": 0,
+        "steps": 3
+      },
+      "protected": {
+        "ok": true,
+        "tool": "firm_swap",
+        "pool": null,
+        "bestQuote": "1699.887047430194155812",
+        "paidLegQuote": "1696.754326347638844741",
+        "received": "1696.754326347638844741",
+        "hiddenLossBps": 0,
+        "costVsBestQuoteBps": 18,
+        "txHash": "0x19b42112c72e5733a0124231eafec147a8a01ac0a32b71e6a78bf9b1c4e0d265",
+        "rejectedLegs": 1,
+        "steps": 3
+      }
+    },
+    {
+      "i": 18,
+      "amountIn": "1800",
+      "unprotected": {
+        "ok": true,
+        "tool": "raw_swap",
+        "pool": "Q: FixtureQuoteOnlyHook (dynamic fee)",
+        "bestQuote": "1799.874164999528726768",
+        "paidLegQuote": "1799.874164999528726768",
+        "received": "1781.875455422141641659",
+        "hiddenLossBps": 99,
+        "costVsBestQuoteBps": 99,
+        "txHash": "0xbd25da4272d782c6810a51841d5a9395057d021b638163d0714efbaee2a32b44",
+        "rejectedLegs": 0,
+        "steps": 3
+      },
+      "protected": {
+        "ok": true,
+        "tool": "firm_swap",
+        "pool": null,
+        "bestQuote": "1799.874164999528726768",
+        "paidLegQuote": "1796.557119902691705099",
+        "received": "1796.557119902691705099",
+        "hiddenLossBps": 0,
+        "costVsBestQuoteBps": 18,
+        "txHash": "0x0b98c030cf3caf69718fcd5168f635d45ba2a9cafea7fba5a9aebbf80a7d149b",
+        "rejectedLegs": 1,
+        "steps": 3
+      }
+    },
+    {
+      "i": 19,
+      "amountIn": "1900",
+      "unprotected": {
+        "ok": true,
+        "tool": "raw_swap",
+        "pool": "Q: FixtureQuoteOnlyHook (dynamic fee)",
+        "bestQuote": "1899.860213315470712449",
+        "paidLegQuote": "1899.860213315470712449",
+        "received": "1880.861646917338728466",
+        "hiddenLossBps": 99,
+        "costVsBestQuoteBps": 99,
+        "txHash": "0x3811303373cced50ac8e8dfa3bd7a5f045dbbabe50d48f13c07700113213bad9",
+        "rejectedLegs": 0,
+        "steps": 3
+      },
+      "protected": {
+        "ok": true,
+        "tool": "firm_swap",
+        "pool": null,
+        "bestQuote": "1899.860213315470712449",
+        "paidLegQuote": "1896.358836158666657559",
+        "received": "1896.358836158666657559",
+        "hiddenLossBps": 0,
+        "costVsBestQuoteBps": 18,
+        "txHash": "0xd672ed23145b186f40138fba7f2b6d3e718c170b6ae89d702832d9ac2f122245",
+        "rejectedLegs": 1,
+        "steps": 3
+      }
+    },
+    {
+      "i": 20,
+      "amountIn": "100",
+      "unprotected": {
+        "ok": true,
+        "tool": "raw_swap",
+        "pool": "Q: FixtureQuoteOnlyHook (dynamic fee)",
+        "bestQuote": "99.992446627927908328",
+        "paidLegQuote": "99.992446627927908328",
+        "received": "98.992522260637407848",
+        "hiddenLossBps": 99,
+        "costVsBestQuoteBps": 99,
+        "txHash": "0xe5702e60798e1b9ca3ee5c202e77799f1ee55bf0fb9e84d64fd8446650c3a28b",
+        "rejectedLegs": 0,
+        "steps": 3
+      },
+      "protected": {
+        "ok": true,
+        "tool": "firm_swap",
+        "pool": null,
+        "bestQuote": "99.992446627927908328",
+        "paidLegQuote": "99.808160292821009028",
+        "received": "99.808160292821009028",
+        "hiddenLossBps": 0,
+        "costVsBestQuoteBps": 18,
+        "txHash": "0x3bb69693ded310ed73f0aad0988369be73d6c6ecd1e4d814de8f03a1a30cae0e",
+        "rejectedLegs": 1,
+        "steps": 3
+      }
+    }
+  ],
+  "summary": {
+    "unprotected": {
+      "filled": 20,
+      "totalLossVsPaidQuote": "190.988918543584746134",
+      "meanHiddenLossBps": 99,
+      "meanCostVsBestQuoteBps": 99
+    },
+    "protected": {
+      "filled": 20,
+      "totalLossVsPaidQuote": "0",
+      "meanHiddenLossBps": 0,
+      "meanCostVsBestQuoteBps": 18
+    }
+  }
+}

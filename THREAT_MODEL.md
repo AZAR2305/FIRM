@@ -77,6 +77,18 @@ Consequences, with tests:
 | Fixtures | Misbehaving hooks exist only in `contracts/test-fixtures`, are deployed to testnet only, are not registered in any hook list, and the repository says so. They must never be deployed to mainnet. |
 | LLM output | treated as untrusted text: tags and control characters stripped, length capped, never parsed for decisions. |
 
+### 4.4 Agents, the MCP tool server and the indexer
+
+| Risk | Mitigation | Residual |
+|---|---|---|
+| **A confused, buggy or prompt-injected agent** spends or swaps badly | The only swap tool a protected agent has is `firm_swap`, which goes through `FirmRouter`: every leg is quote-checked onchain, a cheating leg is reverted. The agent cannot pass a minimum lower than the router enforces per leg, and cannot skip the check. | An agent can still choose a bad trade size, token or `minOut`, and a hook that behaves honestly toward FirmRouter and cheats others is not caught by the router (sender-aware limit, above). |
+| **raw_swap** (the unprotected comparator) reaching a real agent | Registered only when `FIRM_MCP_ENABLE_RAW=1`; the arena gives each arm only its own tools (`restrict`), and the tool output is labelled UNPROTECTED. | Whoever runs the server can turn it on. Never enable it with a wallet that holds real value. |
+| **Agent key theft** | `TRADER_PRIVATE_KEY` / `CANARY_PRIVATE_KEY` are testnet-only wallets holding test tokens and dust MON, read from the environment, never logged, never committed (`.env` is ignored). The MCP server logs to stderr only, because stdout is the protocol channel. | Anyone with the key can spend that wallet. Use separate keys per role and per environment. |
+| **Model output used as data** | Numbers in the arena and benchmark come from tool results (transaction receipts and events), never from model text. The canary's optional LLM summary is stripped of tags and control characters, length-capped, shown only, never parsed. | A model can still write misleading prose in a report. It is labelled "AI-written, advisory" and sits under the deterministic report. |
+| **Tool-argument abuse** (bad addresses, huge or negative amounts) | zod schemas on the server; amounts must be positive decimals; addresses are validated; `quote-api` re-validates and bounds `amountIn` below 2^128; errors come back as model-readable text, not stack traces. | Input validation is not authorisation: any caller of the stdio server can use the configured wallet. |
+| **quote-api / indexer lying or lagging** | Neither is read by contracts. quote-api output only orders routes; the router re-quotes and re-checks. The Envio index is display and discovery only; `pnpm check-indexer` compares it with the Scoreboard hook by hook. | A stale or poisoned index can hide a pool from routing or show a wrong status on a dashboard, not move funds. A handler bug is possible: one was found and fixed during testing (probe strikes were not counted) precisely by that check. |
+| **Local Envio stack** | Binds to localhost; the Hasura admin secret `testing` is the Envio dev default. | Never expose the local stack, and never reuse its admin secret anywhere real. |
+
 ## 5. Measurement honesty
 
 - The hooks in the benchmark are our own. A 100% catch rate on `FixtureContextHook` shows the mechanism works; it is not a claim about the field.
