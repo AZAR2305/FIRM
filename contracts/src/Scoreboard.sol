@@ -104,6 +104,11 @@ contract Scoreboard is IScoreboard, Ownable2Step {
         return _stats[hook];
     }
 
+    /// @inheritdoc IScoreboard
+    function getParams() external view returns (Params memory) {
+        return params;
+    }
+
     // ------------------------------------------------------------------ reporter writes
     /// @notice A leg that delivered at least its floor. Counts toward rating and WATCH recovery.
     function recordFill(address hook, bytes32 poolId, uint256 quotedOut, uint256 settledOut) external onlyReporter {

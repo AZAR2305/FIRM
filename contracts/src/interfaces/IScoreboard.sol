@@ -49,6 +49,7 @@ interface IScoreboard {
     function toleranceBps(address hook) external view returns (uint16);
     function unratedCap() external view returns (uint128);
     function stats(address hook) external view returns (HookStats memory);
+    function getParams() external view returns (Params memory);
 
     // reporter-only
     function recordFill(address hook, bytes32 poolId, uint256 quotedOut, uint256 settledOut) external;
