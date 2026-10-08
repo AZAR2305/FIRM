@@ -10,7 +10,7 @@ do. The backend finds routes, probes hooks, exposes tools to agents, and measure
 | `canary-agent` | Dust-probe keeper: discovers pools with hooks, runs the 24-probe matrix (3 amounts x 4 sender identities x 2 directions) through `CanaryRunner`, re-probes on a schedule, writes reports. Static bytecode analysis only prioritises, never changes status |
 | `firm-mcp` | MCP (Model Context Protocol) tool server: `list_pools`, `get_hook_score`, `quote`, `firm_swap`, and the benchmark-only unprotected `raw_swap` |
 | `trader-agent` | An honest-but-naive trading agent that talks to `firm-mcp` over stdio MCP. LLM tool-calling loop for any OpenAI-compatible endpoint, with a scripted fallback; the arena runner compares an unprotected and a protected agent on the same trades |
-| `bench` | Experiments B1 to B8 that write `RESULTS.md`, plus `check-indexer` (Envio index vs Scoreboard) and `gas-profile` (measures quote/leg/Scoreboard gas, adds Monad's cold-access repricing, recommends caps; see `../docs/GAS.md`) |
+| `bench` | Experiments B1 to B8 that write `bench/out/RESULTS.fork.md` (local fork) or `bench/out/RESULTS.testnet.md`, never the hand-written root `RESULTS.md`, plus `check-indexer` (Envio index vs Scoreboard) and `gas-profile` (measures quote/leg/Scoreboard gas, adds Monad's cold-access repricing, recommends caps; see `../docs/GAS.md`) |
 
 ```bash
 cd backend
@@ -29,7 +29,7 @@ Copy `../.env.example` to `../.env` and fill in the testnet keys.
 pnpm quote-api                                  # http://localhost:8787
 pnpm canary once                                # probe every hooked pool once, write ./reports/<hook>.json
 pnpm --filter @firm/trader-agent start          # the arena: unprotected vs protected agent, writes results/arena.json
-pnpm bench                                      # B1..B8 -> ../RESULTS.md (needs the deployer/owner key)
+pnpm bench                                      # B1..B8 -> bench/out/RESULTS.{fork,testnet}.md (needs the deployer/owner key)
 ```
 
 ### quote-api

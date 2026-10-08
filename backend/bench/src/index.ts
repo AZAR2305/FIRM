@@ -26,7 +26,8 @@ const env = z
     BENCH_TRADE_TOKENS: z.coerce.bigint().positive().default(1000n),
     /** comma separated subset, e.g. B1,B3 */
     BENCH_ONLY: z.string().optional(),
-    BENCH_OUTPUT: z.string().default("RESULTS.md"),
+    /** default: backend/bench/out/RESULTS.fork.md on a local fork, backend/bench/out/RESULTS.testnet.md otherwise. Never the hand-written RESULTS.md. */
+    BENCH_OUTPUT: z.string().optional(),
     QUOTE_API_URL: z.string().url().optional().or(z.literal("").transform(() => undefined)),
     ENVIO_GRAPHQL_URL: z.string().url().optional().or(z.literal("").transform(() => undefined)),
     ENVIO_ADMIN_SECRET: z.string().optional().or(z.literal("").transform(() => undefined)),
@@ -87,7 +88,8 @@ const md = renderResults(
   },
   results,
 );
-const outPath = isAbsolute(env.BENCH_OUTPUT) ? env.BENCH_OUTPUT : join(root, env.BENCH_OUTPUT);
+const outRel = env.BENCH_OUTPUT ?? (ctx.isLocalFork ? "backend/bench/out/RESULTS.fork.md" : "backend/bench/out/RESULTS.testnet.md");
+const outPath = isAbsolute(outRel) ? outRel : join(root, outRel);
 mkdirSync(dirname(outPath), { recursive: true });
 writeFileSync(outPath, md);
 log.info("wrote results", { path: outPath, experiments: results.map((r) => `${r.id}${r.skipped ? " (skipped)" : ""}`) });

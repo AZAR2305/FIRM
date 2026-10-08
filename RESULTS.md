@@ -1,41 +1,126 @@
 # RESULTS
 
-**Status: no Monad Testnet measurements yet.** FIRM has not been deployed to the public testnet from this repository
-(that needs a funded deployer wallet, see README "Deploy"). The benchmark, the agents and the Envio indexer have been run end
-to end against a **local anvil fork of Monad Testnet running in WSL** (the real deployed PoolManager and V4Quoter code and
-state, plus a fresh FIRM deployment, with a real Envio indexer on top). Those numbers are real for contract behaviour and
-**not** testnet measurements for gas or timing.
+Every table below is split into **Fork results** (measured, on a local fork of Monad Testnet) and **Monad Testnet results**
+(**pending**: FIRM has not been deployed to the public testnet from this repository yet, because that needs a funded deployer
+wallet; see README "Deploy"). A pending cell means nothing was measured. No fork number is presented as a testnet number.
 
-* Full fork run, all experiments B1 to B8: [backend/bench/out/RESULTS.fork.md](backend/bench/out/RESULTS.fork.md)
-* Arena (unprotected vs protected agent, 20 trades): [backend/trader-agent/results/arena.fork.json](backend/trader-agent/results/arena.fork.json)
-  (`"mode": "scripted"`: no LLM endpoint was configured, so this is the scripted trader, not a language model)
-* Regenerate on testnet: `BENCH_PRIVATE_KEY=0x<deployer key> QUOTE_API_URL=http://localhost:8787 pnpm bench` from `backend/`
-  (writes this file, with the exact commit and deployment addresses used)
+## Read this first
 
-## Headline numbers from the fork run
+* **The hooks under test are our own fixtures** (`contracts/test-fixtures`): a context-spoofing hook, a random-fee hook, a
+  sender-aware hook, gas-grief, revert and quote-only hooks, and an honest hook. Catch rates therefore show that **the mechanism
+  works**; they do **not** show that real malicious hooks in the field are caught. We have not measured that and make no such claim.
+* **What a fork is.** A local anvil fork of Monad Testnet state: the contract behaviour is real (the deployed PoolManager and V4Quoter
+  code and state, plus a fresh FIRM deployment, with a real Envio indexer on top for B7), but **gas follows Ethereum's schedule, not
+  Monad's repriced one, and timing numbers say nothing about the network**. Everything labelled "fork-measured" is not Monad-measured.
+* Numbers are reported as measured, including unfavourable ones. Nothing is rounded in our favour.
+* Sources: the full fork run [backend/bench/out/RESULTS.fork.md](backend/bench/out/RESULTS.fork.md) (commit `ba2565c` plus uncommitted
+  changes, 2026-10-07), the arena [backend/trader-agent/results/arena.fork.json](backend/trader-agent/results/arena.fork.json)
+  (`"mode": "scripted"`: no LLM endpoint was configured, so this is a scripted trader, not a language model), a B5 re-run on 2026-10-08
+  after the gas-reserve change (below), and the gas work in [docs/SPIKES.md](docs/SPIKES.md) S5 and [docs/GAS.md](docs/GAS.md).
+* Regenerate on testnet (after deploying): `BENCH_PRIVATE_KEY=0x<deployer key> QUOTE_API_URL=http://localhost:8787 pnpm bench` from
+  `backend/`. It writes `backend/bench/out/RESULTS.testnet.md` (a fork run writes `RESULTS.fork.md`; neither overwrites this file) with
+  the exact commit and deployment addresses used; copy the numbers into the testnet tables below.
 
-Measured, not rounded in our favour. The hooks are our own quarantined fixtures: this shows the mechanism works, not
-that real malicious hooks in the field are caught.
+## 1. Headline results
 
-| Question | Result (fork run) |
+### Fork results
+
+| Question | Result (fork) |
 |---|---|
-| **B3** User loss on a 1,000 tUSD trade when the best quote is the context-spoofing pool (20 trades) | Unprotected RawRouter: **17.99% loss vs quote** (3,596 tokens over 20 trades). FirmRouter: **0%**, Pool B rejected 20/20 and Pool C filled. |
-| **B1** Quote-spoofing hooks (context, gas-grief, revert) through FirmRouter | Struck 20/20 deviating executions, 100% |
-| **B1** Probabilistic hook (random 5-20% fee on about half of real swaps) | Deviates on a random subset of real swaps, drawn independently in the raw and router trials, so only the rates are comparable (10/20 raw vs 11/20 router in this run); blocked by the first canary probe |
+| **B3** User loss on a 1,000 tUSD trade when the best quote is the context-spoofing pool (20 trades) | Unprotected RawRouter: **17.99% loss vs quote** (3,596 tokens over 20 trades). FirmRouter: **0%**, Pool B rejected 20/20 and Pool C filled. Single trade: 819.18 vs 998.20 received (DemoSwap, 2026-10-08). |
+| **B1** Quote-spoofing hooks (context, gas-grief, revert) through FirmRouter | Struck 20/20 deviating executions (100%) |
+| **B1** Probabilistic hook (random 5-20% fee on about half of real swaps) | Deviates on a random subset of real swaps, drawn independently in the raw and router trials, so only the rates are comparable (8/20 raw vs 11/20 router in the full run); blocked by the first canary probes |
 | **B1 / B4** Sender-aware hook (honest to Quoter and router, taxes everyone else) | **Not caught by the router (0%)**, as designed and stated up front; blocked by the first canary probe from another sender identity |
 | **B2** False positives, honest hook, 100 executions (50 probes, 50 protected fills) | **0 strikes**, status UNRATED to NORMAL |
 | **B6** Gas-grief and reverting hooks | FirmRouter never reverted as a whole; input refunded exactly or filled elsewhere; strike persisted |
 | **B8 / arena** Agent that always takes the best quote, 20 trades of 100 to 2,000 tUSD (scripted, through the real MCP tool server) | Unprotected: **0.99% mean loss** (191 tokens). With FirmRouter: **0%** hidden loss; its price cost against the best *advertised* quote is about 0.18%, the honest pool's genuinely worse price |
-| **B5** Gas | Gas *limit* needed (what Monad charges), `eth_estimateGas` on the fork: protected swap **240k** (hookless pool) and **305k** (honest hook) vs **175k** and **195k** for the unprotected router, so **1.37x and 1.57x**. This was 5.4x and 5.0x before the gas guard was made failure-attributable (docs/GAS.md). With Monad's cold-access repricing added the honest protected swap is estimated at about 0.54M gas (about 0.62M limit); that is an estimate until it is measured on testnet. |
-| **B7** Dashboard latency (tx confirmed to Fill queryable in Envio) | p50 **0.97 s**, p95 **1.08 s**, 0 timeouts over 10 swaps. Local fork, Envio in RPC mode with its default 1 s polling: this is dominated by Envio's poll interval and says nothing about HyperSync on the real network. |
-| **Envio vs chain** after the whole run (174 fills, 141 strikes, 104 probes across the 7 hooks) | `pnpm check-indexer`: the index agrees with the Scoreboard for all 7 hooks (status, fills, strikes, probes, probe strikes) |
+| **B7** Dashboard latency (tx confirmed to Fill queryable in Envio) | p50 **0.97 s**, p95 **1.08 s**, 0 timeouts over 10 swaps. Envio in RPC mode with its default 1 s polling: dominated by the poll interval, says nothing about HyperSync on the real network |
+| **Envio vs chain** after the whole run (174 fills, 141 strikes, 104 probes across 7 hooks) | `pnpm check-indexer`: the index agrees with the Scoreboard for all 7 hooks (status, fills, strikes, probes, probe strikes) |
+
+### Monad Testnet results
+
+| Question | Result (Monad Testnet) |
+|---|---|
+| B3 User loss, raw vs protected, 20 trades | **pending** |
+| B1 Detection by hook (context, gas-grief, revert, random-fee) | **pending** |
+| B1 / B4 Sender-aware hook: router vs canary | **pending** |
+| B2 False positives, honest hook | **pending** |
+| B6 Gas-grief and reverting hooks | **pending** |
+| B8 / arena agent comparison | **pending** (and not yet run with a language model on any network) |
+| B7 Dashboard latency | **pending** (HyperSync, real block time) |
+| Envio vs chain consistency | **pending** |
+
+## 2. B5: gas (what Monad charges is the gas LIMIT)
+
+### Fork results (fork-measured, Ethereum gas schedule, NOT Monad-measured)
+
+`eth_estimateGas` (the smallest limit that succeeds), protected swap of 100 tUSD through a single route vs the unprotected router:
+
+| Pool | Raw limit | FIRM limit, committed run (2026-10-07) | FIRM limit, re-run (2026-10-08) | Ratio, committed | Ratio, re-run |
+|---|---|---|---|---|---|
+| A, hookless | 175,004 / 175,271 | 240,291 | **243,121** | 1.37x | **1.39x** |
+| C, honest hook | 195,014 / 195,237 | 305,468 | **309,251** | 1.57x | **1.58x** |
+
+The re-run is higher by about 3k gas because `gasReserve` became owner-settable (a storage read per capped call) after the committed
+run. The committed full run in `backend/bench/out/RESULTS.fork.md` predates that change and was not regenerated; the other experiments
+do not depend on this, but it is stated here rather than hidden. Before the gas guard was made failure-attributable the ratios were 5.4x and 5.0x
+(docs/GAS.md). A hostile first route (gas-grief) needs a limit of about 1.0M to 1.3M, **estimated** (Monad cold-access repricing added
+to fork measurements), paid once per hostile hook.
+
+Gas caps (S5, [docs/SPIKES.md](docs/SPIKES.md)): worst honest quote 189k and worst honest leg 334k with Monad repricing **estimated**, against
+caps of 300k and 450k: margins **1.59x** and **1.35x** (the leg margin is below our 1.5x policy; open decision, defaults unchanged).
+
+### Monad Testnet results
+
+| Quantity | Result |
+|---|---|
+| Protected vs raw gas limit, hookless pool | **pending** |
+| Protected vs raw gas limit, honest-hook pool | **pending** |
+| Hostile first route limit | **pending** |
+| Worst honest quote and leg gas, margin to the caps | **pending** (needs `debug_traceCall` or per-pool `eth_estimateGas`) |
+
+## 3. Deployment cost
+
+### Fork results (fork-measured, NOT Monad-measured)
+
+One run of `Redeploy.sh` (37 transactions: 4 core contracts, 2 tokens, 1 helper, 7 fixture hooks, reporters, 8 pools):
+
+| | Gas |
+|---|---|
+| Sum of the explicit gas limits (what Monad charges) | 22,200,000 |
+| Gas actually used | 14,415,868 (limits are 1.54x used) |
+| Cost of the limits at 102 gwei (the live testnet gas price read on 2026-10-08) | about 2.26 MON; the preflight requires 2.83 MON (+25% buffer) |
+
+### Monad Testnet results
+
+| | Result |
+|---|---|
+| Gas used and cost of the real deployment | **pending** |
+| Whether any step ran out of gas at its explicit limit | **pending** |
+
+## 4. Gas-cap behaviour tests (local EVM, Ethereum schedule)
+
+These are tests (`contracts/test/GasCaps.t.sol`), not benchmark runs; they pin behaviour.
+
+### Fork / local-EVM results
+
+| Question | Result |
+|---|---|
+| Honest hook using 2x the typical hook gas | filled, not skipped, not struck |
+| Extra gas an honest hook can burn before a cap stops it | 220k per path (5.5x the typical hook); the quote cap binds first, as a silent skip |
+| Gas-grief out-of-gas recorded correctly | one strike, `execFailed`, shortfall 10,000 bps, BLOCKED (`SEVERE_SHORTFALL`); the leg burned its 450k cap; the hook is then skipped, not struck twice |
+| A cap that is too tight | wrongly BLOCKS an honest heavy hook (leg cap), silently skips it (quote cap) or strikes it through the canary; each is tested and listed in S5 |
+
+### Monad Testnet results
+
+| Question | Result |
+|---|---|
+| Same behaviour tests against Monad's gas schedule | **pending** (the same tests need the real chain's cost to set the heavy hook's burn) |
 
 ## What would change these numbers
 
-* Testnet gas (Monad's repriced schedule) will change B5, and possibly the right gas caps. A hook that needs more gas
-  than the leg cap is treated as failed.
-* A real-world hook population may contain hooks that discriminate on the caller; the canary is an arms race, see
-  THREAT_MODEL.md.
-* The arena has not been run with a language model. With an LLM the protected arm should behave identically (the model
-  only chooses tools); the unprotected arm could differ if the model decides not to trust the best quote. That has not
-  been measured.
+* Testnet gas (Monad's repriced schedule) will change B5, the deployment cost and possibly the right gas caps. A hook that needs more
+  gas than the leg cap is treated as failed when the leg had its full gas; with a cap that is too tight that is a false strike.
+* A real-world hook population may contain hooks that discriminate on the caller; the canary is an arms race, see THREAT_MODEL.md.
+* The arena has not been run with a language model. With an LLM the protected arm should behave identically (the model only chooses
+  tools); the unprotected arm could differ if the model decides not to trust the best quote. That has not been measured.
