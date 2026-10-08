@@ -10,17 +10,37 @@ a funded deployer key). Until then the services stop with a clear "deployments f
 deployment, commit `10143.json` and `DEPLOYMENTS.md`.
 
 ```bash
-cd contracts && DEPLOYER_ACCOUNT=firm-deployer VERIFY=1 ./script/Redeploy.sh
-node ../scripts/gen-indexer-config.mjs     # point envio/ at it
+cd contracts && ./script/Redeploy.sh        # reads ../.env for DEPLOYER_PRIVATE_KEY / DEPLOYER_ACCOUNT
+node ../scripts/gen-indexer-config.mjs      # point envio/ at it
 ```
+
+`Redeploy.sh` is one command. In order it:
+
+1. **Preflight.** Checks the RPC is chain 10143, reads the live gas price, sums the explicit gas limits of all 37 transactions
+   (`contracts/script/GasLimits.sol`, `scripts/gas-budget.mjs`) and refuses to send anything if the deployer holds less than
+   that plus a 25% buffer. The message names the deployer, the balance, the amount needed and the shortfall.
+2. Builds, then runs `Deploy` (Scoreboard, FirmRouter, CanaryRunner, RawRouter, reporters wired, demo UNRATED cap),
+   `DeployFixtures` (mock tokens, liquidity helper, quarantined fixture hooks at mined CREATE2 addresses) and `SeedPools`
+   (pools A to E plus G, R, Q).
+3. Writes `10143.json` (addresses, block numbers, tx hashes, ABIs) and `DEPLOYMENTS.md`.
+4. Prints a gas report (limit versus used per transaction) and runs `Verify.sh` (Sourcify / MonadVision).
+
+**Gas.** Monad charges the gas *limit*, so every transaction carries an explicit one. Calls use `{gas: n}`; contracts are
+created with a plain call to the CREATE2 deployer with an explicit limit (Foundry cannot take one for `new X()`), so
+addresses depend on the run id, not the nonce. The scripts run with `--skip-simulation`: without it Foundry replaces the
+limit of the first transaction of a script by its own estimate. The limits are **fork-measured, not Monad-measured**; if a
+step runs out of gas on the real network, re-run with `FIRM_GAS_SCALE_PCT=150` and then update `GasLimits.sol`.
 
 `.stage/` holds intermediate files from the individual forge scripts and is git-ignored.
 
-To run against a local fork instead of the public testnet (what the committed fork benchmark did):
+### Dry run against a local fork (what to do before spending real MON)
 
 ```bash
-anvil --fork-url https://testnet-rpc.monad.xyz --port 8546
-MONAD_TESTNET_RPC_URL=http://127.0.0.1:8546 DEPLOYER_PRIVATE_KEY=<anvil dev key> ./script/Redeploy.sh
+# in WSL (Windows): scripts/wsl-anvil.sh start       -> anvil fork of testnet on :8546
+cast rpc anvil_setBalance <deployer> 0x56BC75E2D63100000 --rpc-url http://127.0.0.1:8546   # fund it on the FORK only
+cd contracts && MONAD_TESTNET_RPC_URL=http://127.0.0.1:8546 ./script/Redeploy.sh
 ```
 
-Never commit a `10143.json` produced against a fork: its addresses do not exist on the real testnet.
+A local RPC switches the script to fork mode by itself (`FIRM_FORK=1`): the outputs are `10143.fork.json` and
+`DEPLOYMENTS.fork.md`, both git-ignored, `Verify.sh` only prints what it would verify, and the preflight prices the budget at
+the live testnet gas price. Never commit a `10143.json` produced against a fork: its addresses do not exist on the real testnet.

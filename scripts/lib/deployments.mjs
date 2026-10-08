@@ -3,6 +3,7 @@
 import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { createRequire } from "node:module";
 
 export const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 export const STAGE = join(ROOT, "deployments", ".stage");
@@ -14,6 +15,12 @@ export const OUT_JSON = join(ROOT, "deployments", IS_FORK ? "10143.fork.json" : 
 export const OUT_MD = join(ROOT, IS_FORK ? join("deployments", "DEPLOYMENTS.fork.md") : "DEPLOYMENTS.md");
 
 export const CHAIN_ID = 10143;
+
+// viem lives in the backend workspace; the deployment tooling only needs its CREATE2 address helper.
+const { getCreate2Address, keccak256 } = createRequire(join(ROOT, "backend", "shared", "package.json"))("viem");
+
+/** The deployer every contract is created through (explicit gas limit per creation, see contracts/script/DeployBase.sol). */
+export const CREATE2_DEPLOYER = "0x4e59b44847b379578588920ca78fbf26c0b4956c";
 
 // Verified against docs.monad.xyz and the Monad hooks guide (spec 5.2, 5.3). Monad-maintained, not official.
 export const INFRA = {
@@ -57,6 +64,24 @@ export const POOL_NAMES = {
   Q: "FixtureQuoteOnlyHook (dynamic fee)",
 };
 
+// ABIs that ship inside deployments/10143.json so a frontend needs nothing but that one file (artifact file, contract name)
+const ABI_SOURCES = {
+  Scoreboard: ["Scoreboard.sol", "Scoreboard"],
+  FirmRouter: ["FirmRouter.sol", "FirmRouter"],
+  RawRouter: ["RawRouter.sol", "RawRouter"],
+  CanaryRunner: ["CanaryRunner.sol", "CanaryRunner"],
+  MockToken: ["MockToken.sol", "MockToken"],
+};
+function readAbis() {
+  const out = {};
+  for (const [name, [file, contract]] of Object.entries(ABI_SOURCES)) {
+    const p = join(ROOT, "contracts", "out", file, `${contract}.json`);
+    if (!existsSync(p)) throw new Error(`ABI for ${name} not found at ${p}: run forge build in contracts/`);
+    out[name] = JSON.parse(readFileSync(p, "utf8")).abi;
+  }
+  return out;
+}
+
 const readJson = (p) => (existsSync(p) ? JSON.parse(readFileSync(p, "utf8")) : null);
 const lc = (a) => a.toLowerCase();
 
@@ -69,8 +94,15 @@ export function readBroadcasts() {
     if (!run) continue;
     const blocks = new Map((run.receipts ?? []).map((r) => [lc(r.transactionHash), Number(BigInt(r.blockNumber))]));
     for (const tx of run.transactions ?? []) {
-      if (!tx.contractAddress) continue;
-      map.set(lc(tx.contractAddress), { hash: tx.hash, blockNumber: blocks.get(lc(tx.hash)) ?? null });
+      let created = tx.contractAddress;
+      const t = tx.transaction ?? {};
+      if (!created && t.to && lc(t.to) === CREATE2_DEPLOYER && t.input) {
+        // creation sent as a plain call to the CREATE2 deployer: input = salt (32 bytes) ++ init code
+        const salt = "0x" + t.input.slice(2, 66);
+        created = getCreate2Address({ from: CREATE2_DEPLOYER, salt, bytecodeHash: keccak256("0x" + t.input.slice(66)) });
+      }
+      if (!created) continue;
+      map.set(lc(created), { hash: tx.hash, blockNumber: blocks.get(lc(tx.hash)) ?? null });
     }
   }
   return map;
@@ -100,6 +132,7 @@ export function buildModel() {
     network: "Monad Testnet",
     generatedAt: new Date().toISOString(),
     owner: core.owner,
+    runId: core.runId ?? null,
     infra: INFRA,
     core: Object.fromEntries(Object.entries(CORE).map(([k, c]) => [k, entry(core[k], c)])),
     fixtures: fx ? Object.fromEntries(Object.entries(FIXTURES).map(([k, c]) => [k, entry(fx[k], c)])) : null,
@@ -123,6 +156,7 @@ export function buildModel() {
       ),
     };
   }
+  model.abis = readAbis();
   const blocks = Object.values(model.core).map((e) => e.blockNumber).filter((b) => b != null);
   model.startBlock = blocks.length ? Math.min(...blocks) : null;
   return model;

@@ -45,6 +45,8 @@ jobs:
         working-directory: backend
       - run: pnpm -r test
         working-directory: backend
+      - name: Deployment tooling (gas limits, budget, Redeploy guards)
+        run: node --test scripts/test/deploy-tooling.test.mjs
 
   envio:
     # Envio does not run on native Windows (we run it under WSL locally); CI validates it on Linux: codegen checks config.yaml,

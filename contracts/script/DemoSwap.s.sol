@@ -17,6 +17,7 @@ import {HookStats} from "../src/interfaces/IScoreboard.sol";
 import {IV4QuoterLite} from "../src/interfaces/IV4QuoterLite.sol";
 import {MockToken} from "../test-fixtures/MockToken.sol";
 import {Config} from "./Config.sol";
+import {GasLimits} from "./GasLimits.sol";
 
 /// @notice The headline demo, scripted. Same 1,000 tUSD trade through the unprotected RawRouter (picks the best
 ///         quote, Pool B, and eats the hidden fee) and through FirmRouter with routes [B, C, A] (rejects B, strikes
@@ -46,13 +47,13 @@ contract DemoSwap is Script {
 
         vm.startBroadcast();
         (, address me,) = vm.readCallers();
-        tUSD.mint(me, 3000e18);
-        tUSD.approve(address(raw), type(uint256).max);
-        tUSD.approve(address(firm), type(uint256).max);
+        tUSD.mint{gas: GasLimits.PUBLIC_MINT}(me, 3000e18);
+        tUSD.approve{gas: GasLimits.APPROVE}(address(raw), type(uint256).max);
+        tUSD.approve{gas: GasLimits.APPROVE}(address(firm), type(uint256).max);
 
         // 1) naive router trusts the best quote
         uint256 before = tokenOut.balanceOf(me);
-        raw.swapExactInRaw(_route(b, z), amount, 0, me);
+        raw.swapExactInRaw{gas: GasLimits.RAW_SWAP}(_route(b, z), amount, 0, me);
         uint256 rawOut = tokenOut.balanceOf(me) - before;
 
         // 2) FIRM: [B, C, A]
@@ -61,7 +62,9 @@ contract DemoSwap is Script {
         rs[1] = _route(c, z);
         rs[2] = _route(a, z);
         before = tokenOut.balanceOf(me);
-        (uint256 firmOut, int256 leg) = firm.swapExactIn(rs, amount, 0, me, uint64(block.timestamp + 1 hours));
+        (uint256 firmOut, int256 leg) = firm.swapExactIn{gas: GasLimits.FIRM_SWAP}(
+            rs, amount, 0, me, uint64(block.timestamp + 1 hours)
+        );
         vm.stopBroadcast();
 
         console2.log("RAW  router received", rawOut);
