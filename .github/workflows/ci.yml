@@ -48,6 +48,29 @@ jobs:
       - name: Deployment tooling (gas limits, budget, Redeploy guards)
         run: node --test scripts/test/deploy-tooling.test.mjs
 
+  frontend:
+    # No deployments/10143.json is committed until the real deployment, so CI builds the "not deployed yet" state. The browser
+    # demo-path test needs a local fork and runs locally (frontend/README.md).
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: frontend/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+        working-directory: frontend
+      - run: pnpm typecheck
+        working-directory: frontend
+      - run: pnpm test
+        working-directory: frontend
+      - run: pnpm build
+        working-directory: frontend
+
   envio:
     # Envio does not run on native Windows (we run it under WSL locally); CI validates it on Linux: codegen checks config.yaml,
     # schema.graphql and the handler types together.

@@ -1,0 +1,8 @@
+node_modules/
+.next/
+next-env.d.ts
+# copied from ../deployments by scripts/sync-deployments.mjs; may point at a fork, so never committed
+src/generated/
+test-results/
+playwright-report/
+*.tsbuildinfo

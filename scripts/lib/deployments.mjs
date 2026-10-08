@@ -71,6 +71,7 @@ const ABI_SOURCES = {
   RawRouter: ["RawRouter.sol", "RawRouter"],
   CanaryRunner: ["CanaryRunner.sol", "CanaryRunner"],
   MockToken: ["MockToken.sol", "MockToken"],
+  V4Quoter: ["IV4Quoter.sol", "IV4Quoter"],
 };
 function readAbis() {
   const out = {};
