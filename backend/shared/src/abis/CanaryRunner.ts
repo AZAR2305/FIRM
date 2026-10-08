@@ -35,6 +35,19 @@ export const CanaryRunnerAbi = [
   },
   {
     "type": "function",
+    "name": "gasReserve",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "legGasCap",
     "inputs": [],
     "outputs": [
@@ -253,6 +266,19 @@ export const CanaryRunnerAbi = [
   },
   {
     "type": "function",
+    "name": "setGasReserve",
+    "inputs": [
+      {
+        "name": "gasReserve_",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "transferOwnership",
     "inputs": [
       {
@@ -276,6 +302,19 @@ export const CanaryRunnerAbi = [
       },
       {
         "name": "quoteGasCap",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "GasReserveSet",
+    "inputs": [
+      {
+        "name": "gasReserve",
         "type": "uint256",
         "indexed": false,
         "internalType": "uint256"

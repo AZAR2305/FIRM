@@ -1,5 +1,9 @@
 # Gas: why a protected swap used to need ~5x the gas limit, and what changed
 
+> **Every gas number in this file is fork-measured (Ethereum gas schedule) or an estimate that adds Monad's published cold-access
+> repricing. None of it is Monad-measured yet.** Re-run `pnpm gas-profile` and B5 on the real testnet and replace it.
+> The per-cap margins, the honest-hook tests and the places where a tight cap wrongly hits an honest hook are in `SPIKES.md` S5.
+
 Monad charges the **gas limit** you set, not the gas you use ("the gas charged for a transaction is the gas limit set in the
 transaction, rather than the gas used in the course of execution", docs.monad.xyz, gas pricing). So the *limit a swap needs* is
 the cost that matters, and a router that forces a large limit makes every swap expensive even when it uses little.
@@ -22,7 +26,7 @@ for the caller's low gas limit. But checking it up front made the smallest valid
 Gas starvation only matters when a sub-call **fails**. So `FirmRouter._attempt` now:
 
 * runs the quote and the leg with their caps but **no up-front gas requirement**; a call that succeeds with less than its cap is fine;
-* remembers whether the call *did* have its full cap plus reserve (`gasleft() >= cap*64/63 + GAS_RESERVE` at call time);
+* remembers whether the call *did* have its full cap plus reserve (`gasleft() >= cap*64/63 + gasReserve` at call time);
 * if a quote **fails** without full gas, or a leg **fails** (execution failure, out of gas) without full gas, it **reverts with
   `InsufficientGas`** instead of skipping the leg or striking the hook;
 * a measured `Shortfall` (the swap completed and delivered less than the floor) is a valid strike regardless of gas.
@@ -60,17 +64,17 @@ Scoreboard.recordFill                            78906      6      0      114906
 FirmRouter.swapExactIn [C] (whole)              367249     21      6      538249
 
 worst honest quote 188,801   worst honest leg 292,672   post-leg work 198,671 (strike write + 60k for events/refund)
-x1.5 margin, rounded up to 25k:  quoteGasCap 300,000   legGasCap 450,000   GAS_RESERVE 300,000
+x1.5 margin, rounded up to 25k:  quoteGasCap 300,000   legGasCap 450,000   gasReserve 300,000
 ```
 
 | Parameter | Was | Now | Basis |
 |---|---|---|---|
 | `quoteGasCap` | 700,000 | **300,000** | worst honest quote 189k (Monad-adjusted) x 1.5 |
 | `legGasCap` | 700,000 | **450,000** | worst honest leg 293k (includes token transfers the router does outside the leg) x 1.5 |
-| `GAS_RESERVE` | 100,000 | **300,000** | a strike write alone is about 139k Monad-adjusted; the old value was **too small for Monad** and would have let a hostile leg that burns its cap leave the router unable to finish |
+| `gasReserve` | 100,000 | **300,000** | a strike write alone is about 139k Monad-adjusted; the old value was **too small for Monad** and would have let a hostile leg that burns its cap leave the router unable to finish |
 
-`quoteGasCap` and `legGasCap` stay owner-tunable within [100k, 5M] (`setCaps`); `GAS_RESERVE` is a constant (changing it means a
-redeploy). `CanaryRunner` uses the same defaults and keeps its stricter up-front check, because a probe that records a false
+`quoteGasCap`, `legGasCap` and the reserve are owner-tunable without a redeploy, within `GasBounds` (leg [350k, 1.5M], quote [200k, 1M],
+reserve [150k, 1M]; `setCaps`, `setGasReserve`; see `SPIKES.md` S5). `CanaryRunner` uses the same defaults and keeps its stricter up-front check, because a probe that records a false
 strike would corrupt the ledger and the canary is not user-facing.
 
 ### What the limits look like now (Monad-adjusted estimates)

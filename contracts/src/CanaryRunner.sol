@@ -13,6 +13,7 @@ import {Currency} from "@uniswap/v4-core/src/types/Currency.sol";
 import {IScoreboard} from "./interfaces/IScoreboard.sol";
 import {ProbeSender} from "./ProbeSender.sol";
 import {Route} from "./libraries/RouteLib.sol";
+import {GasBounds} from "./libraries/GasBounds.sol";
 
 /// @title CanaryRunner
 /// @notice Permissionless onchain probe. Performs the same quote-versus-fill check as FirmRouter but from
@@ -26,8 +27,12 @@ contract CanaryRunner is Ownable2Step, ReentrancyGuard {
     address public immutable quoter;
     IScoreboard public immutable scoreboard;
 
-    uint256 public legGasCap = 450_000;
-    uint256 public quoteGasCap = 300_000;
+    /// @dev Same defaults, bounds and caveats as FirmRouter (see there). A probe whose leg exceeds the cap delivers nothing,
+    ///      which recordProbe counts as a 100% shortfall, so a cap that is too tight strikes an honest hook through the canary
+    ///      too. Keep these in step with the router's caps.
+    uint256 public legGasCap = GasBounds.DEFAULT_LEG_CAP;
+    uint256 public quoteGasCap = GasBounds.DEFAULT_QUOTE_CAP;
+    uint256 public gasReserve = GasBounds.DEFAULT_RESERVE;
 
     event ProbeDone(
         bytes32 indexed poolId,
@@ -39,6 +44,7 @@ contract CanaryRunner is Ownable2Step, ReentrancyGuard {
     );
     event ProbeSenderDeployed(uint8 indexed idx, address sender);
     event CapsSet(uint256 legGasCap, uint256 quoteGasCap);
+    event GasReserveSet(uint256 gasReserve);
 
     error CapOutOfBounds();
     error NativeCurrencyUnsupported();
@@ -63,7 +69,7 @@ contract CanaryRunner is Ownable2Step, ReentrancyGuard {
         address tokenIn = Currency.unwrap(route.zeroForOne ? route.key.currency0 : route.key.currency1);
         address tokenOut = Currency.unwrap(route.zeroForOne ? route.key.currency1 : route.key.currency0);
         if (tokenIn == address(0) || tokenOut == address(0)) revert NativeCurrencyUnsupported();
-        if (gasleft() < ((quoteGasCap + legGasCap) * 64) / 63 + 300_000) revert InsufficientGas();
+        if (gasleft() < ((quoteGasCap + legGasCap) * 64) / 63 + gasReserve) revert InsufficientGas();
 
         ProbeSender ps = _senderFor(senderIdx);
         IERC20(tokenIn).safeTransferFrom(msg.sender, address(ps), amountIn);
@@ -95,11 +101,16 @@ contract CanaryRunner is Ownable2Step, ReentrancyGuard {
     }
 
     function setCaps(uint256 legGasCap_, uint256 quoteGasCap_) external onlyOwner {
-        if (legGasCap_ < 100_000 || legGasCap_ > 5_000_000) revert CapOutOfBounds();
-        if (quoteGasCap_ < 100_000 || quoteGasCap_ > 5_000_000) revert CapOutOfBounds();
+        if (!GasBounds.capsInBounds(legGasCap_, quoteGasCap_)) revert CapOutOfBounds();
         legGasCap = legGasCap_;
         quoteGasCap = quoteGasCap_;
         emit CapsSet(legGasCap_, quoteGasCap_);
+    }
+
+    function setGasReserve(uint256 gasReserve_) external onlyOwner {
+        if (!GasBounds.reserveInBounds(gasReserve_)) revert CapOutOfBounds();
+        gasReserve = gasReserve_;
+        emit GasReserveSet(gasReserve_);
     }
 
     function _senderFor(uint8 idx) private returns (ProbeSender) {

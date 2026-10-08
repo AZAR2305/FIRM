@@ -144,6 +144,19 @@ export const FirmRouterAbi = [
   },
   {
     "type": "function",
+    "name": "gasReserve",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "legGasCap",
     "inputs": [],
     "outputs": [
@@ -281,6 +294,19 @@ export const FirmRouterAbi = [
         "name": "advTolBps_",
         "type": "uint16",
         "internalType": "uint16"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setGasReserve",
+    "inputs": [
+      {
+        "name": "gasReserve_",
+        "type": "uint256",
+        "internalType": "uint256"
       }
     ],
     "outputs": [],
@@ -481,6 +507,19 @@ export const FirmRouterAbi = [
         "type": "uint8",
         "indexed": false,
         "internalType": "uint8"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "GasReserveSet",
+    "inputs": [
+      {
+        "name": "gasReserve",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
       }
     ],
     "anonymous": false

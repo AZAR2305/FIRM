@@ -214,3 +214,37 @@ contract FixtureQuoteOnlyHook is FixtureHookBase {
         return (IHooks.beforeSwap.selector, BeforeSwapDeltaLibrary.ZERO_DELTA, fee | LPFeeLibrary.OVERRIDE_FEE_FLAG);
     }
 }
+
+/// @notice HONEST in output and HEAVY in gas: takes no fee, so the quote equals the fill exactly, but burns a configured
+///         amount of gas first, separately for a Quoter call and for a real swap. Used to test the gas caps: a hook like this
+///         must never be struck merely for being expensive, and the tests show where the caps nevertheless bite.
+contract FixtureHeavyHonestHook is FixtureHookBase {
+    address public immutable quoter;
+    uint256 public immutable extraGasQuote;
+    uint256 public immutable extraGasReal;
+
+    constructor(IPoolManager pm, address quoter_, uint256 extraGasQuote_, uint256 extraGasReal_) FixtureHookBase(pm) {
+        quoter = quoter_;
+        extraGasQuote = extraGasQuote_;
+        extraGasReal = extraGasReal_;
+    }
+
+    function getHookPermissions() public pure override returns (Hooks.Permissions memory) {
+        return _beforeSwapPermissions();
+    }
+
+    function beforeSwap(address sender, PoolKey calldata, SwapParams calldata, bytes calldata)
+        external
+        override
+        onlyPoolManager
+        returns (bytes4, BeforeSwapDelta, uint24)
+    {
+        uint256 burn = sender == quoter ? extraGasQuote : extraGasReal;
+        if (burn != 0) {
+            uint256 left = gasleft();
+            uint256 stop = left > burn ? left - burn : 0;
+            while (gasleft() > stop) {}
+        }
+        return (IHooks.beforeSwap.selector, BeforeSwapDeltaLibrary.ZERO_DELTA, 0);
+    }
+}

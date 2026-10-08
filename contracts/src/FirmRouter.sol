@@ -16,6 +16,7 @@ import {IFirmRouter} from "./interfaces/IFirmRouter.sol";
 import {Route, RouteLib} from "./libraries/RouteLib.sol";
 import {QuoteLib} from "./libraries/QuoteLib.sol";
 import {SafeCall} from "./libraries/SafeCall.sol";
+import {GasBounds} from "./libraries/GasBounds.sol";
 
 /// @title FirmRouter
 /// @notice Turns a quote into a promise. For every candidate route (best quote first) it asks the pool's
@@ -31,26 +32,30 @@ contract FirmRouter is IFirmRouter, SwapExecutor, Ownable2Step, ReentrancyGuard 
     uint256 public constant MAX_LEGS = 4;
     /// @dev Return data copied from a leg call: selector + one word is 36 bytes; 68 leaves headroom.
     uint256 internal constant LEG_RETURN_COPY = 68;
-    /// @dev Gas that must remain after a capped sub-call so the router can always finish: a Scoreboard strike or fill
-    ///      write, events, the next iteration and the refund. Sized from the gas profile (backend/bench gas-profile):
-    ///      recordStrike is about 103k on an Ethereum-schedule EVM and about 139k with Monad cold-access repricing,
-    ///      plus allowance, times a 1.5 margin. 100k (the first value) was too small for Monad.
-    uint256 internal constant GAS_RESERVE = 300_000;
-
     IScoreboard public immutable scoreboard;
     address public immutable quoter;
 
-    /// @notice Gas cap for one leg (swap + hook callbacks). Measured worst honest leg is about 293k with Monad repricing
-    ///         (docs/GAS.md); x1.5 margin, rounded up. Monad charges the gas limit, so lower is cheaper.
-    uint256 public legGasCap = 450_000;
-    /// @notice Gas cap for one in-transaction Quoter call. Measured worst honest quote is about 189k with Monad
-    ///         repricing (docs/GAS.md); x1.5 margin, rounded up.
-    uint256 public quoteGasCap = 300_000;
+    /// @notice Gas cap for one leg (swap + hook callbacks + the token transfers in and out). FORK-MEASURED, NOT
+    ///         MONAD-MEASURED: worst non-reverting fixture leg is 334k with Monad cold-access repricing added (docs/SPIKES.md
+    ///         S5), so this default is only a 1.35x margin on the heaviest fixture and 1.7x on the honest ones.
+    ///         TOO TIGHT IS NOT SAFE: a leg that runs out of gas while it had its full cap is recorded as execFailed, which
+    ///         is a 100% shortfall, SEVERE, and BLOCKS the hook on the first occurrence, even if the hook is honest and just
+    ///         heavy (or the token transfer, or a pool that crosses many ticks, is expensive). Retune with setCaps.
+    uint256 public legGasCap = GasBounds.DEFAULT_LEG_CAP;
+    /// @notice Gas cap for one in-transaction Quoter call. FORK-MEASURED, NOT MONAD-MEASURED: worst honest quote is 189k
+    ///         with Monad repricing (docs/SPIKES.md S5). Too tight does not strike: the route is skipped (LegSkipped reason
+    ///         2) and the hook silently gets no flow, so a cap that is too low is invisible on the Scoreboard.
+    uint256 public quoteGasCap = GasBounds.DEFAULT_QUOTE_CAP;
+    /// @notice Gas that must remain after a capped sub-call so the router can always finish: a Scoreboard strike or fill
+    ///         write, events, the next iteration and the refund. recordStrike is about 104k on an Ethereum-schedule EVM and
+    ///         about 139k with Monad repricing (docs/GAS.md); 100k (the first value) was too small for Monad.
+    uint256 public gasReserve = GasBounds.DEFAULT_RESERVE;
     /// @notice A leg is skipped if its in-tx quote is below advertisedOut by more than this (bps).
     uint16 public advTolBps = 50;
 
     // ------------------------------------------------------------------ events / errors
     event CapsSet(uint256 legGasCap, uint256 quoteGasCap, uint16 advTolBps);
+    event GasReserveSet(uint256 gasReserve);
 
     error CapOutOfBounds();
 
@@ -211,20 +216,28 @@ contract FirmRouter is IFirmRouter, SwapExecutor, Ownable2Step, ReentrancyGuard 
 
     /// @dev gas that must be available so a capped call is really given its full cap (63/64 rule) plus a reserve for the
     ///      work after it (Scoreboard write, events, refund). Only used to decide whether a FAILURE is attributable.
-    function _needed(uint256 cap) private pure returns (uint256) {
-        return (cap * 64) / 63 + GAS_RESERVE;
+    function _needed(uint256 cap) private view returns (uint256) {
+        return (cap * 64) / 63 + gasReserve;
     }
 
     // ------------------------------------------------------------------ owner
-    /// @notice Tune gas caps from measured gas (docs/SPIKES.md) and the advertised-quote tolerance.
+    /// @notice Retune the gas caps (from gas measured on the real network, docs/SPIKES.md S5) and the advertised-quote
+    ///         tolerance, without a redeploy. Bounded by GasBounds: leg [350k, 1.5M], quote [200k, 1M], tolerance <= 1000
+    ///         bps. The minimums sit above the worst honest case measured so far, so a typo cannot start striking honest hooks.
     function setCaps(uint256 legGasCap_, uint256 quoteGasCap_, uint16 advTolBps_) external onlyOwner {
-        if (legGasCap_ < 100_000 || legGasCap_ > 5_000_000) revert CapOutOfBounds();
-        if (quoteGasCap_ < 100_000 || quoteGasCap_ > 5_000_000) revert CapOutOfBounds();
+        if (!GasBounds.capsInBounds(legGasCap_, quoteGasCap_)) revert CapOutOfBounds();
         if (advTolBps_ > 1_000) revert CapOutOfBounds();
         legGasCap = legGasCap_;
         quoteGasCap = quoteGasCap_;
         advTolBps = advTolBps_;
         emit CapsSet(legGasCap_, quoteGasCap_, advTolBps_);
+    }
+
+    /// @notice Retune the gas kept back for the work after a capped call. Bounded [150k, 1M].
+    function setGasReserve(uint256 gasReserve_) external onlyOwner {
+        if (!GasBounds.reserveInBounds(gasReserve_)) revert CapOutOfBounds();
+        gasReserve = gasReserve_;
+        emit GasReserveSet(gasReserve_);
     }
 
     /// @notice Recover tokens sent here by mistake. nonReentrant, so it can never touch tokens mid-swap.
