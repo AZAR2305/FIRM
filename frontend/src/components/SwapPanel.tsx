@@ -10,6 +10,7 @@ import { GAS, monadTestnet } from "@/lib/config";
 import { deployments, mustDeployments, poolNameById, tokens } from "@/lib/deployments";
 import { fmt, parseAmount, shortAddress } from "@/lib/format";
 import { toCalldataRoutes, type RouteT } from "@/lib/routes";
+import { DEMO_VILLAINS, freshVillains, routeWithVillain } from "@/lib/demo";
 import { describeLogs, type TimelineStep } from "@/lib/timeline";
 import { bufferedGas, describeError, waitForReceipt } from "@/lib/tx";
 import { wagmiConfig } from "@/lib/wagmi";
@@ -54,7 +55,10 @@ function SwapInner() {
 
   const [from, setFrom] = useState<Symbol>("tUSD");
   const [amountText, setAmountText] = useState("1000");
-  const [mode, setMode] = useState<Mode>(demo ? "raw" : "protected");
+  const modeParam = params.get("mode");
+  const [mode, setMode] = useState<Mode>(modeParam === "protected" ? "protected" : modeParam === "raw" ? "raw" : demo ? "raw" : "protected");
+  // demo only: which of our own cheating fixtures a naive aggregator "ranked first". undefined = the guide's default, null = none
+  const [villainChoice, setVillainChoice] = useState<string | null | undefined>(undefined);
   const [rawPoolChoice, setRawPoolChoice] = useState<string | null>(demo ? DEMO_RAW_POOL : null);
   const [busy, setBusy] = useState<null | "approve" | "swap">(null);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -81,6 +85,14 @@ function SwapInner() {
     return best ? cands.find((c) => c.name === best.name) : undefined;
   }, [plan.data, rawPoolChoice, best]);
 
+  const villains = plan.data ? freshVillains(plan.data.candidates) : [];
+  const activeVillain = !demo ? null : villainChoice === undefined ? (villains[0] ?? null) : villainChoice;
+  const protectedRoutes = useMemo(() => {
+    if (!plan.data) return [];
+    const forced = activeVillain ? routeWithVillain(plan.data, plan.data.candidates, activeVillain) : null;
+    return forced ?? plan.data.routes;
+  }, [plan.data, activeVillain]);
+
   const target = mode === "protected" ? d.core.firmRouter.address : d.core.rawRouter.address;
   const targetName = mode === "protected" ? "FirmRouter" : "RawRouter";
   const allowance = useAllowance(fromToken.address, address, target);
@@ -90,16 +102,16 @@ function SwapInner() {
   const call = useMemo(() => {
     if (!address || amountIn == null) return null;
     if (mode === "protected") {
-      if (!plan.data || plan.data.routes.length === 0) return null;
-      const routes = toCalldataRoutes(plan.data.routes, zeroForOne);
+      if (!plan.data || protectedRoutes.length === 0) return null;
+      const routes = toCalldataRoutes(protectedRoutes, zeroForOne);
       const deadline = BigInt(Math.floor(Date.now() / 1000) + 1200);
-      return { address: d.core.firmRouter.address, abi: d.abis.FirmRouter, functionName: "swapExactIn", args: [routes, amountIn, 0n, address, deadline] as const, routes: plan.data.routes };
+      return { address: d.core.firmRouter.address, abi: d.abis.FirmRouter, functionName: "swapExactIn", args: [routes, amountIn, 0n, address, deadline] as const, routes: protectedRoutes };
     }
     if (!rawPool || rawPool.quotedOut == null) return null;
     const route: RouteT = { key: rawPool.key, zeroForOne, hookData: "0x", advertisedOut: 0n };
     return { address: d.core.rawRouter.address, abi: d.abis.RawRouter, functionName: "swapExactInRaw", args: [route, amountIn, 0n, address] as const, routes: [] };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [address, amountIn, mode, plan.data, rawPool, zeroForOne]);
+  }, [address, amountIn, mode, plan.data, protectedRoutes, rawPool, zeroForOne]);
 
   const callSig = call ? `${call.functionName}:${mode}:${amountIn}:${call.routes.map((r) => r.poolId).join(",")}:${rawPool?.name ?? ""}` : "none";
 
@@ -261,6 +273,35 @@ function SwapInner() {
           </div>
         </fieldset>
 
+        {mode === "protected" && demo && plan.data ? (
+          <div data-testid="villain-picker">
+            <label className="mb-1 block text-xs font-semibold text-mute" htmlFor="villain">
+              Demo: the cheating pool a naive aggregator ranked first
+            </label>
+            <select
+              id="villain"
+              className="w-full rounded-lg border border-line bg-bg px-3 py-2 text-sm"
+              value={activeVillain ?? ""}
+              onChange={(e) => { setVillainChoice(e.target.value === "" ? null : e.target.value); setOutcome(null); }}
+              data-testid="villain-select"
+            >
+              <option value="">None: use the organic route</option>
+              {Object.entries(DEMO_VILLAINS).map(([name, v]) => {
+                const c = plan.data!.candidates.find((x) => x.name === name);
+                return (
+                  <option key={name} value={name} disabled={!c || c.quotedOut == null}>
+                    Pool {name}: {v.cheat} [{c?.status ?? "?"}]{c?.status === "BLOCKED" ? " already caught: the router will skip it" : ""}
+                  </option>
+                );
+              })}
+            </select>
+            <p className="mt-1 text-xs text-mute" data-testid="villain-help">
+              {activeVillain ? DEMO_VILLAINS[activeVillain]!.how : "No cheat is forced; the route is the best quotes."} Only the order is forced here. The router still re-quotes and re-checks every pool on-chain.
+              {villains.length === 0 ? " Every cheat has been caught already: see the leaderboard, and the proof page for the first-encounter transactions." : ""}
+            </p>
+          </div>
+        ) : null}
+
         {mode === "raw" && plan.data ? (
           <div>
             <label className="mb-1 block text-xs font-semibold text-mute" htmlFor="rawpool">
@@ -368,7 +409,7 @@ function SwapInner() {
             <EmptyState title="No pool can fill this trade right now">Every candidate is blocked, over its cap or could not be quoted.</EmptyState>
           ) : plan.data ? (
             <>
-              <RouteTable plan={plan.data} symbolOut={to} />
+              <RouteTable plan={{ routes: protectedRoutes, skipped: plan.data.skipped }} symbolOut={to} />
               <p className="mt-3 text-xs text-mute">
                 Quotes are off-chain eth_calls. The protected router re-quotes every pool inside the swap transaction and compares its real fill with that
                 quote; the floor is what it enforces. Order and eligibility follow quote-api&apos;s rules and are not trusted for safety.

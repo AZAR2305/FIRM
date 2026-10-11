@@ -151,45 +151,43 @@ interface RawStats {
   status: number;
 }
 
-/** The leaderboard (spec 12.2): Scoreboard.stats for every hook of the seeded pools in one request, sorted by status then strikes. */
-export function useLeaderboard() {
-  const client = useClient();
-  return useQuery({
-    queryKey: ["leaderboard"],
-    enabled: !!deployments && !!client,
-    refetchInterval: REFRESH_MS,
-    queryFn: async () => {
-      const d = mustDeployments();
-      const entries = Object.entries(d.pools.list).filter(([, p]) => p.hook.toLowerCase() !== ZERO_ADDRESS);
-      const res = await readMany(
-        client!,
-        entries.map(([, p]) => ({ address: d.core.scoreboard.address, abi: d.abis.Scoreboard, functionName: "stats", args: [p.hook] })),
-      );
-      const rows: HookRow[] = entries.map(([pool, p], i) => {
-        const r = res[i];
-        if (r?.status !== "success") throw new Error(`Could not read the Scoreboard for Pool ${pool}`);
-        const s = r.result as RawStats;
-        return {
-          pool,
-          description: p.description,
-          hook: p.hook,
-          status: statusName(s.status),
-          fills: Number(s.fills),
-          strikes: Number(s.strikes),
-          probes: Number(s.probes),
-          probeStrikes: Number(s.probeStrikes),
-          avgShortfallBps: s.strikes > 0 ? Number(s.cumShortfallBps) / Number(s.strikes) : null,
-          lastStrikeAt: Number(s.lastStrikeAt),
-        };
-      });
-      rows.sort((a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status] || b.strikes - a.strikes || a.pool.localeCompare(b.pool));
-      return {
-        rows,
-        hookless: Object.entries(d.pools.list)
-          .filter(([, p]) => p.hook.toLowerCase() === ZERO_ADDRESS)
-          .map(([n, p]) => ({ pool: n, description: p.description })),
-        updatedAt: Date.now(),
-      };
-    },
+/** The Scoreboard contract read directly: stats for every hook of the seeded pools in one Multicall3 request. The fallback of the Envio-powered board. */
+export async function readBoardFromChain(client: PublicClient) {
+  const d = mustDeployments();
+  const entries = Object.entries(d.pools.list).filter(([, p]) => p.hook.toLowerCase() !== ZERO_ADDRESS);
+  const res = await readMany(
+    client,
+    entries.map(([, p]) => ({ address: d.core.scoreboard.address, abi: d.abis.Scoreboard, functionName: "stats", args: [p.hook] })),
+  );
+  const rows: HookRow[] = entries.map(([pool, p], i) => {
+    const r = res[i];
+    if (r?.status !== "success") throw new Error(`Could not read the Scoreboard for Pool ${pool}`);
+    const s = r.result as RawStats;
+    return {
+      pool,
+      description: p.description,
+      hook: p.hook,
+      status: statusName(s.status),
+      fills: Number(s.fills),
+      strikes: Number(s.strikes),
+      probes: Number(s.probes),
+      probeStrikes: Number(s.probeStrikes),
+      avgShortfallBps: s.strikes > 0 ? Number(s.cumShortfallBps) / Number(s.strikes) : null,
+      lastStrikeAt: Number(s.lastStrikeAt),
+    };
   });
+  return { rows, hookless: hooklessPools() };
 }
+
+export function hooklessPools() {
+  const d = mustDeployments();
+  return Object.entries(d.pools.list)
+    .filter(([, p]) => p.hook.toLowerCase() === ZERO_ADDRESS)
+    .map(([n, p]) => ({ pool: n, description: p.description }));
+}
+
+export function sortRows(rows: HookRow[]): HookRow[] {
+  return rows.slice().sort((a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status] || b.strikes - a.strikes || a.pool.localeCompare(b.pool));
+}
+
+export { useClient as usePublicClientForChain };

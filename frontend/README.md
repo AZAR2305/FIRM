@@ -4,9 +4,12 @@ Next.js (App Router) + Tailwind + wagmi v2 + viem + TanStack Query. Screens (spe
 
 | Route | What it does |
 |---|---|
-| `/` | one-sentence pitch, the 819 vs 998 example, the 0x evidence (54.2% malicious **together with** the 26.4% "likely malicious", attributed, with the dispute noted), Try the demo |
-| `/swap` | pair and amount, route preview (quote, floor, hook, status), **Protected (FirmRouter)** vs **Raw (RawRouter, labelled unprotected comparator)**, a visible ERC-20 approval step, `simulateContract` before sending, an explicit gas limit, and a timeline built from the receipt logs (`LegSkipped`, `Rejected`, `Filled`, `NoFill`, plus `RawSwap`) |
-| `/leaderboard` | hooks by status then strikes: status chip (text and colour), fills, strikes, probes, average shortfall, last strike; refreshes every 4 s |
+| `/` | the business case: pitch, **where the problem happens** (quote path vs execution path), the 0x evidence (54.2% **together with** the 26.4%, attributed, dispute noted), the 819 vs 998 example **computed from two real transactions** with explorer links, who pays and who gains, **what protection costs** (measured), what FIRM does not catch, built-on strip |
+| `/demo` | the **judge walkthrough**: seven steps in the order that makes the point, a live panel of which cheating fixtures are not caught yet, and the 60 to 90 second presenter script |
+| `/proof` | everything sourced: the two real transactions with decoded events, the 14 contracts with verification status, measured gas (first touch and later), the Envio check, and what was *not* run |
+| `/hooks/[address]` | one hook: status, decoded permission flags, evidence, risk summary (`/api/hook-report`, deterministic; a model only if configured on the server), strike and fill history from Envio |
+| `/swap` | pair and amount, route preview (quote, floor, hook, status), **Protected (FirmRouter)** vs **Raw (RawRouter, labelled unprotected comparator)**, a visible ERC-20 approval step, `simulateContract` before sending, an explicit gas limit, a timeline built from the receipt logs (`LegSkipped`, `Rejected`, `Filled`, `NoFill`, plus `RawSwap`), an explorer link after every transaction, and in demo mode (`?demo=1&mode=raw\|protected`) a **cheat picker** that puts one of our own cheating fixtures first |
+| `/leaderboard` | hooks by status then strikes: status chip (text and colour), fills, strikes, probes, average shortfall, last strike; powered by **Envio** with the source, indexed block and lag printed on screen, plus a live activity feed; refreshes every 4 s |
 | `/integrate` | how to read `Scoreboard.statusOf` and `toleranceBps` (viem and Solidity), deployed addresses, ABIs, router events |
 
 A persistent banner says "Monad Testnet. Test tokens only.", links the faucet and has a **Mint test tokens** button (`MockToken.mint`).
@@ -22,6 +25,17 @@ There are no hard-coded addresses in the source. Chain id 10143, the RPC URL, th
   deployed to Monad Testnet yet". The build still succeeds, which is what CI builds.
 * **Fork build**: `FIRM_FORK=1` reads `10143.fork.json` and the app shows a red "LOCAL FORK BUILD" ribbon so it cannot be mistaken for the
   real testnet.
+
+**Evidence.** `deployments/10143.evidence.json` (written by `scripts/build-evidence.mjs`) is synced next to the deployments file. It holds the decoded events of the real
+transactions and `eth_estimateGas` measurements read from the chain; the landing and proof pages compute their numbers from it, nothing is typed into the components. Without it
+those pages say no evidence was generated.
+
+**Envio.** Set `NEXT_PUBLIC_ENVIO_GRAPHQL_URL` **at build time** (e.g. `http://localhost:8080/v1/graphql`) and the leaderboard, activity feed and hook pages read Envio HyperIndex.
+Unset, or if Envio does not answer, the leaderboard reads the Scoreboard contract directly and prints "direct Scoreboard read (Envio not used)"; the activity feed then says it needs Envio.
+Hosting that endpoint for judges is not done (see `docs/DEMO.md`).
+
+**Optional LLM (server only).** `LLM_BASE_URL`, `LLM_API_KEY`, `LLM_MODEL` in the frontend server's environment let `/api/hook-report` have a model rewrite the deterministic hook
+summary; the page then says "AI-written, advisory". They are never sent to the browser. No model has been run yet.
 
 Environment (all optional): `NEXT_PUBLIC_RPC_URL` (default `https://testnet-rpc.monad.xyz`; `NEXT_PUBLIC_*` is inlined at build time),
 `NEXT_PUBLIC_QUOTE_API_URL` (reserved; the route preview is computed in the browser with quote-api's ordering rules, so no backend is needed).

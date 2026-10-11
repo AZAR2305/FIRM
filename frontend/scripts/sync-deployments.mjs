@@ -18,6 +18,19 @@ const src = resolve(process.env.FIRM_DEPLOYMENTS_PATH ?? join(root, "deployments
 const out = join(here, "..", "src", "generated", "deployments.json");
 mkdirSync(dirname(out), { recursive: true });
 
+// The evidence file (deployments/10143.evidence.json, written by scripts/build-evidence.mjs) travels with the deployments file. It is
+// optional: without it the proof page says no evidence has been generated.
+const evSrc = src.replace(/10143\.fork\.json$/, "10143.evidence.fork.json").replace(/10143\.json$/, "10143.evidence.json");
+const evOut = join(here, "..", "src", "generated", "evidence.json");
+mkdirSync(dirname(evOut), { recursive: true });
+if (existsSync(evSrc)) {
+  writeFileSync(evOut, readFileSync(evSrc, "utf8"));
+  console.log(`[sync-deployments] ${evSrc} -> src/generated/evidence.json`);
+} else {
+  writeFileSync(evOut, JSON.stringify({ available: false, reason: `evidence file not found: ${evSrc}` }, null, 2) + "\n");
+  console.warn(`[sync-deployments] ${evSrc} not found: the proof page will say no evidence was generated (scripts/build-evidence.mjs).`);
+}
+
 if (!existsSync(src)) {
   writeFileSync(out, JSON.stringify({ deployed: false, reason: `deployments file not found: ${src}` }, null, 2) + "\n");
   console.warn(`[sync-deployments] ${src} not found: the app will show "not deployed yet". Run contracts/script/Redeploy.sh.`);

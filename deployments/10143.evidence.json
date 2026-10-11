@@ -1,0 +1,199 @@
+{
+  "generatedAt": "2026-10-11T17:01:46.254Z",
+  "source": "testnet",
+  "chainId": 10143,
+  "rpc": "public Monad Testnet RPC",
+  "chain": {
+    "head": 70165702,
+    "gasPriceWei": "102000000000",
+    "gasPriceGwei": 102
+  },
+  "from": "0x7958BFc131be1a7360cF947C33599f5a6361DE32",
+  "txs": [
+    {
+      "label": "raw",
+      "title": "Unprotected router (RawRouter) through the best-quoted cheating pool",
+      "hash": "0xe69c7626a9133a6de05adab2e06bbfe6bdef8d54648c76a0b38b216548758627",
+      "block": 70067046,
+      "timestamp": 1791708313,
+      "status": "success",
+      "gasLimit": "400000",
+      "events": [
+        {
+          "name": "RawSwap",
+          "pool": "B",
+          "hook": "0x580c0342b2D503a6CB72E04D431c724d0b98C044",
+          "amountIn": "1000000000000000000000",
+          "amountOut": "819179181639997541642"
+        }
+      ]
+    },
+    {
+      "label": "firm",
+      "title": "Protected router (FirmRouter): rejects the cheat, falls back, strikes it",
+      "hash": "0xbacac567bba50277b376148e21d33ce813ed3b2366d8db2a889885d730a2591e",
+      "block": 70067053,
+      "timestamp": 1791708315,
+      "status": "success",
+      "gasLimit": "1300000",
+      "events": [
+        {
+          "name": "StatusChanged",
+          "hook": "0x580c0342b2D503a6CB72E04D431c724d0b98C044",
+          "reason": "SEVERE_SHORTFALL",
+          "oldStatus": 0,
+          "newStatus": 3
+        },
+        {
+          "name": "StrikeRecorded",
+          "pool": "B",
+          "hook": "0x580c0342b2D503a6CB72E04D431c724d0b98C044",
+          "quotedOut": "998997006003979006052",
+          "settledOut": "819177544923262784963",
+          "shortfallBps": "1799",
+          "execFailed": false
+        },
+        {
+          "name": "Rejected",
+          "pool": "B",
+          "hook": "0x580c0342b2D503a6CB72E04D431c724d0b98C044",
+          "quotedOut": "998997006003979006052",
+          "settledOut": "819177544923262784963",
+          "execFailed": false
+        },
+        {
+          "name": "FillRecorded",
+          "pool": "C",
+          "hook": "0xbf65EA8b3848Da36f5FE0d89dDE350C34ddc8044",
+          "quotedOut": "998199652299447526702",
+          "settledOut": "998199652299447526702"
+        },
+        {
+          "name": "Filled",
+          "pool": "C",
+          "hook": "0xbf65EA8b3848Da36f5FE0d89dDE350C34ddc8044",
+          "amountIn": "1000000000000000000000",
+          "quotedOut": "998199652299447526702",
+          "settledOut": "998199652299447526702",
+          "legIndex": 1
+        }
+      ]
+    }
+  ],
+  "gas": {
+    "method": "eth_estimateGas on the target network (smallest gas limit that succeeds); includes the 21,000 base cost; one route, 100 tUSD",
+    "amountIn": "100000000000000000000",
+    "pools": {
+      "A": {
+        "status": "NORMAL",
+        "raw": 276219,
+        "protected": 397427
+      },
+      "C": {
+        "status": "UNRATED",
+        "raw": 284713,
+        "protected": 460405
+      },
+      "B": {
+        "status": "BLOCKED",
+        "raw": 284874,
+        "protected": null,
+        "protectedNote": "not measured: the router skips a BLOCKED hook, so the estimate would not include a swap"
+      },
+      "D": {
+        "status": "UNRATED",
+        "raw": 311334,
+        "protected": 546342
+      },
+      "E": {
+        "status": "UNRATED",
+        "raw": 319229,
+        "protected": 470109
+      },
+      "Q": {
+        "status": "UNRATED",
+        "raw": 265135,
+        "protected": 434705
+      }
+    },
+    "quotePerCall": {
+      "A": 110188,
+      "B": 98561,
+      "C": 141022,
+      "D": 116830,
+      "E": 116836,
+      "G": 116059,
+      "Q": 98055
+    },
+    "demoShape": {
+      "note": "1,000 tUSD, routes [B, C, A]: B rejected, C fills",
+      "protected": null,
+      "protectedNote": "not measured now: Pool B is BLOCKED (struck by the demo swap), so the router would skip it. See recorded.firstTouch for the first-encounter number."
+    },
+    "hostileFirst": {
+      "note": "100 tUSD, routes [G (gas-grief hook), A]: G burns its whole leg cap, is struck, A fills",
+      "protected": 998495
+    }
+  },
+  "recorded": {
+    "deployment": {
+      "date": "2026-10-11",
+      "command": "cd contracts && ./script/Redeploy.sh",
+      "transactions": 37,
+      "succeeded": 37,
+      "gasLimitsSent": 22200000,
+      "monSpent": 2.29,
+      "verified": "14 of 14 contracts verified on Sourcify (exact_match)",
+      "monSpentNote": "deployer balance 5.0 before, 2.7089 after; the gas price moved slightly during the run"
+    },
+    "envioCheck": {
+      "date": "2026-10-11",
+      "command": "cd backend/bench && pnpm check-indexer",
+      "result": "indexer agrees with the Scoreboard for all 7 hooks (status, fills, strikes, probes)",
+      "mode": "Envio HyperSync, real Monad Testnet"
+    },
+    "firstTouch": {
+      "date": "2026-10-11",
+      "state": "before the demo swap: every hook UNRATED, no fills",
+      "method": "eth_estimateGas on the public testnet, 100 tUSD, one route (demo shape: 1,000 tUSD)",
+      "pools": {
+        "A": {
+          "raw": 276219,
+          "protected": 397427
+        },
+        "C": {
+          "raw": 318983,
+          "protected": 563354
+        },
+        "B": {
+          "raw": 319144,
+          "protected": 517566
+        },
+        "D": {
+          "raw": 347884,
+          "protected": 546342
+        },
+        "E": {
+          "raw": 319229,
+          "protected": 470109
+        },
+        "Q": {
+          "raw": 265135,
+          "protected": 434705
+        }
+      },
+      "quotePerCall": {
+        "A": 110188,
+        "B": 98561,
+        "C": 141022,
+        "D": 116830,
+        "E": 116836,
+        "G": 116059,
+        "Q": 98055
+      },
+      "demoShape": 927759,
+      "hostileFirst": 998495
+    },
+    "notRun": "The 20-trial benchmark B1 to B8 (about 560 transactions) was not run on the public testnet: Monad charges the gas limit and the budget was one funded wallet. See RESULTS.md."
+  }
+}

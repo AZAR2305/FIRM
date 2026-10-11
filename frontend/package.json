@@ -14,7 +14,7 @@
     "build": "node scripts/sync-deployments.mjs && next build",
     "start": "next start",
     "typecheck": "node scripts/sync-deployments.mjs && tsc --noEmit",
-    "test": "vitest run",
+    "test": "node scripts/sync-deployments.mjs && vitest run",
     "e2e": "playwright test"
   },
   "dependencies": {

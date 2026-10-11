@@ -103,10 +103,21 @@ test("demo path: raw loses ~18%, protected rejects the cheat and fills honestly,
     await expect(page.getByTestId("mint-button")).toBeVisible();
     await expect(page.getByText("54.2% as malicious")).toBeVisible();
     await expect(page.getByText(/26\.4% as .{0,3}likely malicious/)).toBeVisible();
-    await expect(page.getByTestId("raw-number")).toHaveText("819.2");
-    await expect(page.getByTestId("firm-number")).toHaveText("998.2");
+    await expect(page.getByTestId("lie-diagram")).toBeVisible();
+    await expect(page.getByTestId("audiences").locator("> div")).toHaveCount(3);
+    await expect(page.getByTestId("limits")).toContainText("20 times out of 20");
+    // the fork build has no evidence file, so the landing page must say so instead of showing numbers it cannot back
+    await expect(page.getByTestId("example-text")).toContainText("none has been generated");
     await page.getByTestId("try-demo").click();
-    await expect(page).toHaveURL(/\/swap\?demo=1/);
+
+    // ------------------------------------------------ the judge walkthrough
+    await expect(page).toHaveURL(/\/demo$/);
+    await expect(page.getByTestId("judge-steps").locator("> li")).toHaveCount(7);
+    await expect(page.getByTestId("presenter-script")).toBeVisible();
+    const live = page.getByTestId("live-state");
+    for (const n of ["B", "G", "R"]) await expect(live.locator(`li[data-pool="${n}"]`)).toContainText("Not caught yet", { timeout: 20_000 });
+    await page.getByTestId("step-raw").click();
+    await expect(page).toHaveURL(/\/swap\?demo=1&mode=raw/);
     await expect(page.getByTestId("demo-note")).toBeVisible();
 
     // ------------------------------------------------ connect and mint (spec 12.1)
@@ -125,8 +136,8 @@ test("demo path: raw loses ~18%, protected rejects the cheat and fills honestly,
     // ------------------------------------------------ route preview
     await expect(page.getByTestId("route-table")).toBeVisible();
     const rows = page.getByTestId("route-table").locator("tbody tr");
-    await expect(rows.first()).toContainText("Pool Q"); // quotes high only to simulations, so the off-chain quote ranks it first
-    await expect(page.getByTestId("route-table")).toContainText("Pool B");
+    await expect(rows.first()).toContainText("Pool B"); // the demo's default cheat is ranked first
+    await expect(page.getByTestId("route-table")).toContainText("Pool Q"); // quotes high only to simulations: caught by the advertised-quote check
 
     // ------------------------------------------------ RAW (unprotected comparator), pointed at Pool B by the demo preset
     await expect(page.getByTestId("mode-raw")).toBeChecked();
@@ -152,6 +163,8 @@ test("demo path: raw loses ~18%, protected rejects the cheat and fills honestly,
 
     // ------------------------------------------------ PROTECTED: same trade
     await page.getByTestId("mode-protected").check();
+    await expect(page.getByTestId("villain-select")).toHaveValue("B"); // the first cheat not yet caught
+    await expect(page.getByTestId("villain-help")).toContainText("about 18%");
     await expect(page.getByTestId("allowance-line")).toContainText("Not approved");
     await page.getByTestId("approve-button").click();
     await expect(page.getByTestId("allowance-line")).toContainText("Approved", { timeout: 60_000 });
@@ -167,9 +180,21 @@ test("demo path: raw loses ~18%, protected rejects the cheat and fills honestly,
     await expect(tl).toContainText("Pool B quoted 999.0, delivered 819.2 (-18.0%). Rejected, strike recorded.");
     await expect(tl).toContainText("Filled via Pool C: received 998.2 (matches quote).");
     await expect(page.getByTestId("received")).toContainText("998.2 tUSDC (protected)");
-    // order of the lines is the order of the logs
+    // order of the lines is the order of the logs: the cheat was tried first, then the quote-only pool skipped, then the honest fill
     const kinds = await tl.locator("li").evaluateAll((els) => els.map((e) => e.getAttribute("data-kind")));
-    expect(kinds).toEqual(["skipped", "rejected", "filled"]);
+    expect(kinds).toEqual(["rejected", "skipped", "filled"]);
+
+    // ------------------------------------------------ a SECOND cheat, caught live: Pool G burns all its gas
+    await page.getByTestId("villain-select").selectOption("G");
+    await expect(page.getByTestId("villain-help")).toContainText("burns all the gas");
+    await expect(page.getByTestId("allowance-line")).toContainText("Not approved"); // the first swap used the allowance
+    await page.getByTestId("approve-button").click();
+    await expect(page.getByTestId("allowance-line")).toContainText("Approved", { timeout: 60_000 });
+    await expect(page.getByTestId("simulation")).toContainText("the router fills via Pool C", { timeout: 30_000 });
+    await page.getByTestId("swap-button").click();
+    await expect(page.getByTestId("outcome")).toContainText("confirmed", { timeout: 120_000 });
+    await expect(page.getByTestId("timeline")).toContainText("Pool G quoted 994.0 but the swap failed. Rejected, strike recorded.");
+    await expect(page.getByTestId("timeline")).toContainText("Filled via Pool C");
 
     // ------------------------------------------------ leaderboard (client navigation, auto-refresh)
     await page.getByRole("link", { name: "Leaderboard" }).click();
@@ -183,11 +208,35 @@ test("demo path: raw loses ~18%, protected rejects the cheat and fills honestly,
     await expect(rowB.locator("td").nth(5)).toHaveText("18.0%"); // average shortfall
     await expect(rowB.locator("td").nth(6)).not.toContainText("never");
     await expect(board.locator("tbody tr").first()).toHaveAttribute("data-pool", "B"); // BLOCKED sorts first
-    await expect(board.locator('tr[data-pool="C"] td').nth(2)).toHaveText("1"); // fills
+    await expect(board.locator('tr[data-pool="C"] td').nth(2)).toHaveText("2"); // fills: C filled both protected swaps
+    const rowG = board.locator('tr[data-pool="G"]');
+    await expect(rowG).toHaveAttribute("data-status", "BLOCKED");
+    await expect(rowG.locator("td").nth(5)).toHaveText("100.0%"); // a failed swap after a good quote is a 100% shortfall
+    // where the numbers come from is stated on screen: no Envio configured on the fork build
+    await expect(page.getByTestId("source-badge")).toHaveAttribute("data-source", "chain");
+    await expect(page.getByTestId("source-badge")).toContainText("Envio is not configured");
+    await expect(page.getByTestId("activity-feed")).toContainText("needs Envio");
 
     // refreshes by itself: a swap made outside the page shows up without a reload
     const before = await page.getByTestId("refresh-line").innerText();
     await expect.poll(async () => page.getByTestId("refresh-line").innerText(), { timeout: 15_000 }).not.toBe(before);
+
+    // ------------------------------------------------ hook detail
+    await page.getByTestId("hook-link-B").click();
+    await expect(page).toHaveURL(/\/hooks\/0x[0-9a-fA-F]{40}$/);
+    await expect(page.getByRole("heading", { name: "Pool B" })).toBeVisible();
+    await expect(page.getByTestId("hook-flags")).toContainText("AFTER_SWAP_RETURNS_DELTA");
+    await expect(page.getByTestId("hook-flags")).toContainText("can change the amount a swap delivers");
+    await expect(page.getByTestId("hook-stats")).toContainText("Strikes");
+    await expect(page.getByTestId("report-text")).toContainText("BLOCKED", { timeout: 30_000 });
+    await expect(page.getByTestId("report-mode")).toContainText("No language model was used");
+
+    // ------------------------------------------------ proof page (a fork build has no evidence file and says so)
+    await page.getByRole("link", { name: "Proof" }).click();
+    await expect(page).toHaveURL(/\/proof$/);
+    await expect(page.getByTestId("no-evidence")).toBeVisible();
+    await expect(page.getByTestId("contracts-table").locator("tbody tr")).toHaveCount(14);
+    await expect(page.getByTestId("not-run")).toContainText("not caught by the router");
 
     // ------------------------------------------------ integrate
     await page.getByRole("link", { name: "Integrate" }).click();
@@ -216,7 +265,7 @@ test("pages render honest empty/error states instead of throwing when the chain 
 
 test("no page overflows horizontally at phone width", async ({ browser }) => {
   const page = await (await browser.newContext({ viewport: { width: 390, height: 800 } })).newPage();
-  for (const path of ["/", "/swap?demo=1", "/leaderboard", "/integrate"]) {
+  for (const path of ["/", "/demo", "/swap?demo=1&mode=protected", "/leaderboard", "/proof", "/integrate"]) {
     await page.goto(path);
     await page.waitForTimeout(2000);
     const w = await page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, client: document.documentElement.clientWidth }));
