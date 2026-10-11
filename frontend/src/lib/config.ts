@@ -4,7 +4,10 @@ import { defineChain } from "viem";
 
 /** Spec 12.1. Override with NEXT_PUBLIC_RPC_URL to point the app at a local fork. */
 export const RPC_URL = process.env.NEXT_PUBLIC_RPC_URL || "https://testnet-rpc.monad.xyz";
-export const EXPLORER_URL = "https://testnet.monadvision.com";
+/** Block explorer for Monad Testnet. testnet.monadexplorer.com redirects to MonadVision and keeps the /tx/ and /address/ paths. */
+export const EXPLORER_URL = "https://testnet.monadexplorer.com";
+export const txUrl = (hash: string) => `${EXPLORER_URL}/tx/${hash}`;
+export const addressUrl = (address: string) => `${EXPLORER_URL}/address/${address}`;
 export const FAUCET_URL = "https://faucet.monad.xyz";
 /** Optional: quote-api for server-side route previews. The app computes the same preview itself, so it works without it. */
 export const QUOTE_API_URL = process.env.NEXT_PUBLIC_QUOTE_API_URL || "";

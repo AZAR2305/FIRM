@@ -149,8 +149,9 @@ to 1.3M for the whole swap, once per hostile hook (estimated, not Monad-measured
   gas that is not the hook's fault and are attributed to it anyway. Each case is tested (`contracts/test/GasCaps.t.sol`, `FLAG` tests) and listed in
   [docs/SPIKES.md](docs/SPIKES.md) S5.
 * **Too loose is expensive.** A higher cap lets a hostile hook burn more of the caller's gas, once per hostile hook, and Monad bills the limit.
-* **Where we stand (fork-measured, not Monad-measured).** The leg cap is 1.35x the heaviest non-reverting fixture leg and 1.71x the honest
-  fixtures, below our own 1.5x margin for the heaviest case. An honest hook can burn about 5.5x the gas of our honest fixture before a cap
+* **Where we stand.** Fork-measured plus estimate: the leg cap is 1.35x the heaviest non-reverting fixture leg and 1.71x the honest
+  fixtures, below our own 1.5x margin for the heaviest case. **Monad-measured on 2026-10-11** (`eth_estimateGas`): one quote costs at most 141k
+  against the 300k cap (at least 2.1x) and a whole raw swap, an upper bound of the leg, at most 348k against 450k (at least 1.29x). An honest hook can burn about 5.5x the gas of our honest fixture before a cap
   stops it on the Ethereum schedule, roughly 3x to 3.6x once Monad's repricing is added (estimate).
 * **Retuning without a redeploy.** The owner can change both caps and the reserve within `GasBounds` (leg 350k to 1.5M, quote 200k to 1M,
   reserve 150k to 1M). The floors sit above the worst honest case measured so far, so a typo cannot start striking honest hooks; they also

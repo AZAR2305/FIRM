@@ -1,8 +1,10 @@
 # RESULTS
 
 Every table below is split into **Fork results** (measured, on a local fork of Monad Testnet) and **Monad Testnet results**
-(**pending**: FIRM has not been deployed to the public testnet from this repository yet, because that needs a funded deployer
-wallet; see README "Deploy"). A pending cell means nothing was measured. No fork number is presented as a testnet number.
+(FIRM was deployed to the public testnet on 2026-10-11, see [DEPLOYMENTS.md](DEPLOYMENTS.md); only what has actually been run there
+is filled in, the rest is **pending**). A pending cell means nothing was measured. No fork number is presented as a testnet number.
+The testnet budget is small (one funded wallet, about 5 MON), and Monad charges the gas limit, so the 20-trial benchmark
+(about 560 transactions) has not been run on the public testnet.
 
 ## Read this first
 
@@ -41,14 +43,15 @@ wallet; see README "Deploy"). A pending cell means nothing was measured. No fork
 
 | Question | Result (Monad Testnet) |
 |---|---|
-| B3 User loss, raw vs protected, 20 trades | **pending** |
+| **Demo swap**, 1,000 tUSD, **one trade** (not the 20-trade B3): raw router vs FirmRouter [B, C, A] | Raw router received **819.1792** (Pool B, hidden fee). FirmRouter: Pool B quoted **998.9970**, delivered **819.1775**, shortfall **1,799 bps (18.0%)**, rejected, struck and moved UNRATED to BLOCKED (`SEVERE_SHORTFALL`); Pool C filled **998.1997**. About **179.02 tokens** saved. Read from the receipts of [raw tx `0xe69c7626...`](https://testnet.monadexplorer.com/tx/0xe69c7626a9133a6de05adab2e06bbfe6bdef8d54648c76a0b38b216548758627) and [FIRM tx `0xbacac567...`](https://testnet.monadexplorer.com/tx/0xbacac567bba50277b376148e21d33ce813ed3b2366d8db2a889885d730a2591e), block 70,067,046 and 70,067,053. Our own fixtures. |
+| B3 User loss, raw vs protected, 20 trades | **pending** (one trade only, above) |
 | B1 Detection by hook (context, gas-grief, revert, random-fee) | **pending** |
 | B1 / B4 Sender-aware hook: router vs canary | **pending** |
 | B2 False positives, honest hook | **pending** |
 | B6 Gas-grief and reverting hooks | **pending** |
 | B8 / arena agent comparison | **pending** (and not yet run with a language model on any network) |
 | B7 Dashboard latency | **pending** (HyperSync, real block time) |
-| Envio vs chain consistency | **partly measured, 2026-10-11**: HyperSync mode, real testnet, committed config (start block 0): the index held 70 pools across 4 hooks and matched an independent HyperSync count of PoolManager `Initialize` events (70 of 70); it was processing at the chain head. This covers pool discovery only. The Scoreboard comparison (`pnpm check-indexer`) is **pending** until FIRM is deployed on the testnet. |
+| Envio vs chain consistency | **measured, 2026-10-11**: Envio in HyperSync mode on the real deployment (start block 70,065,928) indexed 8 pools, 7 hooks, 1 fill, 1 strike and 1 status change, and `pnpm check-indexer` reported **agreement with the Scoreboard for all 7 hooks** (status, fills, strikes, probes). Earlier the same day, from block 0 before FIRM existed, the index matched an independent HyperSync count of PoolManager `Initialize` events (70 of 70). Small data: one swap's worth of events. |
 
 ## 2. B5: gas (what Monad charges is the gas LIMIT)
 
@@ -74,10 +77,32 @@ caps of 300k and 450k: margins **1.59x** and **1.35x** (the leg margin is below 
 
 | Quantity | Result |
 |---|---|
-| Protected vs raw gas limit, hookless pool | **pending** |
-| Protected vs raw gas limit, honest-hook pool | **pending** |
-| Hostile first route limit | **pending** |
-| Worst honest quote and leg gas, margin to the caps | **pending** (needs `debug_traceCall` or per-pool `eth_estimateGas`) |
+**Measured on the public Monad Testnet on 2026-10-11 with `eth_estimateGas` (the smallest gas limit that succeeds), 100 tUSD, one route.**
+These are the numbers a user pays on Monad. They include the 21,000 base cost and calldata.
+
+| Pool | Raw limit | Protected (FirmRouter) limit | Ratio | Same pool on the fork (raw / protected) |
+|---|---|---|---|---|
+| A, hookless | **276,219** | **397,427** | **1.44x** | 175,271 / 243,121 |
+| C, honest hook | **318,983** | **563,354** | **1.77x** | 195,237 / 309,251 |
+| B, context hook | 319,144 | 517,566 | 1.62x | not measured on the fork |
+| D, random-fee hook | 347,884 | 546,342 | 1.57x | not measured on the fork |
+| E, sender-aware hook | 319,229 | 470,109 | 1.47x | not measured on the fork |
+| Q, quote-only hook | 265,135 | 434,705 | 1.64x | not measured on the fork |
+
+| Route | Protected limit (Monad) |
+|---|---|
+| The demo, 1,000 tUSD, routes [B, C, A] (B rejected, C fills) | **927,759** |
+| Hostile first route: gas-grief hook G, then A, 100 tUSD | **998,495** (my earlier estimate was 1.0M to 1.3M) |
+
+* Monad's raw swaps cost about **1.5x to 1.6x** what the fork said (A: 276k vs 175k; C: 319k vs 195k). **A first version of the demo script
+  used the fork numbers and the raw swap ran out of gas at its 300,000 limit on the real chain**; the limits are now set from these measurements.
+* On Monad the protected-to-raw ratio is **1.44x to 1.77x**, wider than the fork's 1.39x to 1.58x for the honest-hook pool.
+* **Gas caps against Monad numbers** (`eth_estimateGas` of one Quoter call, 100 tUSD; includes the 21,000 base cost, so it overstates the call):
+  worst quote **141,022** (pool C), the others 98k to 117k, against `quoteGasCap` 300,000: margin **at least 2.1x** (my estimate had been 189k).
+  The leg is bounded by the raw swap, which also contains two token transfers and the base cost: worst **347,884** (pool D) against
+  `legGasCap` 450,000: margin **at least 1.29x**, and larger for the leg alone. Not isolated more precisely: that needs a trace.
+* **Receipts on Monad report gas used equal to the gas limit** (all 37 deployment transactions: ratio 1.00), consistent with Monad charging
+  the limit. Actual gas usage can therefore **not** be read from receipts there; use `eth_estimateGas` or a trace.
 
 ## 3. Deployment cost
 
@@ -95,8 +120,10 @@ One run of `Redeploy.sh` (37 transactions: 4 core contracts, 2 tokens, 1 helper,
 
 | | Result |
 |---|---|
-| Gas used and cost of the real deployment | **pending** |
-| Whether any step ran out of gas at its explicit limit | **pending** |
+| Transactions | **37 sent, 37 succeeded** (4 core contracts, 2 tokens, 1 helper, 7 fixture hooks, 3 owner calls, 2 mints, 2 approvals, 16 pool transactions), Sourcify: **14 of 14 contracts verified** (`exact_match`) |
+| Gas limits sent | 22,200,000, each transaction with its own explicit limit; at 102 gwei that is 2.2644 MON |
+| MON spent (deployer balance before and after) | **about 2.29 MON** (5.0 to 2.7089; the gas price moved slightly during the run) |
+| Did any step run out of gas at its explicit limit? | **No.** All 37 succeeded at limits derived from fork measurements with 1.4x to 1.5x margins, so those margins were sufficient on Monad for the deployment. (Receipts show used = limit, so how much slack remained is unknown.) The first demo swap did run out of gas, see section 2. |
 
 ## 4. Gas-cap behaviour tests (local EVM, Ethereum schedule)
 

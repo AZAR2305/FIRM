@@ -46,6 +46,30 @@ pnpm build && pnpm start
    The fixed limits in `config.ts` (mint, approve fallback) are fork-measured, not Monad-measured.
 4. The receipt's logs become the timeline; `NoFill` shows that the input was returned and strikes were recorded.
 
+## Block explorer links
+
+After every confirmed transaction the app shows its hash and "View on block explorer" (`https://testnet.monadexplorer.com/tx/<hash>`, opens in a
+new tab): each mint (in the banner), the approval (in step 1) and the swap (in the timeline). Addresses link to `/address/<address>`. That host
+redirects to MonadVision and keeps the `/tx/` and `/address/` paths. The browser test asserts every one of these links.
+
+## Reading the chain: Multicall3, because the public RPC is rate limited
+
+The public Monad RPC allows about **15 requests per second per client and counts each call of a JSON-RPC batch** (checked: a batch of 20 is
+rejected with "requests limited to 15/sec"). The route preview, leaderboard and balances therefore read many values in **one** Multicall3
+`eth_call` (the address comes from `deployments/10143.json`). The first version read each value separately; it worked on the fork (no limit)
+and failed on the real network, which only the real-testnet test below could show.
+
+## Test against the REAL testnet (read-only, no wallet)
+
+`e2e/real-testnet-readonly.spec.ts` runs the app built from the real `deployments/10143.json` against the public RPC: the leaderboard shows the
+state the real demo swap left (Pool B BLOCKED, 1 strike, 18.0% average shortfall; Pool C 1 fill), the route preview excludes B, and the Integrate
+page shows the real addresses with explorer links, with no console errors.
+
+```bash
+cd frontend && pnpm build                      # without FIRM_FORK / NEXT_PUBLIC_RPC_URL
+FIRM_REAL_E2E=1 npx playwright test e2e/real-testnet-readonly.spec.ts
+```
+
 ## End-to-end test (real browser, local fork)
 
 `e2e/demo-path.spec.ts` drives the whole demo in Microsoft Edge (installed with Windows; `PW_CHANNEL=chrome` to change): landing,

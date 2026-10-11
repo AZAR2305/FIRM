@@ -179,6 +179,21 @@ legs inside one transaction. `test_boundsMinimumsCoverTheMeasuredWorstHonestCase
 section. The previous bounds were [100k, 5M] with a constant reserve. One consequence: the owner cannot lower the leg cap
 below 350k even if real Monad measurements turn out lower; that needs a redeploy.
 
+### Update, 2026-10-11: first Monad-measured numbers (public testnet, `eth_estimateGas`, 100 tUSD)
+
+The numbers above are fork-measured plus an estimate. After the real deployment the same quantities were measured on Monad:
+
+| Quantity | Monad-measured | Compare | Margin to cap |
+|---|---|---|---|
+| One Quoter call (includes the 21k base cost, so it overstates the call) | worst **141,022** (pool C), others 98k to 117k | estimate was 189k | `quoteGasCap` 300,000: **at least 2.1x** |
+| Whole raw swap (leg + 2 token transfers + base cost), so an upper bound of the leg | worst **347,884** (pool D), A 276,219, C 318,983 | estimate for the leg was 334k (D) | `legGasCap` 450,000: **at least 1.29x**, larger for the leg alone |
+
+So the estimate was close for the leg and pessimistic for the quote. The leg margin is still only bounded from below (a trace
+would isolate the leg), so the 1.5x policy question for the heaviest storage-writing hooks is **not settled**, only less worrying.
+The caps were not changed. Receipts on Monad show gas used equal to the gas limit, so these figures come from `eth_estimateGas`.
+A fork-derived 300,000 limit for the raw demo swap ran out of gas on the real chain (it needs about 319k); that is the same
+Monad-versus-fork gap, 1.5x to 1.6x.
+
 ### Open decision, and how to retune on testnet
 
 1. After deployment, run `pnpm gas-profile` and B5 against the real testnet (needs `debug_traceCall`; otherwise compare

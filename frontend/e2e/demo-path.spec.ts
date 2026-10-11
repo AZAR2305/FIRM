@@ -26,6 +26,13 @@ function statusOfCalldata(hook: string): string {
   return encodeFunctionData({ abi: [{ type: "function", name: "statusOf", stateMutability: "view", inputs: [{ name: "hook", type: "address" }], outputs: [{ name: "", type: "uint8" }] }], functionName: "statusOf", args: [hook as `0x${string}`] }).slice(2);
 }
 
+/** the link opens the block explorer for exactly this transaction, in a new tab */
+async function expectExplorerLink(link: import("@playwright/test").Locator, hash: string | null) {
+  expect(hash, "a confirmed transaction has a hash").toMatch(/^0x[0-9a-f]{64}$/);
+  await expect(link).toHaveAttribute("href", `https://testnet.monadexplorer.com/tx/${hash}`);
+  await expect(link).toHaveAttribute("target", "_blank");
+}
+
 async function forkIsUp(): Promise<boolean> {
   try {
     return (await rpc<string>("eth_chainId")) === "0x279f";
@@ -108,6 +115,12 @@ test("demo path: raw loses ~18%, protected rejects the cheat and fills honestly,
     await page.getByTestId("mint-button").click();
     await expect(page.getByTestId("mint-status")).toContainText("Minted 10,000 tUSD and 10,000 tUSDC", { timeout: 60_000 });
     await expect(page.getByTestId("balance")).toHaveText("10,000.00", { timeout: 20_000 });
+    // a block-explorer link for each confirmed mint
+    const mintLinks = page.getByTestId("mint-links").getByTestId("explorer-link");
+    await expect(mintLinks).toHaveCount(2);
+    for (const hash of await mintLinks.evaluateAll((els) => els.map((e) => e.getAttribute("data-hash")!))) {
+      await expectExplorerLink(page.getByTestId("mint-links").locator(`a[href$="/tx/${hash}"]`).first(), hash);
+    }
 
     // ------------------------------------------------ route preview
     await expect(page.getByTestId("route-table")).toBeVisible();
@@ -121,6 +134,7 @@ test("demo path: raw loses ~18%, protected rejects the cheat and fills honestly,
     await expect(page.getByTestId("approve-button")).toBeEnabled();
     await page.getByTestId("approve-button").click();
     await expect(page.getByTestId("allowance-line")).toContainText("Approved", { timeout: 60_000 });
+    await expectExplorerLink(page.getByTestId("approval-link").locator("a").first(), await page.getByTestId("approval-link").getByTestId("explorer-link").getAttribute("data-hash"));
     await expect(page.getByTestId("simulation")).toContainText("raw router sends everything through Pool B", { timeout: 30_000 });
     await expect(page.getByTestId("simulation")).toContainText("819.18");
     const rawGasText = await page.getByTestId("gas-line").innerText();
@@ -132,6 +146,7 @@ test("demo path: raw loses ~18%, protected rejects the cheat and fills honestly,
 
     // the transaction really carried the explicit limit shown in the UI (Monad charges the limit)
     const rawHash = (await page.getByTestId("outcome").locator("a").first().getAttribute("href"))!.split("/tx/")[1]!;
+    await expectExplorerLink(page.getByTestId("outcome").getByRole("link", { name: /View on block explorer/ }), rawHash);
     const rawTx = await rpc<{ gas: string }>("eth_getTransactionByHash", [rawHash]);
     expect(BigInt(rawTx.gas)).toBe(rawLimit);
 
@@ -144,6 +159,9 @@ test("demo path: raw loses ~18%, protected rejects the cheat and fills honestly,
     await expect(page.getByTestId("simulation")).toContainText("998.20");
     await page.getByTestId("swap-button").click();
     await expect(page.getByTestId("outcome")).toContainText("confirmed", { timeout: 90_000 });
+    const firmHash = await page.getByTestId("outcome").getByTestId("explorer-link").getAttribute("data-hash");
+    expect(firmHash).not.toBe(rawHash);
+    await expectExplorerLink(page.getByTestId("outcome").getByRole("link", { name: /View on block explorer/ }), firmHash);
     const tl = page.getByTestId("timeline");
     await expect(tl).toContainText("Skipped Pool Q: its in-transaction quote was below the quote it advertised off-chain.");
     await expect(tl).toContainText("Pool B quoted 999.0, delivered 819.2 (-18.0%). Rejected, strike recorded.");

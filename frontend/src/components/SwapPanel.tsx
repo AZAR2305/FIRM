@@ -17,7 +17,7 @@ import { useAllowance, useBalances, useRoutePlan } from "@/hooks/useChainData";
 import { EmptyState, ErrorState, Loading, NotDeployed } from "./States";
 import { RouteTable } from "./RouteTable";
 import { Timeline } from "./Timeline";
-import { TxLink } from "./TxLink";
+import { ExplorerTxLink } from "./TxLink";
 import { WalletButton } from "./WalletButton";
 
 type Mode = "protected" | "raw";
@@ -60,6 +60,7 @@ function SwapInner() {
   const [actionError, setActionError] = useState<string | null>(null);
   const [step, setStep] = useState<string>("");
   const [outcome, setOutcome] = useState<Outcome | null>(null);
+  const [approvalTx, setApprovalTx] = useState<Hex | null>(null);
 
   const to: Symbol = from === "tUSD" ? "tUSDC" : "tUSD";
   const fromToken = t[from];
@@ -151,6 +152,7 @@ function SwapInner() {
       setStep("Waiting for the approval to confirm");
       const receipt = await waitForReceipt(client, hash);
       if (receipt.status !== "success") throw new Error("The approval reverted on-chain.");
+      setApprovalTx(hash);
       await qc.invalidateQueries({ queryKey: ["allowance"] });
     } catch (e) {
       setActionError(describeError(e));
@@ -292,6 +294,11 @@ function SwapInner() {
             <p className="mt-1 text-xs text-mute" data-testid="allowance-line">
               {!isConnected ? "Connect a wallet." : allowance.isLoading ? "Checking allowance..." : approved ? `Approved: allowance ${fmt(allowance.data ?? 0n, 2)} ${from} covers this swap.` : `Not approved: ${targetName} may spend ${fmt(allowance.data ?? 0n, 2)} ${from}, this swap needs ${amountIn != null ? fmt(amountIn, 2) : "?"}.`}
             </p>
+            {approvalTx ? (
+              <p className="mt-1 text-xs text-ok" data-testid="approval-link">
+                <ExplorerTxLink hash={approvalTx} label="Approval confirmed:" />
+              </p>
+            ) : null}
             <button type="button" className="btn mt-2" disabled={!onRightChain || amountIn == null || approved || busy !== null || !enoughBalance} onClick={approve} data-testid="approve-button">
               {busy === "approve" ? "Approving..." : approved ? "Approved" : `Approve ${amountIn != null ? fmt(amountIn, 2) : ""} ${from}`}
             </button>
@@ -379,7 +386,7 @@ function SwapInner() {
           ) : outcome ? (
             <div className="space-y-3" data-testid="outcome">
               <p className="text-sm">
-                Transaction <TxLink hash={outcome.hash} />{" "}
+                <ExplorerTxLink hash={outcome.hash} label={outcome.mode === "protected" ? "Protected swap" : "Raw swap"} />{" "}
                 <span className={outcome.status === "success" ? "text-ok" : "text-bad"}>{outcome.status === "success" ? "confirmed" : "REVERTED"}</span>. Gas limit {outcome.gasLimit.toString()}, used {outcome.gasUsed.toString()}.
               </p>
               <Timeline steps={outcome.steps} />
