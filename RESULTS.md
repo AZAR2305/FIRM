@@ -48,7 +48,7 @@ wallet; see README "Deploy"). A pending cell means nothing was measured. No fork
 | B6 Gas-grief and reverting hooks | **pending** |
 | B8 / arena agent comparison | **pending** (and not yet run with a language model on any network) |
 | B7 Dashboard latency | **pending** (HyperSync, real block time) |
-| Envio vs chain consistency | **pending** |
+| Envio vs chain consistency | **partly measured, 2026-10-11**: HyperSync mode, real testnet, committed config (start block 0): the index held 70 pools across 4 hooks and matched an independent HyperSync count of PoolManager `Initialize` events (70 of 70); it was processing at the chain head. This covers pool discovery only. The Scoreboard comparison (`pnpm check-indexer`) is **pending** until FIRM is deployed on the testnet. |
 
 ## 2. B5: gas (what Monad charges is the gas LIMIT)
 
