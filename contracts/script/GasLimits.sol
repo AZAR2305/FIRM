@@ -30,7 +30,9 @@ library GasLimits {
     uint256 internal constant ADD_LIQUIDITY = 435_000; //        first pool is cold; later pools 256,354 290,314
 
     // ---- DemoSwap (1,000 tUSD through RawRouter, then through FirmRouter [B rejected, C fills])
-    uint256 internal constant PUBLIC_MINT = 80_000; //                                                  33,961
-    uint256 internal constant RAW_SWAP = 300_000; //                                                  191,477
-    uint256 internal constant FIRM_SWAP = 1_300_000; //   reject B + fill C: 640,102 here; docs/GAS.md puts a hostile first route at 1.0M-1.3M on Monad
+    // MONAD-MEASURED on 2026-10-11 with eth_estimateGas on the live testnet (fork numbers in brackets). The first version used the
+    // fork numbers and the raw swap ran out of gas at its 300,000 limit on the real chain: Monad costs about 1.6x the fork here.
+    uint256 internal constant PUBLIC_MINT = 80_000; //   mint succeeded at this limit                                (fork 33,961)
+    uint256 internal constant RAW_SWAP = 400_000; //     estimateGas 319,144 for pool B; limit = 1.25x                (fork 191,477)
+    uint256 internal constant FIRM_SWAP = 1_300_000; //  estimateGas 927,759 for [B,C,A], 1,000 tUSD; limit = 1.4x    (fork 640,102)
 }

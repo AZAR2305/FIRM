@@ -15,6 +15,7 @@ export const OUT_JSON = join(ROOT, "deployments", IS_FORK ? "10143.fork.json" : 
 export const OUT_MD = join(ROOT, IS_FORK ? join("deployments", "DEPLOYMENTS.fork.md") : "DEPLOYMENTS.md");
 
 export const CHAIN_ID = 10143;
+const DEPLOY_SCRIPTS = ["Deploy", "DeployFixtures", "SeedPools"];
 
 // viem lives in the backend workspace; the deployment tooling only needs its CREATE2 address helper.
 const { getCreate2Address, keccak256 } = createRequire(join(ROOT, "backend", "shared", "package.json"))("viem");
@@ -87,14 +88,20 @@ const readJson = (p) => (existsSync(p) ? JSON.parse(readFileSync(p, "utf8")) : n
 const lc = (a) => a.toLowerCase();
 
 /** address (lowercase) -> { hash, blockNumber } from every Foundry broadcast run on chain 10143 */
-export function readBroadcasts() {
+export function readBroadcasts(broadcastDir = BROADCAST) {
   const map = new Map();
-  if (!existsSync(BROADCAST)) return map;
-  for (const script of readdirSync(BROADCAST)) {
-    const run = readJson(join(BROADCAST, script, String(CHAIN_ID), "run-latest.json"));
+  if (!existsSync(broadcastDir)) return map;
+  // Only the three deployment scripts create the contracts. Other scripts (DemoSwap ...) may share the folder, and a failed or
+  // interrupted run leaves transactions without a hash or receipt, which must never break the deployment file.
+  for (const script of readdirSync(broadcastDir)) {
+    if (!DEPLOY_SCRIPTS.includes(script.replace(/.s.sol$/, ""))) continue;
+    const run = readJson(join(broadcastDir, script, String(CHAIN_ID), "run-latest.json"));
     if (!run) continue;
-    const blocks = new Map((run.receipts ?? []).map((r) => [lc(r.transactionHash), Number(BigInt(r.blockNumber))]));
+    const blocks = new Map(
+      (run.receipts ?? []).filter((r) => r?.transactionHash && r.blockNumber != null).map((r) => [lc(r.transactionHash), Number(BigInt(r.blockNumber))]),
+    );
     for (const tx of run.transactions ?? []) {
+      if (!tx?.hash) continue;
       let created = tx.contractAddress;
       const t = tx.transaction ?? {};
       if (!created && t.to && lc(t.to) === CREATE2_DEPLOYER && t.input) {

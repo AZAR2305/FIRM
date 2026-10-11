@@ -49,3 +49,21 @@ test("Redeploy.sh sends explicit limits only and checks the balance before build
   assert.ok(buildAt > 0 && redeploy.indexOf("preflight: OK") < buildAt, "balance check must come before anything is built or sent");
   assert.ok(redeploy.includes("Verify.sh"), "Redeploy must run Verify.sh");
 });
+
+test("readBroadcasts ignores non-deployment scripts and failed runs without hashes or receipts (found on the real testnet)", async () => {
+  const { mkdtempSync, mkdirSync, writeFileSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const { readBroadcasts } = await import("../lib/deployments.mjs");
+  const dir = mkdtempSync(join(tmpdir(), "bc-"));
+  const put = (script, run) => {
+    mkdirSync(join(dir, `${script}.s.sol`, "10143"), { recursive: true });
+    writeFileSync(join(dir, `${script}.s.sol`, "10143", "run-latest.json"), JSON.stringify(run));
+  };
+  // a failed DemoSwap: the pending transaction has a null hash and there is no receipt for it
+  put("DemoSwap", { transactions: [{ hash: null, transaction: { to: "0x0000000000000000000000000000000000000001", input: "0x" } }], receipts: [{ transactionHash: null, blockNumber: null }] });
+  // a deployment script with a normal creation
+  put("Deploy", { transactions: [{ hash: "0xabc", contractAddress: "0x00000000000000000000000000000000000000AA", transaction: {} }], receipts: [{ transactionHash: "0xabc", blockNumber: "0x10" }] });
+  const map = readBroadcasts(dir);
+  assert.deepEqual(map.get("0x00000000000000000000000000000000000000aa"), { hash: "0xabc", blockNumber: 16 });
+  assert.equal(map.size, 1);
+});

@@ -3,7 +3,8 @@
 import { writeFileSync } from "node:fs";
 import { buildModel, OUT_JSON, OUT_MD, IS_FORK } from "./lib/deployments.mjs";
 
-const EXPLORER = "https://testnet.monadvision.com";
+// testnet.monadexplorer.com redirects to MonadVision and keeps the /tx/ and /address/ paths
+const EXPLORER = "https://testnet.monadexplorer.com";
 const m = buildModel();
 
 writeFileSync(OUT_JSON, JSON.stringify(m, null, 2) + "\n");
