@@ -5,7 +5,7 @@
 #
 # In order: preflight (chain id, deployer balance against the gas budget) -> forge build -> Deploy (Scoreboard, FirmRouter,
 # CanaryRunner, RawRouter, reporters wired) -> DeployFixtures (mock tokens, liquidity helper, quarantined fixture hooks at
-# mined CREATE2 addresses) -> SeedPools (pools A to E plus G, R, Q) -> deployments/10143.json + DEPLOYMENTS.md (addresses,
+# mined CREATE2 addresses) -> SeedPools (pools A to E plus G, R, Q) -> deployments/10143.json + docs/DEPLOYMENTS.md (addresses,
 # block numbers, tx hashes, ABIs) -> gas report -> Verify.sh.
 #
 # Env (a missing variable is read from ../.env, which is git-ignored):
@@ -151,5 +151,5 @@ fi
 if [ "$FORK" = "1" ]; then
   echo "Done (FORK). See ../deployments/10143.fork.json. Do not commit it."
 else
-  echo "Done. See ../deployments/10143.json and ../DEPLOYMENTS.md; commit both."
+  echo "Done. See ../deployments/10143.json and ../docs/DEPLOYMENTS.md; commit both."
 fi

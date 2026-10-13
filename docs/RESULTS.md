@@ -15,10 +15,10 @@ The testnet budget is small (one funded wallet, about 5 MON), and Monad charges 
   code and state, plus a fresh FIRM deployment, with a real Envio indexer on top for B7), but **gas follows Ethereum's schedule, not
   Monad's repriced one, and timing numbers say nothing about the network**. Everything labelled "fork-measured" is not Monad-measured.
 * Numbers are reported as measured, including unfavourable ones. Nothing is rounded in our favour.
-* Sources: the full fork run [backend/bench/out/RESULTS.fork.md](backend/bench/out/RESULTS.fork.md) (commit `ba2565c` plus uncommitted
-  changes, 2026-10-07), the arena [backend/trader-agent/results/arena.fork.json](backend/trader-agent/results/arena.fork.json)
+* Sources: the full fork run [backend/bench/out/RESULTS.fork.md](../backend/bench/out/RESULTS.fork.md) (commit `ba2565c` plus uncommitted
+  changes, 2026-10-07), the arena [backend/trader-agent/results/arena.fork.json](../backend/trader-agent/results/arena.fork.json)
   (`"mode": "scripted"`: no LLM endpoint was configured, so this is a scripted trader, not a language model), a B5 re-run on 2026-10-08
-  after the gas-reserve change (below), and the gas work in [docs/SPIKES.md](docs/SPIKES.md) S5 and [docs/GAS.md](docs/GAS.md).
+  after the gas-reserve change (below), and the gas work in [docs/SPIKES.md](SPIKES.md) S5 and [docs/GAS.md](GAS.md).
 * Regenerate on testnet (after deploying): `BENCH_PRIVATE_KEY=0x<deployer key> QUOTE_API_URL=http://localhost:8787 pnpm bench` from
   `backend/`. It writes `backend/bench/out/RESULTS.testnet.md` (a fork run writes `RESULTS.fork.md`; neither overwrites this file) with
   the exact commit and deployment addresses used; copy the numbers into the testnet tables below.
@@ -70,7 +70,7 @@ do not depend on this, but it is stated here rather than hidden. Before the gas 
 (docs/GAS.md). A hostile first route (gas-grief) needs a limit of about 1.0M to 1.3M, **estimated** (Monad cold-access repricing added
 to fork measurements), paid once per hostile hook.
 
-Gas caps (S5, [docs/SPIKES.md](docs/SPIKES.md)): worst honest quote 189k and worst honest leg 334k with Monad repricing **estimated**, against
+Gas caps (S5, [docs/SPIKES.md](SPIKES.md)): worst honest quote 189k and worst honest leg 334k with Monad repricing **estimated**, against
 caps of 300k and 450k: margins **1.59x** and **1.35x** (the leg margin is below our 1.5x policy; open decision, defaults unchanged).
 
 ### Monad Testnet results

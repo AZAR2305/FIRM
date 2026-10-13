@@ -3,7 +3,7 @@
 #   forge verify-contract <address> <contract_name> --chain 10143 --verifier sourcify \
 #     --verifier-url https://sourcify-api-monad.blockvision.org/
 # Writes ../deployments/.stage/verified.json (address -> "verified" | "failed"), which build-deployments.mjs merges
-# into DEPLOYMENTS.md. A failure never aborts the run: verification status is reported honestly.
+# into docs/DEPLOYMENTS.md. A failure never aborts the run: verification status is reported honestly.
 #
 #   DRY_RUN=1 ./script/Verify.sh   print the commands that would run, send nothing, write nothing (used on forks: a
 #                                  local fork's addresses are unknown to Sourcify and MonadVision)

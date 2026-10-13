@@ -25,9 +25,9 @@ export function SiteFooter() {
         </div>
         <div className={col}>
           <p className={h}>Evidence and docs</p>
-          <p><a href={`${REPO}/blob/main/RESULTS.md`} target="_blank" rel="noreferrer">RESULTS.md: measured, fork vs testnet</a></p>
-          <p><a href={`${REPO}/blob/main/THREAT_MODEL.md`} target="_blank" rel="noreferrer">THREAT_MODEL.md: the limits</a></p>
-          <p><a href={`${REPO}/blob/main/DEPLOYMENTS.md`} target="_blank" rel="noreferrer">DEPLOYMENTS.md: every address</a></p>
+          <p><a href={`${REPO}/blob/main/docs/RESULTS.md`} target="_blank" rel="noreferrer">RESULTS.md: measured, fork vs testnet</a></p>
+          <p><a href={`${REPO}/blob/main/docs/THREAT_MODEL.md`} target="_blank" rel="noreferrer">THREAT_MODEL.md: the limits</a></p>
+          <p><a href={`${REPO}/blob/main/docs/DEPLOYMENTS.md`} target="_blank" rel="noreferrer">DEPLOYMENTS.md: every address</a></p>
           <p><a href={`${REPO}/blob/main/docs/SPIKES.md`} target="_blank" rel="noreferrer">Spikes and gas caps</a></p>
           <p><a href={REPO} target="_blank" rel="noreferrer">Source code (MIT)</a></p>
         </div>

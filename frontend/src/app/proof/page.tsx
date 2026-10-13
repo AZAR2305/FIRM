@@ -114,7 +114,7 @@ export default function ProofPage() {
           <p className="text-xs text-mute" data-testid="deployment-record">
             Deployment ({String(ev.recorded.deployment.date)}): {String(ev.recorded.deployment.succeeded)} of {String(ev.recorded.deployment.transactions)} transactions succeeded, each with an explicit
             gas limit ({Number(ev.recorded.deployment.gasLimitsSent).toLocaleString("en-US")} in total); about {String(ev.recorded.deployment.monSpent)} MON ({String(ev.recorded.deployment.monSpentNote)}); {String(ev.recorded.deployment.verified)}. Every address and
-            transaction hash is also in <span className="mono">DEPLOYMENTS.md</span>.
+            transaction hash is also in <span className="mono">docs/DEPLOYMENTS.md</span>.
           </p>
         ) : null}
       </section>
@@ -193,7 +193,7 @@ export default function ProofPage() {
           <li>We have not measured how many real third-party hooks cheat. The 54.2% and 26.4% figures are 0x&apos;s classification, disputed by Uniswap&apos;s founder.</li>
           <li>The cheating hooks here are our own fixtures. Catching them shows the mechanism works.</li>
           <li>A hook that is honest to the router and cheats others is not caught by the router (0 of 20 in our fork benchmark); only the canary can.</li>
-          <li>One owner key controls the Scoreboard. It cannot move user funds. See THREAT_MODEL.md.</li>
+          <li>One owner key controls the Scoreboard. It cannot move user funds. See docs/THREAT_MODEL.md.</li>
         </ul>
         <p className="text-xs text-mute">Reproduce: <span className="mono">node scripts/build-evidence.mjs</span>, <span className="mono">cd backend/bench &amp;&amp; pnpm check-indexer</span>, and RESULTS.md in the repository.</p>
       </section>

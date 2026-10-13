@@ -26,7 +26,7 @@ const env = z
     BENCH_TRADE_TOKENS: z.coerce.bigint().positive().default(1000n),
     /** comma separated subset, e.g. B1,B3 */
     BENCH_ONLY: z.string().optional(),
-    /** default: backend/bench/out/RESULTS.fork.md on a local fork, backend/bench/out/RESULTS.testnet.md otherwise. Never the hand-written RESULTS.md. */
+    /** default: backend/bench/out/RESULTS.fork.md on a local fork, backend/bench/out/RESULTS.testnet.md otherwise. Never the hand-written docs/RESULTS.md. */
     BENCH_OUTPUT: z.string().optional(),
     QUOTE_API_URL: z.string().url().optional().or(z.literal("").transform(() => undefined)),
     ENVIO_GRAPHQL_URL: z.string().url().optional().or(z.literal("").transform(() => undefined)),

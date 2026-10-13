@@ -147,7 +147,7 @@ to 1.3M for the whole swap, once per hostile hook (estimated, not Monad-measured
   skips the route silently, so a heavy honest hook can be starved of flow with no trace on the Scoreboard. The same holds for probes: a
   probe whose leg runs out of gas settles 0 and is a strike. Expensive token transfers and large trades through fragmented liquidity use
   gas that is not the hook's fault and are attributed to it anyway. Each case is tested (`contracts/test/GasCaps.t.sol`, `FLAG` tests) and listed in
-  [docs/SPIKES.md](docs/SPIKES.md) S5.
+  [docs/SPIKES.md](SPIKES.md) S5.
 * **Too loose is expensive.** A higher cap lets a hostile hook burn more of the caller's gas, once per hostile hook, and Monad bills the limit.
 * **Where we stand.** Fork-measured plus estimate: the leg cap is 1.35x the heaviest non-reverting fixture leg and 1.71x the honest
   fixtures, below our own 1.5x margin for the heaviest case. **Monad-measured on 2026-10-11** (`eth_estimateGas`): one quote costs at most 141k

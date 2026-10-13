@@ -12,7 +12,7 @@ export const BROADCAST = join(ROOT, "contracts", "broadcast");
 // committed as if it were the real testnet one.
 export const IS_FORK = process.env.FIRM_FORK === "1";
 export const OUT_JSON = join(ROOT, "deployments", IS_FORK ? "10143.fork.json" : "10143.json");
-export const OUT_MD = join(ROOT, IS_FORK ? join("deployments", "DEPLOYMENTS.fork.md") : "DEPLOYMENTS.md");
+export const OUT_MD = join(ROOT, IS_FORK ? join("deployments", "DEPLOYMENTS.fork.md") : join("docs", "DEPLOYMENTS.md"));
 
 export const CHAIN_ID = 10143;
 const DEPLOY_SCRIPTS = ["Deploy", "DeployFixtures", "SeedPools"];

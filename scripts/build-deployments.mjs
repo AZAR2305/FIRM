@@ -1,4 +1,4 @@
-// Assembles deployments/10143.json (single source of truth for addresses) and DEPLOYMENTS.md from the Foundry
+// Assembles deployments/10143.json (single source of truth for addresses) and docs/DEPLOYMENTS.md from the Foundry
 // stage files and broadcast receipts. Run automatically by contracts/script/Redeploy.sh.
 import { writeFileSync } from "node:fs";
 import { buildModel, OUT_JSON, OUT_MD, IS_FORK } from "./lib/deployments.mjs";

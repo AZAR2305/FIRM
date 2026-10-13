@@ -145,7 +145,7 @@ const recorded = prev.recorded ?? {
     demoShape: 927759,
     hostileFirst: 998495,
   },
-  notRun: "The 20-trial benchmark B1 to B8 (about 560 transactions) was not run on the public testnet: Monad charges the gas limit and the budget was one funded wallet. See RESULTS.md.",
+  notRun: "The 20-trial benchmark B1 to B8 (about 560 transactions) was not run on the public testnet: Monad charges the gas limit and the budget was one funded wallet. See docs/RESULTS.md.",
 };
 
 const out = { generatedAt: new Date().toISOString(), source: fork ? "fork" : "testnet", chainId: 10143, rpc: fork ? "local fork" : "public Monad Testnet RPC", chain, from, txs, gas, recorded };

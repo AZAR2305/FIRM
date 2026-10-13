@@ -2,12 +2,10 @@
 
 `10143.json` is the **single source of truth for addresses** on Monad Testnet (chain 10143). It is written by
 `contracts/script/Redeploy.sh` (through `scripts/build-deployments.mjs`, which merges the Foundry stage files and the
-broadcast receipts) and read by `quote-api`, `canary-agent`, `bench` and the Envio config generator. `../DEPLOYMENTS.md`
+broadcast receipts) and read by `quote-api`, `canary-agent`, `bench` and the Envio config generator. `../docs/DEPLOYMENTS.md`
 is generated from it.
 
-There is **no committed `10143.json` yet**: FIRM has not been deployed to the public testnet from this repository (it needs
-a funded deployer key). Until then the services stop with a clear "deployments file not found" error. After the first real
-deployment, commit `10143.json` and `DEPLOYMENTS.md`.
+FIRM was deployed to the public testnet on 2026-10-11 (see [`../docs/DEPLOYMENTS.md`](../docs/DEPLOYMENTS.md)), and `10143.json` is committed. After a testnet reset, run `Redeploy.sh` again, then commit `10143.json` and `docs/DEPLOYMENTS.md`.
 
 ```bash
 cd contracts && ./script/Redeploy.sh        # reads ../.env for DEPLOYER_PRIVATE_KEY / DEPLOYER_ACCOUNT
@@ -22,7 +20,7 @@ node ../scripts/gen-indexer-config.mjs      # point envio/ at it
 2. Builds, then runs `Deploy` (Scoreboard, FirmRouter, CanaryRunner, RawRouter, reporters wired, demo UNRATED cap),
    `DeployFixtures` (mock tokens, liquidity helper, quarantined fixture hooks at mined CREATE2 addresses) and `SeedPools`
    (pools A to E plus G, R, Q).
-3. Writes `10143.json` (addresses, block numbers, tx hashes, ABIs) and `DEPLOYMENTS.md`.
+3. Writes `10143.json` (addresses, block numbers, tx hashes, ABIs) and `docs/DEPLOYMENTS.md`.
 4. Prints a gas report (limit versus used per transaction) and runs `Verify.sh` (Sourcify / MonadVision).
 
 **Gas.** Monad charges the gas *limit*, so every transaction carries an explicit one. Calls use `{gas: n}`; contracts are

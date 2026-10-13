@@ -90,7 +90,7 @@ strike would corrupt the ledger and the canary is not user-facing.
 `eth_estimateGas` on the deployed contracts, 100 tUSD, one route: raw swap 276,219 (hookless) and 318,983 (honest hook); protected swap
 397,427 and 563,354, i.e. **1.44x and 1.77x**; the demo shape [B, C, A] at 1,000 tUSD 927,759; a gas-grief first route then A 998,495.
 One Quoter call at most 141,022. Monad's raw swaps cost 1.5x to 1.6x the fork's (175k, 195k). Receipts on Monad report gas used equal to
-the gas limit (all 37 deployment transactions), so usage cannot be read from receipts there. Full tables: [RESULTS.md](../RESULTS.md).
+the gas limit (all 37 deployment transactions), so usage cannot be read from receipts there. Full tables: [RESULTS.md](RESULTS.md).
 
 ## Still to do (needs the real network)
 

@@ -17,7 +17,7 @@ Network: Monad Testnet (chain 10143). The full spec is in docs/FIRM-spec.pdf (v1
 - Misbehaving test hooks live ONLY in contracts/test-fixtures. Never deploy to mainnet,
   never register in any hook registry.
 - Every contract and service ships with tests. Run before commit. Commit small and often.
-- Keep README.md, DEPLOYMENTS.md, RESULTS.md, THREAT_MODEL.md, docs/SPIKES.md current.
+- Keep README.md, docs/DEPLOYMENTS.md, docs/RESULTS.md, docs/THREAT_MODEL.md, docs/SPIKES.md current.
 - README MUST state that AI coding tools (Claude Code) were used (hackathon rule).
 - Be honest in docs about limits; do not round benchmark numbers in our favour.
 - Do not replace the V4 Quoter with a self-simulation through FirmRouter (spec 4.2).
