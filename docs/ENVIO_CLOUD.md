@@ -1,5 +1,7 @@
 # Putting Envio on the live site (Envio Cloud)
 
+**Status, 13 Oct 2026: done.** Indexer `firm` (Development plan) deployed from the `envio` branch; Envio Cloud accepted envio 3.14.0 and needed no environment variable (that page is a paid feature). Endpoint `https://indexer.dev.hyperindex.xyz/41f18b3/v1/graphql` passed `scripts/check-envio-endpoint.mjs` for origin `https://firm-gold.vercel.app`, and the live leaderboard shows "Envio HyperIndex". The steps below are what was followed; the "unverified" notes are kept as they were written.
+
 The live site reads its leaderboard, activity feed and hook pages from an Envio GraphQL endpoint. Judges cannot reach an indexer running on your machine, so it must be
 hosted. This is what to do. Everything marked **(unverified)** comes from Envio's documentation and could not be tested without your account.
 

@@ -33,8 +33,7 @@ adherence to the bounty 40%, technical implementation 30%, Monad integration 20%
 | Real data flowing | the real demo swap produced a Fill, a Strike and a StatusChange in the index, each with its transaction (see the activity feed and `/hooks/<address>`) |
 | Tests | `frontend/test/business.test.ts` (Envio client, query building, feed merge, error mapping against a mocked endpoint, labelled as mocked); `frontend/e2e/real-testnet-readonly.spec.ts` with `FIRM_REAL_E2E_ENVIO=1` runs the real build against the real chain and real index |
 
-**Honest limits.** The data volume is small (one real swap, 70 other pools from the chain). The index runs on our machine; **a hosted Envio endpoint for judges does
-not exist yet** (your Envio account is needed). Without it, the deployed app labels itself "direct Scoreboard read (Envio not used)". Envio is display and discovery
+**Honest limits.** The data volume is small (one real swap, 70 other pools from the chain). The index is hosted on Envio Cloud (Development plan, since 13 Oct 2026) and the live site reads it; the free plan deletes a deployment after 30 days or 7 days without requests, and the endpoint URL belongs to that deployment. If the endpoint is down, the deployed app labels itself "direct Scoreboard read (Envio not used)". Envio is display and discovery
 only: no contract reads it.
 
 ## Kimi / Alibaba (Qwen): what is built, what is not
