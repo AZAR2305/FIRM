@@ -6,3 +6,7 @@ src/generated/
 test-results/
 playwright-report/
 *.tsbuildinfo
+
+.vercel
+
+.deploy
