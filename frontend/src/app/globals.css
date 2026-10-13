@@ -1,38 +1,39 @@
 @import "tailwindcss";
 
 /*
- * Visual language: a warm cream page, plum ink, blue / teal accents and playful isometric illustration, in the spirit of modern SaaS landing
- * pages. Colours are tokens, so every page and component follows. Contrast was chosen for WCAG AA on the cream background.
+ * Visual language: a black page with a faint grid, near-white ink, Sora for text and IBM Plex Mono for labels (after the Surety pitch). Colours are
+ * tokens, so every page and component follows. Mute / ok / warn / bad were chosen for WCAG AA contrast on the black background.
  */
 @theme {
-  --color-bg: #fff9f2;
-  --color-panel: #ffffff;
-  --color-panel2: #fff0e0;
-  --color-line: #ead9c8;
-  --color-ink: #2b2340;
-  --color-mute: #665c75;
-  --color-brand: #2f66bd;
-  --color-brand-soft: #dce8fb;
-  --color-ok: #1b7f5c;
-  --color-warn: #9a5b00;
-  --color-bad: #c0392b;
-  --color-idle: #6a6078;
-  --color-plum: #403650;
-  --color-mauve: #a8608f;
-  --color-cream: #fce4cc;
-  --color-teal: #1c7678;
-  --font-sans: ui-rounded, "Segoe UI Variable Display", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --color-bg: #08080a;
+  --color-panel: #101013;
+  --color-panel2: #17171b;
+  --color-line: #2a2a31;
+  --color-ink: #f4f4f5;
+  --color-mute: #a3a3ad;
+  --color-brand: #7aa7ff;
+  --color-brand-soft: #14203a;
+  --color-ok: #3ecf8e;
+  --color-warn: #f2b84b;
+  --color-bad: #ff6b6b;
+  --color-idle: #9a9aa6;
+  --color-plum: #ececef;
+  --color-mauve: #c9a0f0;
+  --color-cream: #1b1b21;
+  --color-teal: #4cc9c0;
+  --font-sans: var(--font-sora), "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
 html {
-  color-scheme: light;
+  color-scheme: dark;
 }
 
 body {
   background:
-    radial-gradient(1200px 500px at 85% -10%, rgba(47, 102, 189, 0.1), transparent 60%),
-    radial-gradient(900px 500px at -10% 10%, rgba(168, 96, 143, 0.1), transparent 60%),
+    linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px) 0 0 / 56px 56px,
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px) 0 0 / 56px 56px,
+    radial-gradient(1000px 500px at 80% -10%, rgba(122, 167, 255, 0.08), transparent 60%),
     var(--color-bg);
   color: var(--color-ink);
   font-family: var(--font-sans);
@@ -46,8 +47,10 @@ body {
   border-radius: 6px;
 }
 
-a {
-  color: var(--color-brand);
+@layer base {
+  a {
+    color: var(--color-brand);
+  }
 }
 
 .display {
@@ -74,6 +77,7 @@ a {
   text-align: center;
 }
 .eyebrow {
+  font-family: var(--font-mono);
   font-size: 0.75rem;
   font-weight: 800;
   letter-spacing: 0.14em;
@@ -94,6 +98,8 @@ a {
 }
 
 .btn {
+  font-family: var(--font-mono);
+  letter-spacing: 0.03em;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -111,16 +117,16 @@ a {
 }
 .btn:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 4px 0 var(--color-plum);
+  box-shadow: 0 4px 0 var(--color-line);
 }
 .btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 .btn-primary {
-  background: var(--color-brand);
-  border-color: var(--color-plum);
-  color: #fff;
+  background: var(--color-ink);
+  border-color: var(--color-ink);
+  color: var(--color-bg);
 }
 .btn-lg {
   padding: 0.8rem 1.5rem;
@@ -131,10 +137,11 @@ a {
   background: var(--color-panel);
   border: 1.5px solid var(--color-line);
   border-radius: 1rem;
-  box-shadow: 0 2px 0 rgba(64, 54, 80, 0.06);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.02);
 }
 
 .pill {
+  font-family: var(--font-mono);
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
