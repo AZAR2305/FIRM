@@ -21,11 +21,6 @@ A Uniswap v4 router for Monad that checks every pool's quote against its real fi
 </div>
 
 ---
-
-## AI-tool disclosure
-
-**AI coding tools were used to build this project.** Specifically **Claude Code** (Anthropic's AI coding agent; recent commits name the model, Claude Sonnet 5.5) working from a written specification ([docs/FIRM-spec.pdf](docs/FIRM-spec.pdf)). Claude Code wrote the contracts, tests, scripts, services, frontend and documentation in this repository; the builder directs, reviews and runs it. The git history shows the build as it happened; the most recent commits carry a `Co-Authored-By` line naming the model, earlier ones do not, but the whole repository was produced this way. The hackathon rules require this disclosure.
-
 ## What it is
 
 When you swap tokens, an app shows a quote such as "you will receive about 999 USDC". On Uniswap v4 a pool can attach a **hook**: a contract that runs during the swap and can change the amounts. A badly behaved hook can look good in the quote and take a hidden fee when the swap really executes. Nothing in today's routers remembers which hooks did that, so the next user is hit too.
