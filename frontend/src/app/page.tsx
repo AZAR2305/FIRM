@@ -55,9 +55,9 @@ export default function Landing() {
   const pools = dep ? Object.entries(dep.pools.list).filter(([n, p]) => POOL_ROLES[n] && p.hook !== "0x0000000000000000000000000000000000000000") : [];
 
   return (
-    <div className="space-y-24">
+    <div className="space-y-28 sm:space-y-36">
       {/* ------------------------------------------------ hero */}
-      <section className="space-y-6 text-center" aria-labelledby="pitch">
+      <section className="space-y-8 pt-4 text-center" aria-labelledby="pitch">
         <p className="pill mx-auto" data-testid="hero-eyebrow">
           <span aria-hidden className="h-2 w-2 rounded-full bg-ok" />
           Live on Monad Testnet, built on Uniswap v4 hooks
@@ -65,7 +65,7 @@ export default function Landing() {
         <h1 id="pitch" className="display mx-auto max-w-4xl text-4xl sm:text-6xl">
           A quote is a promise. <span className="text-brand">FIRM</span> makes pools keep it.
         </h1>
-        <p className="mx-auto max-w-2xl text-lg text-mute">
+        <p className="lead mx-auto max-w-2xl">
           FIRM is a Uniswap v4 router and a public scoreboard for Monad. It checks every pool&apos;s quote against its real fill inside the same transaction, strikes the hooks that
           break their word, and falls back to an honest pool.
         </p>
@@ -82,22 +82,47 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ------------------------------------------------ who pays */}
-      <section className="space-y-6" aria-labelledby="who">
-        <div className="space-y-2 text-center">
-          <h2 id="who" className="display text-3xl">Built for the people who pay for the lie</h2>
-          <p className="mx-auto max-w-2xl text-mute">The cost lands on whoever trusts the quote, and the fix lands where the routing decision is made.</p>
+      {/* ------------------------------------------------ in plain words */}
+      <section aria-labelledby="plain" data-testid="plain-words">
+        <div className="section-head">
+          <p className="eyebrow">In plain words</p>
+          <h2 id="plain" className="display text-3xl sm:text-4xl">Think of a shop with two prices</h2>
+          <p className="lead mx-auto max-w-2xl">
+            The label says 999. At the till you are charged for 819. Nobody told you, and the next customer is caught the same way. FIRM stands at the till for you.
+          </p>
         </div>
-        <div className="grid gap-4 md:grid-cols-3" data-testid="audiences">
+        <ol className="mx-auto grid max-w-5xl gap-6 md:grid-cols-3">
+          {[
+            { n: "1", t: "Ask the price", p: "Before swapping, FIRM asks each pool: how much will I get? That answer is the promise." },
+            { n: "2", t: "Check the till", p: "FIRM does the swap and compares what really arrived with the promise, in the same transaction. Too little means that leg is undone." },
+            { n: "3", t: "Name it, move on", p: "The pool that broke its word is marked on a public scoreboard, and FIRM tries the next honest pool. You still get your swap." },
+          ].map((s) => (
+            <li key={s.n} className="card space-y-4 p-7">
+              <span className="step-num" aria-hidden>{s.n}</span>
+              <h3 className="text-xl font-bold">{s.t}</h3>
+              <p className="copy">{s.p}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      {/* ------------------------------------------------ who pays */}
+      <section aria-labelledby="who">
+        <div className="section-head">
+          <p className="eyebrow">Who it is for</p>
+          <h2 id="who" className="display text-3xl sm:text-4xl">Built for the people who pay for the lie</h2>
+          <p className="lead mx-auto max-w-2xl">The cost lands on whoever trusts the quote, and the fix lands where the routing decision is made.</p>
+        </div>
+        <div className="grid gap-6 md:grid-cols-3" data-testid="audiences">
           {AUDIENCES.map((a) => (
-            <div key={a.who} className="card space-y-3 p-5">
-              <p className="text-lg font-bold">{a.who}</p>
-              <p className="text-sm text-mute"><strong className="text-bad">Today:</strong> {a.pain}</p>
-              <p className="text-sm text-mute"><strong className="text-ok">With FIRM:</strong> {a.gain}</p>
+            <div key={a.who} className="card space-y-4 p-7">
+              <p className="text-xl font-bold">{a.who}</p>
+              <p className="copy"><strong className="text-bad">Today:</strong> {a.pain}</p>
+              <p className="copy"><strong className="text-ok">With FIRM:</strong> {a.gain}</p>
             </div>
           ))}
         </div>
-        <p className="mx-auto max-w-3xl text-center text-sm text-mute">
+        <p className="copy mx-auto mt-10 max-w-3xl text-center">
           The wedge: a router adopts FIRM in two lines, <span className="mono">statusOf(hook)</span> and <span className="mono">toleranceBps(hook)</span>, and every router that does
           makes the scoreboard more valuable to the next one. <Link href="/integrate">See how to integrate</Link>.
         </p>
@@ -122,7 +147,7 @@ export default function Landing() {
       {/* ------------------------------------------------ practise villains */}
       {pools.length > 0 ? (
         <section className="space-y-4 text-center" aria-labelledby="villains">
-          <h2 id="villains" className="display text-3xl">Sure, we brought some villains to practise on</h2>
+          <h2 id="villains" className="display text-3xl sm:text-4xl">Sure, we brought some villains to practise on</h2>
           <p className="mx-auto max-w-2xl text-sm text-mute">
             Seven of the pools on Monad Testnet use hooks we wrote: honest ones and ones that cheat in different ways. They exist only as test fixtures, so you can watch FIRM catch them.
           </p>
@@ -140,17 +165,17 @@ export default function Landing() {
 
       {/* ------------------------------------------------ where the lie happens */}
       <section className="space-y-4" aria-labelledby="problem">
-        <div className="space-y-2 text-center">
-          <h2 id="problem" className="display text-3xl">The problem, and exactly where it happens</h2>
-          <p className="mx-auto max-w-2xl text-mute">One swap, two paths, one hook that can tell them apart.</p>
+        <div className="section-head">
+          <h2 id="problem" className="display text-3xl sm:text-4xl">The problem, and exactly where it happens</h2>
+          <p className="lead mx-auto max-w-2xl">One swap, two paths, one hook that can tell them apart.</p>
         </div>
         <LieDiagram />
       </section>
 
       {/* ------------------------------------------------ the numbers */}
       <section className="space-y-4" aria-labelledby="example">
-        <div className="space-y-2 text-center">
-          <h2 id="example" className="display text-3xl">The same trade, with and without protection</h2>
+        <div className="section-head">
+          <h2 id="example" className="display text-3xl sm:text-4xl">The same trade, with and without protection</h2>
         </div>
         {h ? (
           <>
@@ -187,34 +212,34 @@ export default function Landing() {
       </section>
 
       {/* ------------------------------------------------ features */}
-      <section className="space-y-6" aria-labelledby="features">
-        <div className="space-y-2 text-center">
-          <h2 id="features" className="display text-3xl">What is inside</h2>
-          <p className="mx-auto max-w-2xl text-mute">Deterministic contracts decide money and status. Nothing here asks you to trust a model, an oracle or us.</p>
+      <section aria-labelledby="features">
+        <div className="section-head">
+          <h2 id="features" className="display text-3xl sm:text-4xl">What is inside</h2>
+          <p className="lead mx-auto max-w-2xl">Deterministic contracts decide money and status. Nothing here asks you to trust a model, an oracle or us.</p>
         </div>
-        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" data-testid="features">
+        <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4" data-testid="features">
           {FEATURES.map((f, i) => (
-            <li key={f.t} className={`card flex flex-col gap-2 p-5 ${i === 0 ? "lg:col-span-2" : ""} ${i === 5 ? "lg:col-span-2" : ""}`}>
+            <li key={f.t} className={`card flex flex-col gap-3 p-7 ${i === 0 ? "lg:col-span-2" : ""} ${i === 5 ? "lg:col-span-2" : ""}`}>
               <span className="pill w-fit">{f.tag}</span>
               <p className="text-lg font-bold">{f.t}</p>
-              <p className="text-sm text-mute">{f.p}</p>
+              <p className="copy">{f.p}</p>
             </li>
           ))}
         </ul>
       </section>
 
       {/* ------------------------------------------------ focus: Uniswap, Monad, Envio */}
-      <section className="space-y-6" aria-labelledby="focus">
-        <div className="space-y-2 text-center">
-          <h2 id="focus" className="display text-3xl">What we focus on, and why</h2>
-          <p className="mx-auto max-w-3xl text-mute">
+      <section className="space-y-8" aria-labelledby="focus">
+        <div className="section-head">
+          <h2 id="focus" className="display text-3xl sm:text-4xl">What we focus on, and why</h2>
+          <p className="lead mx-auto max-w-3xl">
             One problem: a quote that a hook can falsify. We use the infrastructure that problem needs, and nothing else.
           </p>
         </div>
-        <div className="grid gap-4 lg:grid-cols-3" data-testid="focus-cards">
-          <article className="card relative overflow-hidden p-6" data-testid="focus-uniswap">
+        <div className="grid gap-6 lg:grid-cols-3" data-testid="focus-cards">
+          <article className="card relative overflow-hidden p-8" data-testid="focus-uniswap">
             <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32"><UniswapBackdrop /></div>
-            <div className="relative space-y-2 pb-28">
+            <div className="relative space-y-3 pb-28">
               <span className="pill">Uniswap v4</span>
               <h3 className="text-xl font-bold">Hooks make pools programmable, and quotable lies possible</h3>
               <p className="text-sm text-mute">
@@ -226,9 +251,9 @@ export default function Landing() {
               </p>
             </div>
           </article>
-          <article className="card relative overflow-hidden p-6" data-testid="focus-monad">
+          <article className="card relative overflow-hidden p-8" data-testid="focus-monad">
             <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32"><MonadBackdrop /></div>
-            <div className="relative space-y-2 pb-28">
+            <div className="relative space-y-3 pb-28">
               <span className="pill">Monad</span>
               <h3 className="text-xl font-bold">Per-swap verification only works where blocks are fast and cheap</h3>
               <p className="text-sm text-mute">
@@ -238,8 +263,8 @@ export default function Landing() {
               <p className="text-xs text-mute">Honest caveat: Monad charges the gas limit, so protection costs more. The cost card below shows what we measured on the public testnet.</p>
             </div>
           </article>
-          <article className="card relative overflow-hidden p-6" data-testid="focus-envio">
-            <div className="relative space-y-2">
+          <article className="card relative overflow-hidden p-8" data-testid="focus-envio">
+            <div className="relative space-y-3">
               <span className="pill">Envio</span>
               <h3 className="text-xl font-bold">A public scoreboard needs a fast, honest index</h3>
               <p className="text-sm text-mute">
@@ -281,21 +306,21 @@ export default function Landing() {
       </section>
 
       {/* ------------------------------------------------ integration tiers */}
-      <section className="space-y-6" aria-labelledby="tiers">
-        <div className="space-y-2 text-center">
-          <h2 id="tiers" className="display text-3xl">How much effort is it to use?</h2>
-          <p className="mx-auto max-w-2xl text-mute">Pick the depth that fits your router.</p>
+      <section className="space-y-8" aria-labelledby="tiers">
+        <div className="section-head">
+          <h2 id="tiers" className="display text-3xl sm:text-4xl">How much effort is it to use?</h2>
+          <p className="lead mx-auto max-w-2xl">Pick the depth that fits your router.</p>
         </div>
-        <div className="grid gap-4 md:grid-cols-3" data-testid="tiers">
+        <div className="grid gap-6 md:grid-cols-3" data-testid="tiers">
           {[
             { n: "No sweat", d: "Read the scoreboard", p: "Call statusOf(hook) and toleranceBps(hook) before you route. Two view calls, no permission, no key.", c: "border-ok" },
             { n: "Some sweat", d: "Execute through FirmRouter", p: "Pass up to four candidate pools to swapExactIn. It checks each quote against its fill and falls back for you.", c: "border-warn" },
             { n: "Real sweat", d: "Run your own canary and index", p: "Deploy a CanaryRunner, point Envio at your deployment, and keep your own evidence of who keeps their word.", c: "border-bad" },
           ].map((t) => (
-            <div key={t.n} className={`card border-t-4 p-5 ${t.c}`}>
+            <div key={t.n} className={`card border-t-4 p-7 ${t.c}`}>
               <p className="text-xs font-bold uppercase tracking-wide text-mute">{t.n}</p>
               <p className="mt-1 text-lg font-bold">{t.d}</p>
-              <p className="mt-1 text-sm text-mute">{t.p}</p>
+              <p className="copy mt-2">{t.p}</p>
             </div>
           ))}
         </div>
@@ -304,7 +329,7 @@ export default function Landing() {
 
       {/* ------------------------------------------------ final call */}
       <section className="card mx-auto max-w-4xl space-y-4 p-10 text-center" style={{ background: "var(--color-cream)" }} aria-labelledby="cta">
-        <h2 id="cta" className="display text-3xl">Watch it catch a cheat in three minutes</h2>
+        <h2 id="cta" className="display text-3xl sm:text-4xl">Watch it catch a cheat in three minutes</h2>
         <p className="mx-auto max-w-xl text-sm text-mute" style={{ color: "var(--color-plum)" }}>
           Connect a wallet on Monad Testnet, mint test tokens, run the same trade through an unprotected router and through FIRM, and check every step on the block explorer.
         </p>

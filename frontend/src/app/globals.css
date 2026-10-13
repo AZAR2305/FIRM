@@ -56,6 +56,43 @@ a {
   line-height: 1.08;
 }
 
+/* readable body copy: larger size, generous line height, comfortable measure */
+.lead {
+  font-size: 1.125rem;
+  line-height: 1.75;
+  color: var(--color-mute);
+}
+.copy {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--color-mute);
+}
+.section-head {
+  display: grid;
+  gap: 0.9rem;
+  margin-bottom: 2.25rem;
+  text-align: center;
+}
+.eyebrow {
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-mauve);
+}
+.step-num {
+  display: grid;
+  place-items: center;
+  height: 2.75rem;
+  width: 2.75rem;
+  border-radius: 999px;
+  border: 1.5px solid var(--color-plum);
+  background: var(--color-cream);
+  font-weight: 800;
+  font-size: 1.15rem;
+  color: var(--color-plum);
+}
+
 .btn {
   display: inline-flex;
   align-items: center;
