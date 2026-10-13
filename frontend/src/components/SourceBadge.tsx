@@ -12,6 +12,9 @@ export function SourceBadge({ board }: { board: Board }) {
     >
       <strong className={envio ? "text-ok" : "text-warn"}>{envio ? "Data source: Envio HyperIndex" : "Data source: direct Scoreboard read (Envio not used)"}</strong>
       <span className="text-mute">{board.note}</span>
+      {envio && board.indexedBlock == null ? (
+        <span className="text-mute" data-testid="no-lag">this endpoint does not report how far behind the chain it is, answered in {board.ms} ms</span>
+      ) : null}
       {envio && board.indexedBlock != null ? (
         <span className="mono text-mute" data-testid="indexed-block">
           indexed to block {board.indexedBlock.toLocaleString("en-US")}

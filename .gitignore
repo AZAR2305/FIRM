@@ -9,6 +9,7 @@ contracts/out/
 contracts/cache/
 contracts/broadcast/
 envio/generated/
+envio/envio-env.d.ts
 envio/build/
 .DS_Store
 coverage/

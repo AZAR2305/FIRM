@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { Address, Hex } from "viem";
 import { canChangeSwapAmounts, decodeHookFlags, describeFlags } from "@/lib/flags";
-import { EnvioError, activityQuery, gql, toActivity, type ActivityData } from "@/lib/envio";
+import { EnvioError, HOOKS_QUERY, META_QUERY, activityQuery, gql, toActivity, type ActivityData } from "@/lib/envio";
 import { costMon, headline, overhead, type Evidence } from "@/lib/evidence";
 import { DEMO_VILLAINS, freshVillains, routeWithVillain } from "@/lib/demo";
 import { MAX_LEGS, planRoute, type Candidate } from "@/lib/routes";
@@ -39,6 +39,11 @@ describe("Envio client", () => {
     const evil = activityQuery('0xabc"}) { id } } #');
     expect(evil).not.toContain('"}) { id }');
     expect(evil).not.toContain("#");
+  });
+
+  it("asks for the lag separately, so a hosted endpoint without chain_metadata cannot break the leaderboard", () => {
+    expect(HOOKS_QUERY).not.toContain("chain_metadata");
+    expect(META_QUERY).toContain("chain_metadata");
   });
 
   it("merges the five event tables newest first with deterministic text, and caps the list", () => {

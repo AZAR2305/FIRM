@@ -13,7 +13,7 @@ Everything needed to fill in the Monad Metropolis submission, with the status of
 | RESULTS.md: tables split fork / Monad Testnet | Done | Testnet cells are filled only where measured; the 20-trial benchmark is **pending** and says so. |
 | THREAT_MODEL.md, docs/SPIKES.md | Done | Limits are listed, including the sender-aware gap and the trusted owner. |
 | Live demo URL | **Needs you:** host the frontend | `cd frontend && pnpm build` works from a clean checkout. It reads `../deployments/10143.json`, which is outside the `frontend/` folder: on a host that builds from a subfolder (Vercel) enable "include source files outside of the root directory", or ask us to add a committed copy. |
-| Hosted Envio endpoint for the live app | **Needs you:** Envio account | Without it the live app labels itself "direct Scoreboard read". See `docs/DEMO.md`. |
+| Hosted Envio endpoint for the live app | **Needs you:** Envio account | Everything is prepared and tested; follow `docs/ENVIO_CLOUD.md`. Without it the live app labels itself "direct Scoreboard read". |
 | 60 to 90 second video | **Needs you:** record | Script and screens in `docs/DEMO.md`. |
 | Team registered, rules modal re-read | **Needs you** | Confirm testnet is accepted: the platform page mentions Monad's chain id 143 (mainnet); the spec says testnet is accepted but second-hand. |
 | Disclose pre-existing code / libraries | Done | README "Pre-existing code and libraries". |

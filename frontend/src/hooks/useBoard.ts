@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { usePublicClient } from "wagmi";
 import { REFRESH_MS, monadTestnet } from "@/lib/config";
 import { deployments, mustDeployments, ZERO_ADDRESS } from "@/lib/deployments";
-import { activityQuery, ENVIO_URL, EnvioError, HOOKS_QUERY, gql, toActivity, type ActivityData, type ActivityItem, type HooksData } from "@/lib/envio";
+import { activityQuery, ENVIO_URL, EnvioError, HOOKS_QUERY, META_QUERY, gql, toActivity, type ActivityData, type ActivityItem, type HooksData, type MetaData } from "@/lib/envio";
 import { STATUS_NAMES, type StatusName } from "@/lib/status";
 import { hooklessPools, readBoardFromChain, sortRows, type HookRow } from "./useChainData";
 
@@ -38,7 +38,7 @@ export function useBoard() {
       let why = "Envio is not configured (NEXT_PUBLIC_ENVIO_GRAPHQL_URL): reading the Scoreboard contract directly.";
       if (ENVIO_URL) {
         try {
-          const data = await gql<HooksData>(HOOKS_QUERY);
+          const [data, metaData] = await Promise.all([gql<HooksData>(HOOKS_QUERY), gql<MetaData>(META_QUERY).catch(() => null)]);
           const byHook = new Map(data.Hook.map((h) => [h.id.toLowerCase(), h]));
           const rows: HookRow[] = Object.entries(d.pools.list)
             .filter(([, p]) => p.hook.toLowerCase() !== ZERO_ADDRESS)
@@ -58,7 +58,7 @@ export function useBoard() {
                 lastStrikeAt: h?.lastStrikeAt ?? 0,
               };
             });
-          const meta = data.chain_metadata[0];
+          const meta = metaData?.chain_metadata[0];
           return {
             rows: sortRows(rows),
             hookless: hooklessPools(),

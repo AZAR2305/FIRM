@@ -41,10 +41,19 @@ export interface EnvioHook {
   flags: string[];
 }
 
-export const HOOKS_QUERY = `query Hooks { Hook { id status fills strikes probes probeStrikes cumShortfallBps avgShortfallBps lastStrikeAt flags } chain_metadata { latest_processed_block block_height } }`;
+export const HOOKS_QUERY = `query Hooks { Hook { id status fills strikes probes probeStrikes cumShortfallBps avgShortfallBps lastStrikeAt flags } }`;
 
 export interface HooksData {
   Hook: EnvioHook[];
+}
+
+/**
+ * How far the index has processed. Asked separately and optional: a hosted endpoint may not expose Envio's chain_metadata table, and that must
+ * not take the whole leaderboard down. Without it the page says the lag is not reported.
+ */
+export const META_QUERY = `query Meta { chain_metadata { latest_processed_block block_height } }`;
+
+export interface MetaData {
   chain_metadata: { latest_processed_block: number; block_height: number }[];
 }
 
