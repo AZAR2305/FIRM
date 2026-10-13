@@ -62,10 +62,10 @@ function _floor(address hook, uint256 quotedOut) internal view returns (uint256)
     : [];
 
   return (
-    <div className="space-y-10">
-      <div>
-        <h1 className="text-2xl font-extrabold">Integrate</h1>
-        <p className="mt-1 max-w-3xl text-sm text-mute">
+    <div className="space-y-12">
+      <div className="page-head">
+        <h1 className="page-title">Developers</h1>
+        <p className="page-lead">
           Any router, wallet or agent can read the Scoreboard before it routes through a hook. It is a public, on-chain ledger; reading it needs
           no permission. Everything below is generated from <span className="mono">deployments/10143.json</span>.
         </p>

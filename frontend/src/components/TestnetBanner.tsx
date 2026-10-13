@@ -11,15 +11,15 @@ export function TestnetBanner() {
   const working = state.phase === "working";
   return (
     <div className="border-b border-warn/40 bg-warn/10" data-testid="testnet-banner">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-2 text-sm">
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-1.5 px-5 py-1.5 text-xs sm:px-6">
         <strong className="text-warn">Monad Testnet. Test tokens only.</strong>
         <a href={FAUCET_URL} target="_blank" rel="noreferrer">
           MON faucet
         </a>
-        <button type="button" className="btn" onClick={mint} disabled={working || !deployments} data-testid="mint-button">
+        <button type="button" className="btn btn-sm" onClick={mint} disabled={working || !deployments} data-testid="mint-button">
           {working ? "Minting..." : "Mint test tokens"}
         </button>
-        <span role="status" aria-live="polite" className="text-xs text-mute" data-testid="mint-status">
+        <span role="status" aria-live="polite" className="text-mute" data-testid="mint-status">
           {state.phase === "working" ? state.step : null}
           {state.phase === "done" ? <span className="text-ok">{state.message}</span> : null}
           {state.phase === "error" ? <span className="text-bad">{state.message}</span> : null}

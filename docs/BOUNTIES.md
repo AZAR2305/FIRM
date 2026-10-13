@@ -46,7 +46,12 @@ Built:
   settings.
 * Tests with a **mocked** endpoint (`frontend/test/business.test.ts`, backend agent tests): the request shape, fallback and sanitising.
 
-Not done: **no run with a real model.** No key is configured, so the arena result is labelled `"mode": "scripted"` and the hook summary says "No language model was used".
+Done, with Groq (13 Oct 2026; Kimi and Alibaba were not reachable for us because of region and pricing, so **these two bounties are not claimed**: Groq's `qwen/qwen3.8-27b` is a Qwen model but it is not Alibaba Cloud, and Groq lists no Kimi model for our key):
+* The live hook pages' summary is written by `qwen/qwen3.8-27b` through Groq (`LLM_BASE_URL`, `LLM_API_KEY`, `LLM_MODEL` set as server-only variables on the host); `/api/hook-report` answers `"mode": "llm"`. The key is never sent to the browser, only the seven seeded hooks can be asked about, and answers are cached for 20 s.
+* The trader agent ran on the **real Monad Testnet** with a real model choosing the tools (results in `backend/trader-agent/results/arena.groq.json` and `arena.groq-gptoss.json`). Small and imperfect, so read them as a smoke test, not a benchmark:
+  * `qwen/qwen3.8-27b`, 2 trials: the unprotected agent filled both and lost **99 bps** each time (it chose the dynamic-fee pool that quotes high, 3.0 tUSDC over 300 tUSD, on-chain). The protected arm filled **0 of 2**: the model wrote the token address as a number in `firm_swap`, the provider rejected the call, and a retry with the error fed back did not fix it.
+  * `openai/gpt-oss-120b`, 2 trials: trial 1 worked in both arms (unprotected 99.75 for 100; protected 99.82, one leg rejected by FirmRouter); trial 2 failed in both arms on invalid tool arguments. A later 4-trial run was cut off by our time limit and wrote no result.
+  * The agent now waits out HTTP 429 and 503 and returns tool-argument errors to the model (tests added). The free tier allows 8,000 tokens per minute, so a run is slow.
 
 To enable: put the three variables in `.env` (backend) and in the frontend server's environment, rerun the arena (`pnpm --filter @firm/trader-agent start`), and record the model name in
 `RESULTS.md` as `"mode": "llm"`. For Kimi use Moonshot's OpenAI-compatible endpoint and a tool-calling model; for Alibaba use the DashScope compatible-mode endpoint (check each
@@ -54,4 +59,4 @@ provider's current documentation for the exact base URL and model id; we have no
 
 ## What to tick on the submission form
 
-Envio, yes. Kimi or Alibaba only after a real run exists. Nothing else.
+Envio, yes. Kimi and Alibaba: no (we could not use their endpoints, and we do not claim a bounty for a different provider). Nothing else.

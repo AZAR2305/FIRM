@@ -72,9 +72,48 @@ body {
 }
 .section-head {
   display: grid;
-  gap: 0.9rem;
-  margin-bottom: 2.25rem;
-  text-align: center;
+  gap: 0.75rem;
+  margin-bottom: 2.5rem;
+  max-width: 44rem;
+}
+.section-title {
+  font-size: clamp(1.7rem, 3.2vw, 2.4rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+.page-head {
+  display: grid;
+  gap: 0.75rem;
+  max-width: 44rem;
+}
+.page-title {
+  font-size: clamp(1.9rem, 3.6vw, 2.7rem);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+}
+.page-lead {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--color-mute);
+}
+footer a {
+  color: var(--color-mute);
+  text-decoration: none;
+}
+footer a:hover {
+  color: var(--color-ink);
+  text-decoration: underline;
+}
+.divide-hairline > * + * {
+  border-left: 1px solid var(--color-line);
+}
+@media (max-width: 767px) {
+  .divide-hairline > * + * {
+    border-left: 0;
+    border-top: 1px solid var(--color-line);
+  }
 }
 .eyebrow {
   font-family: var(--font-mono);
@@ -85,16 +124,11 @@ body {
   color: var(--color-mauve);
 }
 .step-num {
-  display: grid;
-  place-items: center;
-  height: 2.75rem;
-  width: 2.75rem;
-  border-radius: 999px;
-  border: 1.5px solid var(--color-plum);
-  background: var(--color-cream);
-  font-weight: 800;
-  font-size: 1.15rem;
-  color: var(--color-plum);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--color-mute);
 }
 
 .btn {
@@ -132,11 +166,15 @@ body {
   padding: 0.8rem 1.5rem;
   font-size: 1rem;
 }
+.btn-sm {
+  padding: 0.3rem 0.85rem;
+  font-size: 0.75rem;
+}
 
 .card {
   background: var(--color-panel);
-  border: 1.5px solid var(--color-line);
-  border-radius: 1rem;
+  border: 1px solid var(--color-line);
+  border-radius: 0.75rem;
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.02);
 }
 

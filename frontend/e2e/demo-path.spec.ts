@@ -103,20 +103,12 @@ test("demo path: raw loses ~18%, protected rejects the cheat and fills honestly,
     await expect(page.getByTestId("mint-button")).toBeVisible();
     await expect(page.getByText("54.2% as malicious")).toBeVisible();
     await expect(page.getByText(/26\.4% as .{0,3}likely malicious/)).toBeVisible();
-    // the landing page: an illustrated city, one district per idea, each explained in text
-    await expect(page.getByTestId("city-map")).toBeVisible();
-    await page.getByTestId("district-tower").click();
-    await expect(page.getByTestId("district-info")).toContainText("statusOf(hook) and toleranceBps(hook)");
-    await page.getByTestId("district-uniswap").click();
-    await expect(page.getByTestId("district-info")).toContainText("not affiliated with Uniswap Labs");
-    await page.getByTestId("district-harbour").click();
-    await expect(page.getByTestId("district-info")).toContainText("Monad charges the gas limit");
-    await expect(page.getByTestId("district-info")).toContainText("chain 10143");
-    await expect(page.getByTestId("villain-pills").locator("li")).toHaveCount(7);
+    // the landing page: a live scoreboard widget, the problem, the numbers, the three steps
+    await expect(page.getByTestId("hero-board")).toBeVisible();
+    await expect(page.getByTestId("hero-board").locator("li").first()).toBeVisible();
     await expect(page.getByTestId("focus-cards").locator("> article")).toHaveCount(3);
     for (const id of ["focus-uniswap", "focus-monad", "focus-envio"]) await expect(page.getByTestId(id)).toBeVisible();
     await expect(page.getByTestId("not-doing")).toContainText("do not claim to catch real third-party malicious hooks");
-    await expect(page.getByTestId("tiers").locator("> div")).toHaveCount(3);
     await expect(page.getByTestId("site-footer")).toContainText("Built with AI coding tools (Claude Code)");
     await expect(page.getByTestId("site-footer")).toContainText("not affiliated with Uniswap Labs");
     await expect(page.getByTestId("lie-diagram")).toBeVisible();
@@ -255,8 +247,8 @@ test("demo path: raw loses ~18%, protected rejects the cheat and fills honestly,
     await expect(page.getByTestId("not-run")).toContainText("not caught by the router");
 
     // ------------------------------------------------ integrate
-    await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Integrate", exact: true }).click();
-    await expect(page.getByRole("heading", { name: "Integrate" })).toBeVisible();
+    await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Developers", exact: true }).click();
+    await expect(page.getByRole("heading", { name: "Developers" })).toBeVisible();
     await expect(page.getByText("statusOf").first()).toBeVisible();
     await expect(page.getByText("toleranceBps").first()).toBeVisible();
     await expect(page.getByText(deploymentsFile().core.scoreboard.address).first()).toBeVisible();

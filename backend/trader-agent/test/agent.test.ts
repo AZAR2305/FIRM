@@ -116,9 +116,27 @@ describe("LLM trader loop", () => {
     expect(outcomeOf(trace).error).toMatch(/never executed/);
   });
 
+  it("tells the model when the provider rejects its tool arguments, and lets it correct itself", async () => {
+    let n = 0;
+    const bodies: string[] = [];
+    const fetchFn = (async (_u: string, init: RequestInit) => {
+      bodies.push(String(init.body));
+      if (++n === 1) return new Response('{"error":{"message":"tool call validation failed: parameters for tool quote did not match schema"}}', { status: 400 });
+      return new Response(JSON.stringify({ choices: [{ message: { role: "assistant", content: "done" } }] }), { status: 200 });
+    }) as unknown as typeof fetch;
+    const trace = await runLlmTrader({ llm, source: new FakeSource(), task: "t", fetchFn, sleepFn: async () => undefined });
+    expect(trace.finalText).toBe("done");
+    expect(JSON.parse(bodies[1]!).messages.at(-1).content).toContain("Your last tool call was rejected");
+  });
+
+  it("gives up on repeated tool-argument rejections instead of looping", async () => {
+    const fetchFn = (async () => new Response("tool call validation failed: x", { status: 400 })) as unknown as typeof fetch;
+    await expect(runLlmTrader({ llm, source: new FakeSource(), task: "t", fetchFn, sleepFn: async () => undefined })).rejects.toThrow("HTTP 400");
+  });
+
   it("surfaces endpoint failures", async () => {
     const fetchFn = (async () => new Response("rate limited", { status: 429 })) as unknown as typeof fetch;
-    await expect(runLlmTrader({ llm, source: new FakeSource(), task: "t", fetchFn })).rejects.toThrow("HTTP 429");
+    await expect(runLlmTrader({ llm, source: new FakeSource(), task: "t", fetchFn, sleepFn: async () => undefined })).rejects.toThrow("HTTP 429");
   });
 });
 
@@ -185,5 +203,44 @@ describe("end to end over the real MCP protocol (firm-mcp server <-> McpToolSour
     expect(r.isError).toBe(false);
     expect(JSON.parse(r.text).routes[0].quotedOut).toBe("999");
     await source.close();
+  });
+});
+
+import { postWithRateLimitRetry, waitSeconds } from "../src/llmAgent";
+
+describe("rate-limit retry", () => {
+  it("reads the wait from retry-after and x-ratelimit-reset-tokens formats", () => {
+    expect(waitSeconds("12")).toBe(12);
+    expect(waitSeconds("38.5s")).toBe(38.5);
+    expect(waitSeconds("1m4.8s")).toBeCloseTo(64.8);
+    expect(waitSeconds(null)).toBe(20);
+    expect(waitSeconds("soon")).toBe(20);
+  });
+
+  it("waits and retries a 429, then returns the success; other statuses are returned untouched", async () => {
+    const waits: number[] = [];
+    let n = 0;
+    const f = (async () => (++n < 3 ? new Response("slow down", { status: 429, headers: { "retry-after": "3" } }) : new Response("ok", { status: 200 }))) as unknown as typeof fetch;
+    const res = await postWithRateLimitRetry(f, "http://x", { method: "POST" }, async (ms) => void waits.push(ms));
+    expect(res.status).toBe(200);
+    expect(n).toBe(3);
+    expect(waits).toEqual([4000, 4000]);
+    const bad = (async () => new Response("no", { status: 401 })) as unknown as typeof fetch;
+    expect((await postWithRateLimitRetry(bad, "http://x", {}, async () => { throw new Error("must not wait"); })).status).toBe(401);
+  });
+
+  it("backs off exponentially on 503 over capacity", async () => {
+    const waits: number[] = [];
+    let n = 0;
+    const f = (async () => (++n < 4 ? new Response("over capacity", { status: 503 }) : new Response("ok", { status: 200 }))) as unknown as typeof fetch;
+    expect((await postWithRateLimitRetry(f, "http://x", {}, async (ms) => void waits.push(ms))).status).toBe(200);
+    expect(waits).toEqual([6000, 11000, 21000]);
+  });
+
+  it("gives up after 5 tries and returns the last 429", async () => {
+    let n = 0;
+    const f = (async () => (++n, new Response("x", { status: 429 }))) as unknown as typeof fetch;
+    expect((await postWithRateLimitRetry(f, "http://x", {}, async () => undefined)).status).toBe(429);
+    expect(n).toBe(5);
   });
 });

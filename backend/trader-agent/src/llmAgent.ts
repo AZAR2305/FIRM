@@ -39,6 +39,29 @@ interface ChatMessage {
   tool_call_id?: string;
 }
 
+/** "12" or "38.7s" or "1m4.8s" (retry-after / x-ratelimit-reset-*) to seconds; 20 when the header is missing or unreadable */
+export function waitSeconds(header: string | null): number {
+  if (!header) return 20;
+  if (/^[0-9.]+$/.test(header)) return Number(header);
+  const m = /^(?:([0-9]+)m)?([0-9.]+)s$/.exec(header);
+  return m ? Number(m[1] ?? 0) * 60 + Number(m[2]) : 20;
+}
+
+/**
+ * POST that waits and retries on HTTP 429 (a free tier allows only so many tokens per minute) and 503 (provider over capacity). A 429 wait follows
+ * the server's retry-after / x-ratelimit-reset-tokens header, a 503 backs off exponentially; both are capped at 65 s, for at most 5 tries. Any other status is returned as it is. Waiting never changes what the
+ * model is asked, only when.
+ */
+export async function postWithRateLimitRetry(fetchFn: typeof fetch, url: string, init: RequestInit, sleep: (ms: number) => Promise<void> = (ms) => new Promise((r) => setTimeout(r, ms))): Promise<Response> {
+  for (let attempt = 1; ; attempt++) {
+    const res = await fetchFn(url, { ...init, signal: AbortSignal.timeout(60_000) });
+    if ((res.status !== 429 && res.status !== 503) || attempt >= 5) return res;
+    // 429: the server says how long. 503 ("over capacity"): back off 5, 10, 20, 40 s.
+    const seconds = res.status === 503 ? 5 * 2 ** (attempt - 1) : waitSeconds(res.headers.get("retry-after") ?? res.headers.get("x-ratelimit-reset-tokens"));
+    await sleep(Math.min(65, Math.max(2, seconds + 1)) * 1000);
+  }
+}
+
 /**
  * Tool-calling loop over any OpenAI-compatible chat-completions endpoint (Kimi, Qwen, ...). The model chooses which
  * tool to call; the tools run through the MCP server, where FirmRouter makes every fund and status decision. The model
@@ -51,6 +74,8 @@ export async function runLlmTrader(opts: {
   task: string;
   maxSteps?: number;
   fetchFn?: typeof fetch;
+  /** how to wait out a rate limit (tests pass a no-op) */
+  sleepFn?: (ms: number) => Promise<void>;
 }): Promise<AgentTrace> {
   const { llm, source, task } = opts;
   const maxSteps = opts.maxSteps ?? 8;
@@ -64,14 +89,29 @@ export async function runLlmTrader(opts: {
   ];
   const trace: AgentTrace = { mode: "llm", steps: [], finalText: "", turns: 0, stoppedBy: "max_steps" };
 
+  let corrections = 0;
   for (let turn = 0; turn < maxSteps; turn++) {
-    const res = await fetchFn(`${llm.baseUrl}/chat/completions`, {
-      method: "POST",
-      headers: { "content-type": "application/json", authorization: `Bearer ${llm.apiKey}` },
-      signal: AbortSignal.timeout(60_000),
-      body: JSON.stringify({ model: llm.model, temperature: 0, messages, tools: toolDefs, tool_choice: "auto" }),
-    });
-    if (!res.ok) throw new Error(`LLM endpoint returned HTTP ${res.status}: ${(await res.text()).slice(0, 200)}`);
+    const res = await postWithRateLimitRetry(
+      fetchFn,
+      `${llm.baseUrl}/chat/completions`,
+      {
+        method: "POST",
+        headers: { "content-type": "application/json", authorization: `Bearer ${llm.apiKey}` },
+        body: JSON.stringify({ model: llm.model, temperature: 0, messages, tools: toolDefs, tool_choice: "auto" }),
+      },
+      opts.sleepFn,
+    );
+    if (!res.ok) {
+      const text = (await res.text()).slice(0, 400);
+      // some providers validate tool arguments themselves and answer HTTP 400. Tell the model what was wrong, as a real agent loop would,
+      // and let it try again (twice at most per task); every other failure still surfaces as an error.
+      if (res.status === 400 && /tool call validation failed/i.test(text) && corrections < 2) {
+        corrections++;
+        messages.push({ role: "user", content: `Your last tool call was rejected: ${text.slice(0, 300)} Call the tool again with valid arguments (token addresses are 0x-prefixed 40-hex-digit strings, amounts are decimal strings).` });
+        continue;
+      }
+      throw new Error(`LLM endpoint returned HTTP ${res.status}: ${text.slice(0, 200)}`);
+    }
     const body = (await res.json()) as { choices?: { message?: ChatMessage }[] };
     const msg = body.choices?.[0]?.message;
     if (!msg) throw new Error("LLM endpoint returned no message");

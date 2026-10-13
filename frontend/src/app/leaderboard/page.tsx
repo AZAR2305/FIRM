@@ -6,10 +6,10 @@ export const metadata = { title: "Leaderboard | FIRM" };
 
 export default function LeaderboardPage() {
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-extrabold">Hook leaderboard</h1>
-        <p className="mt-1 max-w-3xl text-sm text-mute">
+    <div className="space-y-12">
+      <div className="page-head">
+        <h1 className="page-title">Hook leaderboard</h1>
+        <p className="page-lead">
           Every hook the protected router and the canary have measured. A strike is recorded when a pool&apos;s real fill falls short of its own quote,
           and anyone can read it on-chain. The hooks listed here are our own test fixtures.
         </p>

@@ -22,7 +22,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <Providers>
           <TestnetBanner />
           <SiteHeader />
-          <main className="mx-auto w-full max-w-6xl px-4 py-10">{children}</main>
+          <main className="mx-auto w-full max-w-6xl px-5 py-12 sm:px-6 sm:py-16">{children}</main>
           <SiteFooter />
         </Providers>
       </body>

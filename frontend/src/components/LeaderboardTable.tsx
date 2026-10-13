@@ -47,9 +47,9 @@ function Inner() {
               <th scope="col">Status</th>
               <th scope="col" className="text-right">Fills</th>
               <th scope="col" className="text-right">Strikes</th>
-              <th scope="col" className="text-right">Probes</th>
-              <th scope="col" className="text-right">Avg shortfall</th>
-              <th scope="col">Last strike</th>
+              <th scope="col" className="hidden text-right md:table-cell">Probes</th>
+              <th scope="col" className="hidden text-right md:table-cell">Avg shortfall</th>
+              <th scope="col" className="hidden md:table-cell">Last strike</th>
             </tr>
           </thead>
           <tbody>
@@ -67,12 +67,12 @@ function Inner() {
                 </td>
                 <td className="mono text-right">{r.fills}</td>
                 <td className="mono text-right">{r.strikes}</td>
-                <td className="mono text-right">
+                <td className="mono hidden text-right md:table-cell">
                   {r.probes}
                   {r.probeStrikes > 0 ? <span className="text-bad"> ({r.probeStrikes} struck)</span> : null}
                 </td>
-                <td className="mono text-right">{r.avgShortfallBps == null ? "-" : pct(BigInt(Math.round(r.avgShortfallBps)))}</td>
-                <td className="whitespace-nowrap">{now == null ? "..." : relativeTime(r.lastStrikeAt, now)}</td>
+                <td className="mono hidden text-right md:table-cell">{r.avgShortfallBps == null ? "-" : pct(BigInt(Math.round(r.avgShortfallBps)))}</td>
+                <td className="hidden whitespace-nowrap md:table-cell">{now == null ? "..." : relativeTime(r.lastStrikeAt, now)}</td>
               </tr>
             ))}
           </tbody>

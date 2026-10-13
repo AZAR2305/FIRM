@@ -1,0 +1,84 @@
+{
+  "generatedAt": "2026-10-13T13:17:52.209Z",
+  "mode": "llm",
+  "model": "qwen/qwen3.8-27b",
+  "trials": 2,
+  "runs": [
+    {
+      "i": 1,
+      "amountIn": "100",
+      "unprotected": {
+        "ok": true,
+        "tool": "raw_swap",
+        "pool": "FixtureQuoteOnlyHook (dynamic fee)",
+        "bestQuote": "99.999851400165864535",
+        "paidLegQuote": "99.999851400165864535",
+        "received": "98.999852985163980368",
+        "hiddenLossBps": 99,
+        "costVsBestQuoteBps": 99,
+        "txHash": "0x6574ea1eee5162d9fec20e005a84d0bb389a91dd2cd2e21696f33272fdbdc77f",
+        "rejectedLegs": 0,
+        "steps": 2
+      },
+      "protected": {
+        "ok": false,
+        "tool": null,
+        "pool": null,
+        "bestQuote": null,
+        "paidLegQuote": null,
+        "received": "0",
+        "hiddenLossBps": 0,
+        "costVsBestQuoteBps": 0,
+        "txHash": null,
+        "rejectedLegs": 0,
+        "steps": 0,
+        "error": "LLM endpoint returned HTTP 400: {\"error\":{\"message\":\"tool call validation failed: parameters for tool firm_swap did not match schema: errors: [`/tokenOut`: expected string, but got number]\",\"type\":\"in"
+      }
+    },
+    {
+      "i": 2,
+      "amountIn": "200",
+      "unprotected": {
+        "ok": true,
+        "tool": "raw_swap",
+        "pool": "FixtureQuoteOnlyHook (dynamic fee)",
+        "bestQuote": "199.999643200479397825",
+        "paidLegQuote": "199.999643200479397825",
+        "received": "197.999647164473505344",
+        "hiddenLossBps": 99,
+        "costVsBestQuoteBps": 99,
+        "txHash": "0xe74b45bcfe9d6903198989d832ef2adf9e3713b85accacc7e4f2f0b949a10a5a",
+        "rejectedLegs": 0,
+        "steps": 2
+      },
+      "protected": {
+        "ok": false,
+        "tool": null,
+        "pool": null,
+        "bestQuote": null,
+        "paidLegQuote": null,
+        "received": "0",
+        "hiddenLossBps": 0,
+        "costVsBestQuoteBps": 0,
+        "txHash": null,
+        "rejectedLegs": 0,
+        "steps": 0,
+        "error": "LLM endpoint returned HTTP 400: {\"error\":{\"message\":\"tool call validation failed: parameters for tool firm_swap did not match schema: errors: [`/tokenOut`: expected string, but got number]\",\"type\":\"in"
+      }
+    }
+  ],
+  "summary": {
+    "unprotected": {
+      "filled": 2,
+      "totalLossVsPaidQuote": "2.999994451007776648",
+      "meanHiddenLossBps": 99,
+      "meanCostVsBestQuoteBps": 99
+    },
+    "protected": {
+      "filled": 0,
+      "totalLossVsPaidQuote": "0",
+      "meanHiddenLossBps": 0,
+      "meanCostVsBestQuoteBps": 0
+    }
+  }
+}

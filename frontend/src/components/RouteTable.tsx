@@ -20,7 +20,7 @@ export function RouteTable({ plan, symbolOut }: { plan: RoutePlan; symbolOut: st
           <tr>
             <th scope="col">Try</th>
             <th scope="col">Pool</th>
-            <th scope="col">Hook</th>
+            <th scope="col" className="hidden sm:table-cell">Hook</th>
             <th scope="col">Status</th>
             <th scope="col" className="text-right">
               Quote ({symbolOut})
@@ -38,7 +38,7 @@ export function RouteTable({ plan, symbolOut }: { plan: RoutePlan; symbolOut: st
                 <strong>Pool {r.name}</strong>
                 <div className="text-xs text-mute">{r.description}</div>
               </td>
-              <td>{r.hook === "0x0000000000000000000000000000000000000000" ? <span className="text-mute">none</span> : <AddressLink address={r.hook} />}</td>
+              <td className="hidden sm:table-cell">{r.hook === "0x0000000000000000000000000000000000000000" ? <span className="text-mute">none</span> : <AddressLink address={r.hook} />}</td>
               <td>
                 <StatusChip status={r.status} />
               </td>
@@ -55,7 +55,7 @@ export function RouteTable({ plan, symbolOut }: { plan: RoutePlan; symbolOut: st
                 <strong>Pool {s.name}</strong>
                 <div className="text-xs">{s.description}</div>
               </td>
-              <td>{s.hook === "0x0000000000000000000000000000000000000000" ? "none" : shortAddress(s.hook)}</td>
+              <td className="hidden sm:table-cell">{s.hook === "0x0000000000000000000000000000000000000000" ? "none" : shortAddress(s.hook)}</td>
               <td colSpan={3} className="text-xs">
                 {SKIP_TEXT[s.reason]}
               </td>

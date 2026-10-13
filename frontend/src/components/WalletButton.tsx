@@ -21,13 +21,13 @@ export function WalletButton() {
       <div className="flex flex-col items-end gap-1">
         <button
           type="button"
-          className="btn btn-primary"
+          className="btn btn-primary btn-sm"
           disabled={isPending || hasWallet === false}
+          title={hasWallet === false ? "No browser wallet found. Install MetaMask or a similar wallet." : undefined}
           onClick={() => connect({ connector: connectors[0]!, chainId: monadTestnet.id })}
         >
-          {isPending ? "Connecting..." : "Connect wallet"}
+          {isPending ? "Connecting..." : hasWallet === false ? "No wallet detected" : "Connect wallet"}
         </button>
-        {hasWallet === false ? <span className="text-xs text-mute">No browser wallet found. Install MetaMask or similar.</span> : null}
         {error ? <span className="max-w-64 text-right text-xs text-bad">{error.message.split("\n")[0]}</span> : null}
       </div>
     );

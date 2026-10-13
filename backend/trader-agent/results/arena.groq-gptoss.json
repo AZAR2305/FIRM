@@ -1,0 +1,84 @@
+{
+  "generatedAt": "2026-10-13T13:24:16.416Z",
+  "mode": "llm",
+  "model": "openai/gpt-oss-120b",
+  "trials": 2,
+  "runs": [
+    {
+      "i": 1,
+      "amountIn": "100",
+      "unprotected": {
+        "ok": true,
+        "tool": "raw_swap",
+        "pool": "hookless baseline",
+        "bestQuote": "99.999792000324729549",
+        "paidLegQuote": "99.749930349599223175",
+        "received": "99.749930349599223175",
+        "hiddenLossBps": 0,
+        "costVsBestQuoteBps": 24,
+        "txHash": "0xc6f6f8648841613708944beae8847ab0a98f5ebc0c3a918d59c8a4e748805225",
+        "rejectedLegs": 0,
+        "steps": 6
+      },
+      "protected": {
+        "ok": true,
+        "tool": "firm_swap",
+        "pool": null,
+        "bestQuote": "99.999772200389445707",
+        "paidLegQuote": "99.819775667179827936",
+        "received": "99.819775667179827936",
+        "hiddenLossBps": 0,
+        "costVsBestQuoteBps": 17,
+        "txHash": "0xb760fffc05b41066554f8a1a0df5ad7c8d2c667c6a8ae4e86cb2c37cfb43efef",
+        "rejectedLegs": 1,
+        "steps": 4
+      }
+    },
+    {
+      "i": 2,
+      "amountIn": "200",
+      "unprotected": {
+        "ok": false,
+        "tool": "raw_swap",
+        "pool": null,
+        "bestQuote": "199.999524400850231245",
+        "paidLegQuote": null,
+        "received": "0",
+        "hiddenLossBps": 0,
+        "costVsBestQuoteBps": 0,
+        "txHash": null,
+        "rejectedLegs": 0,
+        "steps": 8,
+        "error": "unexpected error: Missing or invalid parameters."
+      },
+      "protected": {
+        "ok": false,
+        "tool": "firm_swap",
+        "pool": null,
+        "bestQuote": "199.999445201156259254",
+        "paidLegQuote": null,
+        "received": "0",
+        "hiddenLossBps": 0,
+        "costVsBestQuoteBps": 0,
+        "txHash": null,
+        "rejectedLegs": 0,
+        "steps": 7,
+        "error": "unexpected error: Missing or invalid parameters."
+      }
+    }
+  ],
+  "summary": {
+    "unprotected": {
+      "filled": 1,
+      "totalLossVsPaidQuote": "0",
+      "meanHiddenLossBps": 0,
+      "meanCostVsBestQuoteBps": 24
+    },
+    "protected": {
+      "filled": 1,
+      "totalLossVsPaidQuote": "0",
+      "meanHiddenLossBps": 0,
+      "meanCostVsBestQuoteBps": 17
+    }
+  }
+}

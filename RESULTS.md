@@ -149,5 +149,5 @@ These are tests (`contracts/test/GasCaps.t.sol`), not benchmark runs; they pin b
 * Testnet gas (Monad's repriced schedule) will change B5, the deployment cost and possibly the right gas caps. A hook that needs more
   gas than the leg cap is treated as failed when the leg had its full gas; with a cap that is too tight that is a false strike.
 * A real-world hook population may contain hooks that discriminate on the caller; the canary is an arms race, see THREAT_MODEL.md.
-* The arena has not been run with a language model. With an LLM the protected arm should behave identically (the model only chooses
+* The 20-trial arena has not been run with a language model (a 2-trial smoke test with Groq models on Monad Testnet is in docs/BOUNTIES.md; it is not a benchmark). With an LLM the protected arm should behave identically (the model only chooses
   tools); the unprotected arm could differ if the model decides not to trust the best quote. That has not been measured.

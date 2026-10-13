@@ -15,11 +15,11 @@ export function SiteFooter() {
         <div className={col}>
           <p className={h}>Product</p>
           <p><Link href="/pitch">Pitch (6 slides)</Link></p>
-          <p><Link href="/demo">Guided demo</Link></p>
+          <p><Link href="/demo">Guided walkthrough</Link></p>
           <p><Link href="/swap">Swap: raw vs protected</Link></p>
           <p><Link href="/leaderboard">Hook leaderboard</Link></p>
           <p><Link href="/proof">Proof</Link></p>
-          <p><Link href="/integrate">Integrate</Link></p>
+          <p><Link href="/integrate">Developers</Link></p>
         </div>
         <div className={col}>
           <p className={h}>Evidence and docs</p>

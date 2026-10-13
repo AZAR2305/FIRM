@@ -39,8 +39,8 @@ export default function ProofPage() {
   const d = deployments;
   if (!d) {
     return (
-      <div className="space-y-6">
-        <h1 className="text-2xl font-extrabold">Proof</h1>
+      <div className="space-y-12">
+        <h1 className="page-title">Proof</h1>
         <NotDeployed />
       </div>
     );
@@ -50,9 +50,9 @@ export default function ProofPage() {
   const fixtures = Object.entries(d.fixtures);
   return (
     <div className="space-y-10">
-      <div>
-        <h1 className="text-2xl font-extrabold">Proof, with sources</h1>
-        <p className="mt-1 max-w-3xl text-sm text-mute">
+      <div className="page-head">
+        <h1 className="page-title">Proof, with sources</h1>
+        <p className="page-lead">
           Everything here can be checked by you: each item links to the block explorer, and the numbers come from reading the chain, not from us. Hooks and pools are our own
           test fixtures, so this proves the mechanism works, not that real third-party hooks are caught.
         </p>

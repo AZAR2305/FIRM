@@ -57,7 +57,7 @@ script on the real chain; the limits are now set from the real measurements.
 * The 20-trial benchmark B1 to B8 (about 560 transactions) was not run on the testnet; its results are from a fork and labelled so.
 * We have not shown that real third-party malicious hooks are caught. The cheating hooks are our own fixtures.
 * A hook that is honest to the router and cheats other callers is not caught by the router (0 of 20 in the fork benchmark); only the canary can catch it, and a hook that recognises probes defeats it.
-* No language model has run: the arena is a scripted trader. Kimi and Qwen paths are implemented and tested against a mock only.
+* The 20-trial arena is a scripted trader. A real model (Groq) drove the agent in a 2-trial smoke test on the testnet, with failures documented in `docs/BOUNTIES.md`; it also writes the hook summaries on the live site. We do not claim the Kimi or Alibaba bounties.
 * One owner key controls the Scoreboard (it cannot move user funds). No timelock, no multisig.
 * Gas caps trade false positives against griefing cost; the leg cap's margin over the heaviest fixture is only bounded from below on Monad (at least 1.29x).
 
