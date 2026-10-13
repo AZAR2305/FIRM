@@ -50,7 +50,7 @@ script on the real chain; the limits are now set from the real measurements.
 * Deployment: one command (`contracts/script/Redeploy.sh`) with a balance preflight and an explicit gas limit on all 37 transactions; 14 contracts verified.
 * Real demo swap: raw router 819.1792; FIRM rejected the cheating pool (quoted 998.997, delivered 819.1775, 1,799 bps), struck it, and filled the honest pool at 998.1997. Both transactions are linked on the proof page.
 * Envio HyperIndex over HyperSync indexes the contracts and powers the leaderboard, activity feed and hook pages; `check-indexer` agrees with the Scoreboard for all 7 hooks.
-* Frontend: landing (problem, evidence, cost), a guided judge demo, swap (raw vs protected, approval, simulation, timeline from receipt logs, a cheat picker), leaderboard, hook pages, proof, integrate; a block-explorer link after every transaction. Tested in a real browser against a fork and against the real testnet, failing on any console error.
+* Frontend: landing (a live scoreboard, the problem, evidence, cost), **Swap by message** (`/agent`: a chat box; a model proposes the order, fixed rules validate it, FIRM quotes every pool, and the user signs in their own wallet; amount, direction and recipient prefill the Swap screen), a business case page (`/business`, with every revenue path marked as a proposal), a six-slide pitch, a guided walkthrough, swap (raw vs protected, approval, simulation, timeline from receipt logs, a cheat picker), leaderboard, hook pages, proof, integrate; a block-explorer link after every transaction. Tested in a real browser against a fork and against the real testnet, failing on any console error.
 
 ## What we did not do, and what we do not claim
 

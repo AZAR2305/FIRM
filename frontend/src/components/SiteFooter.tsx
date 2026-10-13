@@ -17,6 +17,8 @@ export function SiteFooter() {
           <p><Link href="/pitch">Pitch (6 slides)</Link></p>
           <p><Link href="/demo">Guided walkthrough</Link></p>
           <p><Link href="/swap">Swap: raw vs protected</Link></p>
+          <p><Link href="/agent">Swap by message (agent)</Link></p>
+          <p><Link href="/business">Business case</Link></p>
           <p><Link href="/leaderboard">Hook leaderboard</Link></p>
           <p><Link href="/proof">Proof</Link></p>
           <p><Link href="/integrate">Developers</Link></p>

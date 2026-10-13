@@ -143,6 +143,26 @@ export default function Landing() {
         </p>
       </section>
 
+      {/* ------------------------------------------------ agent + business teasers */}
+      <section aria-labelledby="agent" className="grid gap-5 md:grid-cols-2">
+        <div className="card flex flex-col items-start gap-4 p-8" data-testid="agent-teaser">
+          <p className="eyebrow">For agents</p>
+          <h2 id="agent" className="text-2xl font-semibold tracking-tight">Swap by message</h2>
+          <p className="copy">
+            Write &ldquo;swap 250 tUSD to tUSDC and send it to 0x&hellip;&rdquo;. The agent reads it, quotes every pool through FIRM and prepares the swap. Your wallet signs; the agent holds no keys.
+          </p>
+          <Link href="/agent" className="btn no-underline">Open the agent</Link>
+        </div>
+        <div className="card flex flex-col items-start gap-4 p-8" data-testid="business-teaser">
+          <p className="eyebrow">The business</p>
+          <h2 className="text-2xl font-semibold tracking-tight">Who pays, and why</h2>
+          <p className="copy">
+            Quotes that lie are a silent fee on traders and agents. We lay out four ways this could earn, and say plainly that none is live and no customer has used it.
+          </p>
+          <Link href="/business" className="btn no-underline">Read the business case</Link>
+        </div>
+      </section>
+
       {/* ------------------------------------------------ who it is for */}
       <section aria-labelledby="who">
         <div className="section-head">

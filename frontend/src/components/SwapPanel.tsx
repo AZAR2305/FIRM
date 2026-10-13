@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useAccount, useChainId, usePublicClient } from "wagmi";
 import { getWalletClient } from "wagmi/actions";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import type { Address, Hex } from "viem";
+import { isAddress, type Address, type Hex } from "viem";
 import { GAS, monadTestnet } from "@/lib/config";
 import { deployments, mustDeployments, poolNameById, tokens } from "@/lib/deployments";
 import { fmt, parseAmount, shortAddress } from "@/lib/format";
@@ -53,8 +53,12 @@ function SwapInner() {
   const qc = useQueryClient();
   const t = tokens(d);
 
-  const [from, setFrom] = useState<Symbol>("tUSD");
-  const [amountText, setAmountText] = useState("1000");
+  // a link from the agent page (or anyone) can prefill the order: ?amount=250&from=tUSD&to=0x... . Each value is validated; anything else is ignored.
+  const amountParam = params.get("amount");
+  const toParam = params.get("to");
+  const recipientOverride = toParam && isAddress(toParam) ? (toParam as Address) : null;
+  const [from, setFrom] = useState<Symbol>(params.get("from") === "tUSDC" ? "tUSDC" : "tUSD");
+  const [amountText, setAmountText] = useState(amountParam && /^[0-9]{1,12}([.][0-9]{1,6})?$/.test(amountParam) ? amountParam : "1000");
   const modeParam = params.get("mode");
   const [mode, setMode] = useState<Mode>(modeParam === "protected" ? "protected" : modeParam === "raw" ? "raw" : demo ? "raw" : "protected");
   // demo only: which of our own cheating fixtures a naive aggregator "ranked first". undefined = the guide's default, null = none
@@ -105,15 +109,15 @@ function SwapInner() {
       if (!plan.data || protectedRoutes.length === 0) return null;
       const routes = toCalldataRoutes(protectedRoutes, zeroForOne);
       const deadline = BigInt(Math.floor(Date.now() / 1000) + 1200);
-      return { address: d.core.firmRouter.address, abi: d.abis.FirmRouter, functionName: "swapExactIn", args: [routes, amountIn, 0n, address, deadline] as const, routes: protectedRoutes };
+      return { address: d.core.firmRouter.address, abi: d.abis.FirmRouter, functionName: "swapExactIn", args: [routes, amountIn, 0n, recipientOverride ?? address, deadline] as const, routes: protectedRoutes };
     }
     if (!rawPool || rawPool.quotedOut == null) return null;
     const route: RouteT = { key: rawPool.key, zeroForOne, hookData: "0x", advertisedOut: 0n };
-    return { address: d.core.rawRouter.address, abi: d.abis.RawRouter, functionName: "swapExactInRaw", args: [route, amountIn, 0n, address] as const, routes: [] };
+    return { address: d.core.rawRouter.address, abi: d.abis.RawRouter, functionName: "swapExactInRaw", args: [route, amountIn, 0n, recipientOverride ?? address] as const, routes: [] };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [address, amountIn, mode, plan.data, protectedRoutes, rawPool, zeroForOne]);
+  }, [address, amountIn, mode, plan.data, protectedRoutes, rawPool, zeroForOne, recipientOverride]);
 
-  const callSig = call ? `${call.functionName}:${mode}:${amountIn}:${call.routes.map((r) => r.poolId).join(",")}:${rawPool?.name ?? ""}` : "none";
+  const callSig = call ? `${call.functionName}:${mode}:${amountIn}:${recipientOverride ?? ""}:${call.routes.map((r) => r.poolId).join(",")}:${rawPool?.name ?? ""}` : "none";
 
   // ---- simulateContract before sending (spec 12.3), plus the gas limit that will be sent
   const sim = useQuery({
@@ -208,6 +212,11 @@ function SwapInner() {
         <h2 id="order-h" className="text-lg font-bold">
           Your swap
         </h2>
+        {recipientOverride ? (
+          <p className="rounded-md border border-warn/50 bg-warn/10 p-3 text-sm" data-testid="recipient-note">
+            The output will be sent to <span className="mono break-all">{recipientOverride}</span>, not to your wallet. Check the address before you sign.
+          </p>
+        ) : null}
         {demo ? (
           <p className="rounded-md border border-brand/50 bg-brand/10 p-3 text-sm" data-testid="demo-note">
             Demo preset: the unprotected router is pointed at Pool B, the fixture hook that quotes the best price and hides a fee of about 18% when it
