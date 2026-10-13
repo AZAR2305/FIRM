@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "@/components/Providers";
 import { TestnetBanner } from "@/components/TestnetBanner";
 import { SiteHeader } from "@/components/SiteHeader";
+import { SiteFooter } from "@/components/SiteFooter";
 
 export const metadata: Metadata = {
   title: "FIRM: quotes that keep their word",
@@ -17,11 +18,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <Providers>
           <TestnetBanner />
           <SiteHeader />
-          <main className="mx-auto w-full max-w-6xl px-4 py-8">{children}</main>
-          <footer className="mx-auto max-w-6xl px-4 pb-10 pt-4 text-xs text-mute">
-            Testnet demo. The misbehaving hooks shown here are our own test fixtures; this site does not claim to catch any real
-            third-party hook. Built with AI coding tools (Claude Code).
-          </footer>
+          <main className="mx-auto w-full max-w-6xl px-4 py-10">{children}</main>
+          <SiteFooter />
         </Providers>
       </body>
     </html>

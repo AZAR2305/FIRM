@@ -103,6 +103,22 @@ test("demo path: raw loses ~18%, protected rejects the cheat and fills honestly,
     await expect(page.getByTestId("mint-button")).toBeVisible();
     await expect(page.getByText("54.2% as malicious")).toBeVisible();
     await expect(page.getByText(/26\.4% as .{0,3}likely malicious/)).toBeVisible();
+    // the landing page: an illustrated city, one district per idea, each explained in text
+    await expect(page.getByTestId("city-map")).toBeVisible();
+    await page.getByTestId("district-tower").click();
+    await expect(page.getByTestId("district-info")).toContainText("statusOf(hook) and toleranceBps(hook)");
+    await page.getByTestId("district-uniswap").click();
+    await expect(page.getByTestId("district-info")).toContainText("not affiliated with Uniswap Labs");
+    await page.getByTestId("district-harbour").click();
+    await expect(page.getByTestId("district-info")).toContainText("Monad charges the gas limit");
+    await expect(page.getByTestId("district-info")).toContainText("chain 10143");
+    await expect(page.getByTestId("villain-pills").locator("li")).toHaveCount(7);
+    await expect(page.getByTestId("focus-cards").locator("> article")).toHaveCount(3);
+    for (const id of ["focus-uniswap", "focus-monad", "focus-envio"]) await expect(page.getByTestId(id)).toBeVisible();
+    await expect(page.getByTestId("not-doing")).toContainText("do not claim to catch real third-party malicious hooks");
+    await expect(page.getByTestId("tiers").locator("> div")).toHaveCount(3);
+    await expect(page.getByTestId("site-footer")).toContainText("Built with AI coding tools (Claude Code)");
+    await expect(page.getByTestId("site-footer")).toContainText("not affiliated with Uniswap Labs");
     await expect(page.getByTestId("lie-diagram")).toBeVisible();
     await expect(page.getByTestId("audiences").locator("> div")).toHaveCount(3);
     await expect(page.getByTestId("limits")).toContainText("20 times out of 20");
@@ -197,7 +213,7 @@ test("demo path: raw loses ~18%, protected rejects the cheat and fills honestly,
     await expect(page.getByTestId("timeline")).toContainText("Filled via Pool C");
 
     // ------------------------------------------------ leaderboard (client navigation, auto-refresh)
-    await page.getByRole("link", { name: "Leaderboard" }).click();
+    await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Leaderboard", exact: true }).click();
     await expect(page).toHaveURL(/\/leaderboard/);
     const board = page.getByTestId("leaderboard");
     await expect(board).toBeVisible({ timeout: 20_000 });
@@ -232,14 +248,14 @@ test("demo path: raw loses ~18%, protected rejects the cheat and fills honestly,
     await expect(page.getByTestId("report-mode")).toContainText("No language model was used");
 
     // ------------------------------------------------ proof page (a fork build has no evidence file and says so)
-    await page.getByRole("link", { name: "Proof" }).click();
+    await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Proof", exact: true }).click();
     await expect(page).toHaveURL(/\/proof$/);
     await expect(page.getByTestId("no-evidence")).toBeVisible();
     await expect(page.getByTestId("contracts-table").locator("tbody tr")).toHaveCount(14);
     await expect(page.getByTestId("not-run")).toContainText("not caught by the router");
 
     // ------------------------------------------------ integrate
-    await page.getByRole("link", { name: "Integrate" }).click();
+    await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Integrate", exact: true }).click();
     await expect(page.getByRole("heading", { name: "Integrate" })).toBeVisible();
     await expect(page.getByText("statusOf").first()).toBeVisible();
     await expect(page.getByText("toleranceBps").first()).toBeVisible();

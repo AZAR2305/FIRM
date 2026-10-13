@@ -34,6 +34,10 @@ test("the app built from the real deployment reads the real testnet", async ({ p
   // ---- landing: the business story, with numbers computed from the two real transactions
   await page.goto("/");
   await expect(page.getByText("LOCAL FORK BUILD")).toHaveCount(0);
+  await expect(page.getByTestId("city-map")).toBeVisible();
+  await expect(page.getByTestId("villain-pills").locator("li")).toHaveCount(7);
+  await expect(page.getByTestId("focus-monad")).toContainText("14 source-verified contracts");
+  await expect(page.getByTestId("site-footer")).toContainText("Built with AI coding tools (Claude Code)");
   await expect(page.getByTestId("lie-diagram")).toBeVisible();
   await expect(page.getByTestId("raw-number")).toHaveText("819.2");
   await expect(page.getByTestId("firm-number")).toHaveText("998.2");

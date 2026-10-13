@@ -1,27 +1,39 @@
 @import "tailwindcss";
 
+/*
+ * Visual language: a warm cream page, plum ink, blue / teal accents and playful isometric illustration, in the spirit of modern SaaS landing
+ * pages. Colours are tokens, so every page and component follows. Contrast was chosen for WCAG AA on the cream background.
+ */
 @theme {
-  --color-bg: #0a0e16;
-  --color-panel: #121927;
-  --color-panel2: #172033;
-  --color-line: #26324a;
-  --color-ink: #e8edf7;
-  --color-mute: #9aa7bf;
-  --color-brand: #8b9bff;
-  --color-ok: #34d399;
-  --color-warn: #fbbf24;
-  --color-bad: #f87171;
-  --color-idle: #a3adbd;
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --color-bg: #fff9f2;
+  --color-panel: #ffffff;
+  --color-panel2: #fff0e0;
+  --color-line: #ead9c8;
+  --color-ink: #2b2340;
+  --color-mute: #665c75;
+  --color-brand: #2f66bd;
+  --color-brand-soft: #dce8fb;
+  --color-ok: #1b7f5c;
+  --color-warn: #9a5b00;
+  --color-bad: #c0392b;
+  --color-idle: #6a6078;
+  --color-plum: #403650;
+  --color-mauve: #a8608f;
+  --color-cream: #fce4cc;
+  --color-teal: #1c7678;
+  --font-sans: ui-rounded, "Segoe UI Variable Display", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
 html {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 body {
-  background: var(--color-bg);
+  background:
+    radial-gradient(1200px 500px at 85% -10%, rgba(47, 102, 189, 0.1), transparent 60%),
+    radial-gradient(900px 500px at -10% 10%, rgba(168, 96, 143, 0.1), transparent 60%),
+    var(--color-bg);
   color: var(--color-ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
@@ -29,13 +41,19 @@ body {
 
 /* keyboard focus is always visible (spec 12.6) */
 :focus-visible {
-  outline: 2px solid var(--color-brand);
+  outline: 3px solid var(--color-brand);
   outline-offset: 2px;
-  border-radius: 4px;
+  border-radius: 6px;
 }
 
 a {
   color: var(--color-brand);
+}
+
+.display {
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.08;
 }
 
 .btn {
@@ -43,18 +61,20 @@ a {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  border-radius: 0.5rem;
-  border: 1px solid var(--color-line);
-  background: var(--color-panel2);
-  padding: 0.5rem 0.9rem;
+  border-radius: 999px;
+  border: 1.5px solid var(--color-plum);
+  background: var(--color-panel);
+  padding: 0.55rem 1.1rem;
   font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--color-ink);
+  font-weight: 700;
+  color: var(--color-plum);
   cursor: pointer;
   text-decoration: none;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 .btn:hover:not(:disabled) {
-  border-color: var(--color-brand);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 0 var(--color-plum);
 }
 .btn:disabled {
   opacity: 0.5;
@@ -62,17 +82,36 @@ a {
 }
 .btn-primary {
   background: var(--color-brand);
-  border-color: var(--color-brand);
-  color: #0a0e16;
+  border-color: var(--color-plum);
+  color: #fff;
 }
-.btn-primary:hover:not(:disabled) {
-  filter: brightness(1.08);
+.btn-lg {
+  padding: 0.8rem 1.5rem;
+  font-size: 1rem;
 }
 
 .card {
   background: var(--color-panel);
-  border: 1px solid var(--color-line);
-  border-radius: 0.75rem;
+  border: 1.5px solid var(--color-line);
+  border-radius: 1rem;
+  box-shadow: 0 2px 0 rgba(64, 54, 80, 0.06);
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 999px;
+  border: 1.5px solid var(--color-line);
+  background: var(--color-panel);
+  padding: 0.35rem 0.8rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-plum);
+  text-decoration: none;
+}
+a.pill:hover {
+  border-color: var(--color-plum);
 }
 
 .table-wrap {
@@ -85,10 +124,10 @@ table.t {
 }
 table.t th {
   text-align: left;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--color-mute);
   padding: 0.6rem 0.75rem;
-  border-bottom: 1px solid var(--color-line);
+  border-bottom: 1.5px solid var(--color-line);
   white-space: nowrap;
 }
 table.t td {
@@ -101,4 +140,32 @@ table.t tr:last-child td {
 }
 .mono {
   font-family: var(--font-mono);
+}
+
+/* the draggable city map */
+.city-viewport {
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+}
+.city-viewport:active {
+  cursor: grabbing;
+}
+.district {
+  cursor: pointer;
+}
+.district:hover .district-sign,
+.district:focus-visible .district-sign {
+  filter: brightness(0.96);
+  transform: translateY(-2px);
+}
+.district-sign {
+  transition: transform 0.12s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn,
+  .district-sign {
+    transition: none;
+  }
 }

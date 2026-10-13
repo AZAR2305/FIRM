@@ -14,6 +14,10 @@ Next.js (App Router) + Tailwind + wagmi v2 + viem + TanStack Query. Screens (spe
 
 A persistent banner says "Monad Testnet. Test tokens only.", links the faucet and has a **Mint test tokens** button (`MockToken.mint`).
 
+## Design
+
+A warm cream and plum palette (CSS tokens in `src/app/globals.css`, so every page follows), rounded pill buttons, a bento feature grid, a pill row, integration tiers by effort and a four-column footer: the *structure and feel* of a modern SaaS landing page (the reference was a Fibery-style page). **All copy and artwork are our own.** The hero is "FIRM City", an original isometric illustration generated from data (`src/components/city/`): one district per idea (Uniswap v4 Quarter, Quote Street, Hook Hill, Cheaters' Alley, Honest Park, Scoreboard Tower, Canary Coop, Monad Harbour, Envio Observatory). It is draggable, each sign is a keyboard-operable button, and the same text is listed as plain HTML under the picture. The "what we focus on" cards carry original background art (a liquidity-curve motif for Uniswap v4, a chain of blocks for Monad). Uniswap, Monad and Envio appear as plain names only: no logos are reproduced, and the footer states that FIRM is not affiliated with them.
+
 ## Data: only `deployments/10143.json`
 
 Every contract address and ABI comes from `../deployments/10143.json` (written by `contracts/script/Redeploy.sh`, which embeds the

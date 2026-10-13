@@ -409,7 +409,7 @@ function SwapInner() {
             <EmptyState title="No pool can fill this trade right now">Every candidate is blocked, over its cap or could not be quoted.</EmptyState>
           ) : plan.data ? (
             <>
-              <RouteTable plan={{ routes: protectedRoutes, skipped: plan.data.skipped }} symbolOut={to} />
+              <RouteTable plan={{ routes: protectedRoutes, skipped: plan.data.skipped.filter((k) => !protectedRoutes.some((r) => r.name === k.name)) }} symbolOut={to} />
               <p className="mt-3 text-xs text-mute">
                 Quotes are off-chain eth_calls. The protected router re-quotes every pool inside the swap transaction and compares its real fill with that
                 quote; the floor is what it enforces. Order and eligibility follow quote-api&apos;s rules and are not trusted for safety.
