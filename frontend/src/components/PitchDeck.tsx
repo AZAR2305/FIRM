@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { ExplorerTxLink } from "@/components/TxLink";
@@ -41,7 +42,10 @@ export function PitchDeck() {
       node: (
         <div className="mx-auto flex min-h-[26rem] w-full max-w-5xl flex-col items-center justify-center gap-7 text-center sm:min-h-[32rem]">
           <p className="eyebrow">Monad Metropolis · Track 1 · Onchain finance and trading</p>
-          <h1 className="display text-[5.5rem] leading-none sm:text-[10rem]" data-testid="pitch-title">FIRM</h1>
+          <div className="flex items-center justify-center gap-4 sm:gap-8">
+            <Image src="/firm-mark.png" alt="" width={326} height={416} unoptimized className="h-[5.5rem] w-auto sm:h-[10rem]" />
+            <h1 className="display text-[5.5rem] leading-none sm:text-[10rem]" data-testid="pitch-title">FIRM</h1>
+          </div>
           <p className="display text-2xl sm:text-4xl">A quote is a promise. FIRM makes pools keep it.</p>
           <p className="lead mono max-w-3xl text-base">
             A Uniswap v4 router and a public scoreboard for Monad. It checks each pool&apos;s quote against its real fill inside the same transaction, strikes the hooks that lie, and
